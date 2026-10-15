@@ -1980,6 +1980,532 @@
             </control>
         </control>
 
+        <!-- Search view -->
+        <control type="group">
+            <visible>String.IsEqual(Window.Property(view),search)</visible>
+            <!-- Like YouTube TV: going down into the results scrolls the
+                 keyboard away and brings the shelf up to the top. -->
+            <animation effect="slide" end="0,-464" time="300" tween="cubic" easing="out" condition="Control.HasFocus(403)">Conditional</animation>
+            <control type="image">
+                <left>156</left><top>67</top>
+                <width>70</width><height>70</height>
+                <texture colordiffuse="FF272727">circle.png</texture>
+            </control>
+            <control type="image">
+                <left>175</left><top>86</top>
+                <width>32</width><height>32</height>
+                <aspectratio>keep</aspectratio>
+                <texture>icon_mic.png</texture>
+            </control>
+            <control type="image">
+                <left>250</left><top>67</top>
+                <width>1030</width><height>70</height>
+                <texture border="35" colordiffuse="FF272727">pill.png</texture>
+            </control>
+            <control type="label">
+                <left>286</left><top>67</top>
+                <width>980</width><height>70</height>
+                <font>font13</font><aligny>center</aligny>
+                <textcolor>FFF1F1F1</textcolor>
+                <visible>!String.IsEmpty(Window.Property(search.query))</visible>
+                <label>$INFO[Window.Property(search.query)][COLOR FFFF0033]|[/COLOR]</label>
+            </control>
+            <control type="label">
+                <left>286</left><top>67</top>
+                <width>980</width><height>70</height>
+                <font>font13</font><aligny>center</aligny>
+                <textcolor>FFAAAAAA</textcolor>
+                <visible>String.IsEmpty(Window.Property(search.query))</visible>
+                <label>$ADDON[script.youtube.leanback 39107]</label>
+            </control>
+            <control type="image">
+                <left>1430</left><top>67</top>
+                <width>400</width><height>70</height>
+                <aspectratio align="right">keep</aspectratio>
+                <texture>$INFO[Window.Property(logo),brand_lockup_,.png]</texture>
+            </control>
+
+            <control type="list" id="402">
+                <left>156</left><top>166</top>
+                <width>500</width><height>340</height>
+                <orientation>vertical</orientation>
+                <onleft>9000</onleft>
+                <onright>400</onright>
+                <ondown>403</ondown>
+                <scrolltime>150</scrolltime>
+                <itemlayout width="500" height="68">
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>480</width><height>58</height>
+                        <visible>!false</visible>
+                        <texture border="25" colordiffuse="FF272727">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>480</width><height>58</height>
+                        <visible>false</visible>
+                        <texture border="25" colordiffuse="FFF1F1F1">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>22</left><top>15</top>
+                        <width>28</width><height>28</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!false</visible>
+                        <texture colordiffuse="FFAAAAAA">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="image">
+                        <left>22</left><top>15</top>
+                        <width>28</width><height>28</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>false</visible>
+                        <texture colordiffuse="FF0F0F0F">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="label">
+                        <left>64</left><top>0</top>
+                        <width>392</width><height>58</height>
+                        <font>font12</font>
+                        <align>left</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <focusedcolor>FFAAAAAA</focusedcolor>
+                        <visible>!false</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>64</left><top>0</top>
+                        <width>392</width><height>58</height>
+                        <font>font12</font>
+                        <align>left</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>false</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="500" height="68">
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>480</width><height>58</height>
+                        <visible>!Control.HasFocus(402)</visible>
+                        <texture border="25" colordiffuse="FF272727">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>480</width><height>58</height>
+                        <visible>Control.HasFocus(402)</visible>
+                        <texture border="25" colordiffuse="FFF1F1F1">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>22</left><top>15</top>
+                        <width>28</width><height>28</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!Control.HasFocus(402)</visible>
+                        <texture colordiffuse="FFAAAAAA">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="image">
+                        <left>22</left><top>15</top>
+                        <width>28</width><height>28</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>Control.HasFocus(402)</visible>
+                        <texture colordiffuse="FF0F0F0F">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="label">
+                        <left>64</left><top>0</top>
+                        <width>392</width><height>58</height>
+                        <font>font12</font>
+                        <align>left</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <focusedcolor>FFAAAAAA</focusedcolor>
+                        <visible>!Control.HasFocus(402)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>64</left><top>0</top>
+                        <width>392</width><height>58</height>
+                        <font>font12</font>
+                        <align>left</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>Control.HasFocus(402)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+
+            <control type="panel" id="400">
+                <left>704</left><top>164</top>
+                <width>536</width><height>268</height>
+                <orientation>vertical</orientation>
+                <onleft>402</onleft>
+                <ondown>401</ondown>
+                <scrolltime>0</scrolltime>
+                <itemlayout width="67" height="67">
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>59</width><height>59</height>
+                        <visible>false</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>67</width><height>67</height>
+                        <font>font13</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>String.IsEmpty(ListItem.Icon) + !false</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>67</width><height>67</height>
+                        <font>font13</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>String.IsEmpty(ListItem.Icon) + false</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="image">
+                        <left>18</left><top>18</top>
+                        <width>30</width><height>30</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!String.IsEmpty(ListItem.Icon) + !false</visible>
+                        <texture colordiffuse="FFAAAAAA">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="image">
+                        <left>18</left><top>18</top>
+                        <width>30</width><height>30</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!String.IsEmpty(ListItem.Icon) + false</visible>
+                        <texture colordiffuse="FF0F0F0F">$INFO[ListItem.Icon]</texture>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="67" height="67">
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>59</width><height>59</height>
+                        <visible>Control.HasFocus(400)</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>67</width><height>67</height>
+                        <font>font13</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>String.IsEmpty(ListItem.Icon) + !Control.HasFocus(400)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>67</width><height>67</height>
+                        <font>font13</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>String.IsEmpty(ListItem.Icon) + Control.HasFocus(400)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="image">
+                        <left>18</left><top>18</top>
+                        <width>30</width><height>30</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!String.IsEmpty(ListItem.Icon) + !Control.HasFocus(400)</visible>
+                        <texture colordiffuse="FFAAAAAA">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="image">
+                        <left>18</left><top>18</top>
+                        <width>30</width><height>30</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!String.IsEmpty(ListItem.Icon) + Control.HasFocus(400)</visible>
+                        <texture colordiffuse="FF0F0F0F">$INFO[ListItem.Icon]</texture>
+                    </control>
+                </focusedlayout>
+            </control>
+            <control type="list" id="401">
+                <left>704</left><top>446</top>
+                <width>536</width><height>60</height>
+                <orientation>horizontal</orientation>
+                <onup>400</onup>
+                <ondown>403</ondown>
+                <onleft>402</onleft>
+                <scrolltime>0</scrolltime>
+                <itemlayout width="148" height="60">
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <visible>!false</visible>
+                        <texture border="25" colordiffuse="FF272727">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <visible>false</visible>
+                        <texture border="25" colordiffuse="FFF1F1F1">pill.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <focusedcolor>FFAAAAAA</focusedcolor>
+                        <visible>!false</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>false</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </itemlayout>
+                <focusedlayout width="148" height="60">
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <visible>!Control.HasFocus(401)</visible>
+                        <texture border="25" colordiffuse="FF272727">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <visible>Control.HasFocus(401)</visible>
+                        <texture border="25" colordiffuse="FFF1F1F1">pill.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <focusedcolor>FFAAAAAA</focusedcolor>
+                        <visible>!Control.HasFocus(401)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>136</width><height>50</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>Control.HasFocus(401)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                </focusedlayout>
+            </control>
+
+            <control type="label">
+                <left>156</left><top>560</top>
+                <width>1600</width><height>40</height>
+                <font>font25_title</font>
+                <textcolor>FFF1F1F1</textcolor>
+                <label>$INFO[Window.Property(search.title)]</label>
+            </control>
+            <control type="group">
+                <left>0</left><top>560</top>
+                <visible>String.IsEqual(Window.Property(search.loading),true)</visible>
+                <control type="image">
+                    <left>156</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>720</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>1284</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>1848</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+            </control>
+            <control type="list" id="403">
+                <left>146</left><top>608</top>
+                <width>1774</width><height>497</height>
+                <orientation>horizontal</orientation>
+                <onleft>9000</onleft>
+                <onup>401</onup>
+                <scrolltime tween="cubic" easing="out">250</scrolltime>
+                <focusposition>0</focusposition>
+                <movement>1</movement>
+                    <itemlayout width="564" height="497">
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <aspectratio>scale</aspectratio>
+                        <fadetime>120</fadetime>
+                        <texture background="true" diffuse="mask_tile.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="progress">
+                        <left>10</left><top>301</top>
+                        <width>528</width><height>6</height>
+                        <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                        <texturebg colordiffuse="80FFFFFF">white.png</texturebg>
+                        <midtexture colordiffuse="FFFF0033">white.png</midtexture>
+                        <info>ListItem.PercentPlayed</info>
+                    </control>
+                    <control type="group">
+                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>450</left><top>263</top>
+                            <width>78</width><height>34</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>424</left><top>263</top>
+                            <width>104</width><height>34</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>263</top>
+                            <width>94</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="textbox">
+                        <left>10</left><top>329</top>
+                        <width>528</width><height>78</height>
+                        <font>Bald_InfoTagline</font>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>419</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Artist]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>453</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                    </control>
+                    </itemlayout>
+                    <focusedlayout width="564" height="497">
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <aspectratio>scale</aspectratio>
+                        <fadetime>120</fadetime>
+                        <texture background="true" diffuse="mask_tile.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="progress">
+                        <left>10</left><top>301</top>
+                        <width>528</width><height>6</height>
+                        <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                        <texturebg colordiffuse="80FFFFFF">white.png</texturebg>
+                        <midtexture colordiffuse="FFFF0033">white.png</midtexture>
+                        <info>ListItem.PercentPlayed</info>
+                    </control>
+                    <control type="group">
+                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>450</left><top>263</top>
+                            <width>78</width><height>34</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>424</left><top>263</top>
+                            <width>104</width><height>34</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>263</top>
+                            <width>94</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>540</width><height>309</height>
+                        <visible>Control.HasFocus(403)</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
+                    </control>
+                    <control type="textbox">
+                        <left>10</left><top>329</top>
+                        <width>528</width><height>78</height>
+                        <font>Bald_InfoTagline</font>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>419</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Artist]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>453</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                    </control>
+                    </focusedlayout>
+            </control>
+        </control>
+
         <!-- Grid view (search, channel, playlist, related). Filled by the
              window like the shelves, more pages appended as you scroll. -->
         <control type="group">
@@ -2214,7 +2740,8 @@
             <left>0</left><top>191</top><width>420</width><height>860</height>
             <orientation>vertical</orientation>
             <onright condition="String.IsEqual(Window.Property(view),grid)">SetFocus(200)</onright>
-            <onright condition="!String.IsEqual(Window.Property(view),grid)">SetFocus(100)</onright>
+            <onright condition="String.IsEqual(Window.Property(view),search)">SetFocus(400)</onright>
+            <onright condition="!String.IsEqual(Window.Property(view),grid) + !String.IsEqual(Window.Property(view),search)">SetFocus(100)</onright>
             <scrolltime>0</scrolltime>
             <itemlayout width="420" height="78">
                 <control type="image">

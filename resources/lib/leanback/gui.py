@@ -20,6 +20,7 @@ import xbmcgui
 
 from . import ADDON_ID, HINT_PROPERTY, PLUGIN, addon, localize, setting_bool
 from . import brand
+from . import search
 from .loader import RowLoader
 
 XML_FILE = 'script-youtube-leanback-main.xml'
@@ -29,7 +30,13 @@ ROWS_GROUP = 100
 ROW_IDS = tuple(range(101, 109))
 GRID = 200
 SEARCH_BAR = 300
-CONTENT_IDS = ROW_IDS + (GRID,)
+# Search view (see search.py): keyboard, Space/Clear/Search, suggestions,
+# results shelf.
+KEYS = 400
+KEY_ACTIONS = 401
+SUGGESTIONS = 402
+RESULTS = 403
+CONTENT_IDS = ROW_IDS + (GRID, RESULTS)
 
 FOCUS_WAIT_STEPS = 50
 # Load the next page once the selection is this close to the end of a list.
@@ -133,6 +140,9 @@ class MainWindow(xbmcgui.WindowXML):
         self._paths = {}
         self._next_pages = {}
         self._paging = set()
+        self._query = ''
+        self._key_mode = 'letters'
+        self._typing = search.Debouncer(self._refresh_search)
 
     # -- lifecycle --------------------------------------------------------
 
@@ -280,6 +290,11 @@ class MainWindow(xbmcgui.WindowXML):
                     self._paths.pop(row_id, None)
                     self.getControl(row_id).reset()
             focus = ROWS_GROUP
+        elif view['type'] == 'search':
+            self._show_search()
+            if view.get('focus_content'):
+                self.setFocusId(KEYS)
+            return
         else:
             self._loader.cancel()
             self._paging.clear()
@@ -288,6 +303,97 @@ class MainWindow(xbmcgui.WindowXML):
             focus = GRID
         if self.getFocusId() != NAV_LIST or view.get('focus_content'):
             self._focus_when_filled(focus)
+
+    # -- search -------------------------------------------------------------
+
+    def _show_search(self):
+        keys = self.getControl(KEYS)
+        if not keys.size():
+            keys.addItems(search.key_items(self._key_mode))
+            actions = self.getControl(KEY_ACTIONS)
+            for label, action in ((39120, 'space'), (39121, 'clear'),
+                                  (39100, 'search')):
+                item = xbmcgui.ListItem(localize(label))
+                item.setProperty('action', action)
+                actions.addItem(item)
+        self._set_query(self._query, refresh_now=True)
+
+    def _set_query(self, query, refresh_now=False):
+        self._query = query
+        if query:
+            self.setProperty('search.query', query)
+        else:
+            self.clearProperty('search.query')
+        if refresh_now:
+            self._typing.cancel()
+            self._refresh_search(query)
+        else:
+            self._typing.trigger(query)
+
+    def _refresh_search(self, query):
+        """Suggestions and results for what's typed, once typing pauses."""
+        if query != self._query:
+            return
+        if query:
+            suggestions = search.suggestion_items(search.fetch_suggestions(
+                query, xbmc.getLanguage(xbmc.ISO_639_1) or 'en'))
+        else:
+            suggestions = search.suggestion_items(
+                self._loader.engine.recent_searches(), history=True)
+        if query != self._query:
+            return
+        control = self.getControl(SUGGESTIONS)
+        control.reset()
+        control.addItems(suggestions)
+        if query:
+            self.setProperty('search.title', localize(39123).format(query))
+            path = PATH_SEARCH if self._has_key else PATH_KEYLESS_SEARCH
+            self._fill(RESULTS, path.format(quote_plus(query)),
+                       'search.loading')
+        else:
+            self.clearProperty('search.title')
+            self.clearProperty('search.loading')
+            self._paths.pop(RESULTS, None)
+            self.getControl(RESULTS).reset()
+
+    def _on_key(self):
+        key = self.getControl(KEYS).getSelectedItem().getProperty('key')
+        if not key:
+            return
+        if key == search.BACKSPACE:
+            self._set_query(self._query[:-1])
+        elif key == search.MODE:
+            self._key_mode = ('symbols' if self._key_mode == 'letters'
+                              else 'letters')
+            keys = self.getControl(KEYS)
+            position = keys.getSelectedPosition()
+            keys.reset()
+            keys.addItems(search.key_items(self._key_mode))
+            keys.selectItem(position)
+        else:
+            # Typed in lower case, like YouTube TV, whatever the key shows.
+            self._set_query(self._query + key.lower())
+
+    def _on_key_action(self):
+        action = self.getControl(KEY_ACTIONS).getSelectedItem().getProperty(
+            'action')
+        if action == 'space':
+            if self._query and not self._query.endswith(' '):
+                self._set_query(self._query + ' ')
+        elif action == 'clear':
+            self._set_query('')
+        elif action == 'search' and self._query.strip():
+            self._loader.engine.add_search(self._query.strip())
+            self._set_query(self._query.strip(), refresh_now=True)
+            self.setFocusId(RESULTS)
+
+    def _on_suggestion(self):
+        query = self.getControl(SUGGESTIONS).getSelectedItem().getProperty(
+            'query')
+        if query:
+            self._loader.engine.add_search(query)
+            self._set_query(query, refresh_now=True)
+            self.setFocusId(RESULTS)
 
     def _fill(self, control_id, path, loading_property, on_empty=None):
         control = self.getControl(control_id)
@@ -406,6 +512,12 @@ class MainWindow(xbmcgui.WindowXML):
     def onClick(self, control_id):
         if control_id == SEARCH_BAR:
             self._on_nav(NAV_SEARCH)
+        elif control_id == KEYS:
+            self._on_key()
+        elif control_id == KEY_ACTIONS:
+            self._on_key_action()
+        elif control_id == SUGGESTIONS:
+            self._on_suggestion()
         elif control_id == NAV_LIST:
             self._on_nav(self.getControl(NAV_LIST)
                          .getSelectedItem().getProperty('nav'))
@@ -438,12 +550,9 @@ class MainWindow(xbmcgui.WindowXML):
             self._reset_to({'type': 'rows', 'nav': key,
                             'rows': self._home_rows(), 'focus_content': True})
         elif key == NAV_SEARCH:
-            query = xbmcgui.Dialog().input(localize(39107))
-            if query:
-                path = PATH_SEARCH if self._has_key else PATH_KEYLESS_SEARCH
-                self._open_grid('{}: {}'.format(localize(39100), query),
-                                path.format(quote_plus(query)),
-                                nav=key)
+            # YouTube TV's own search screen instead of Kodi's keyboard.
+            self._reset_to({'type': 'search', 'nav': key,
+                            'focus_content': True})
         elif key == NAV_SUBSCRIPTIONS:
             if not self._signed_in:
                 xbmcgui.Dialog().notification(addon().getAddonInfo('name'),
@@ -526,5 +635,6 @@ def run():
     window = MainWindow(XML_FILE, addon().getAddonInfo('path'),
                         'Default', '1080i')
     window.doModal()
+    window._typing.cancel()  # pylint: disable=protected-access
     window._loader.shutdown()  # pylint: disable=protected-access
     del window

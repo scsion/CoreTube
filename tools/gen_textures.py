@@ -102,7 +102,25 @@ def g_mic(d, u, w):
     d.line((48 * u, 70 * u, 48 * u, 84 * u), fill=WHITE, width=w)
 
 
+def g_backspace(d, u, w):
+    d.line((34 * u, 22 * u, 84 * u, 22 * u, 84 * u, 74 * u, 34 * u, 74 * u,
+            10 * u, 48 * u, 34 * u, 22 * u), fill=WHITE, width=w,
+           joint='curve')
+    d.line((46 * u, 36 * u, 68 * u, 60 * u), fill=WHITE, width=w)
+    d.line((68 * u, 36 * u, 46 * u, 60 * u), fill=WHITE, width=w)
+
+
+def g_history(d, u, w):
+    d.arc((14 * u, 14 * u, 82 * u, 82 * u), 200, 520, fill=WHITE, width=w)
+    d.polygon([(8 * u, 30 * u), (30 * u, 30 * u), (14 * u, 50 * u)],
+              fill=WHITE)
+    d.line((48 * u, 30 * u, 48 * u, 50 * u, 62 * u, 60 * u), fill=WHITE,
+           width=w, joint='curve')
+
+
 TEXTURES = {
+    'icon_backspace.png': icon(g_backspace),
+    'icon_history.png': icon(g_history),
     'icon_search.png': icon(g_search),
     'icon_home.png': icon(g_home),
     'icon_subscriptions.png': icon(g_subscriptions),

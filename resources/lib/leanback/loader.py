@@ -79,6 +79,25 @@ class Engine(object):
         return played if played >= min_seconds and percent < max_percent \
             else 0
 
+    def recent_searches(self):
+        """The engine's search history, newest first (shared with its own
+        search pages)."""
+        try:
+            self._init()
+            items = self.context.get_search_history().get_items() or ()
+            return [item['q'] for item in items
+                    if isinstance(item, dict) and item.get('q')]
+        except Exception as exc:  # pylint: disable=broad-except
+            _log('search history failed: {!r}'.format(exc), xbmc.LOGWARNING)
+            return []
+
+    def add_search(self, query):
+        try:
+            self._init()
+            self.context.get_search_history().add_item(query)
+        except Exception as exc:  # pylint: disable=broad-except
+            _log('saving search failed: {!r}'.format(exc), xbmc.LOGWARNING)
+
     def listing(self, uri):
         """Run the engine route for a plugin:// URI; returns ListItems."""
         self._init()

@@ -182,3 +182,14 @@ msgctxt "#39118"
 msgid "Nothing here yet"
 msgstr ""
 
+msgctxt "#39120"
+msgid "Space"
+msgstr ""
+
+msgctxt "#39121"
+msgid "Clear"
+msgstr ""
+
+msgctxt "#39123"
+msgid "Results for “{}”"
+msgstr ""

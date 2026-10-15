@@ -24,6 +24,13 @@ NAV_ID = 9000
 ROWS_GROUP_ID = 100
 GRID_ID = 200
 SEARCH_ID = 300
+# Search view: on-screen keyboard, its Space/Clear/Search row, suggestions,
+# results shelf.
+KEYS_ID = 400
+KEY_ACTIONS_ID = 401
+SUGGEST_ID = 402
+RESULTS_ID = 403
+KEY = 67            # keyboard cell, as on YouTube TV at 1080p
 
 BG = 'FF0F0F0F'
 SURFACE = 'FF272727'       # search bar, placeholders
@@ -60,6 +67,7 @@ FOCUS_TOP = 96
 
 VIEW_ROWS = 'String.IsEqual(Window.Property(view),rows)'
 VIEW_GRID = 'String.IsEqual(Window.Property(view),grid)'
+VIEW_SEARCH = 'String.IsEqual(Window.Property(view),search)'
 
 
 def row_top(index):
@@ -325,6 +333,245 @@ def header():
                                  font_page=FONT_PAGE)
 
 
+def _key(focused):
+    """Keyboard cell: a letter, or an icon for backspace; white rounded
+    square with dark text while focused."""
+    has_focus = 'Control.HasFocus({})'.format(KEYS_ID)
+    on = has_focus if focused else 'false'
+    return '''
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>{c}</width><height>{c}</height>
+                        <visible>{on}</visible>
+                        <texture border="12" colordiffuse="{text}">round12.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>{k}</width><height>{k}</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dim}</textcolor>
+                        <visible>String.IsEmpty(ListItem.Icon) + !{on}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>{k}</width><height>{k}</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dark}</textcolor>
+                        <visible>String.IsEmpty(ListItem.Icon) + {on}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="image">
+                        <left>{i}</left><top>{i}</top>
+                        <width>30</width><height>30</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!String.IsEmpty(ListItem.Icon) + !{on}</visible>
+                        <texture colordiffuse="{dim}">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="image">
+                        <left>{i}</left><top>{i}</top>
+                        <width>30</width><height>30</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!String.IsEmpty(ListItem.Icon) + {on}</visible>
+                        <texture colordiffuse="{dark}">$INFO[ListItem.Icon]</texture>
+                    </control>'''.format(c=KEY - 8, k=KEY, i=(KEY - 30) // 2,
+                                     on=on, text=TEXT, dim=TEXT_DIM,
+                                     dark=DARK_TEXT, font=FONT_NAV)
+
+
+def _pill_item(width, height, list_id, focused, icon=False):
+    """Rounded chip with a label (and an optional icon), white while
+    focused, as YouTube TV draws buttons and suggestions."""
+    on = 'Control.HasFocus({})'.format(list_id) if focused else 'false'
+    text_x = 64 if icon else 0
+    icon_xml = '''
+                    <control type="image">
+                        <left>22</left><top>{iy}</top>
+                        <width>28</width><height>28</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>!{on}</visible>
+                        <texture colordiffuse="{dim}">$INFO[ListItem.Icon]</texture>
+                    </control>
+                    <control type="image">
+                        <left>22</left><top>{iy}</top>
+                        <width>28</width><height>28</height>
+                        <aspectratio>keep</aspectratio>
+                        <visible>{on}</visible>
+                        <texture colordiffuse="{dark}">$INFO[ListItem.Icon]</texture>
+                    </control>'''.format(iy=(height - 10 - 28) // 2, on=on,
+                                     dim=TEXT_DIM, dark=DARK_TEXT) if icon else ''
+    return '''
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>{w}</width><height>{h}</height>
+                        <visible>!{on}</visible>
+                        <texture border="25" colordiffuse="{surface}">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>{w}</width><height>{h}</height>
+                        <visible>{on}</visible>
+                        <texture border="25" colordiffuse="{text}">pill.png</texture>
+                    </control>{icon}
+                    <control type="label">
+                        <left>{tx}</left><top>0</top>
+                        <width>{tw}</width><height>{h}</height>
+                        <font>{font}</font>
+                        <align>{align}</align><aligny>center</aligny>
+                        <textcolor>{dim}</textcolor>
+                        <focusedcolor>{dim}</focusedcolor>
+                        <visible>!{on}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>{tx}</left><top>0</top>
+                        <width>{tw}</width><height>{h}</height>
+                        <font>{font}</font>
+                        <align>{align}</align><aligny>center</aligny>
+                        <textcolor>{dark}</textcolor>
+                        <visible>{on}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>'''.format(
+        w=width, h=height - 10, on=on, surface=SURFACE, text=TEXT,
+        dim=TEXT_DIM, dark=DARK_TEXT, icon=icon_xml, tx=text_x,
+        tw=width - text_x - (24 if icon else 0),
+        align='left' if icon else 'center', font=FONT_META)
+
+
+def search_view():
+    """YouTube TV's search screen: the query in the bar, suggestions down
+    the left, the keyboard grid with Space/Clear/Search, results below."""
+    keys_x, keys_y = 704, 164
+    actions_y = keys_y + 4 * KEY + 14
+    results_top = 560
+    return '''
+        <control type="group">
+            <visible>{view}</visible>
+            <!-- Like YouTube TV: going down into the results scrolls the
+                 keyboard away and brings the shelf up to the top. -->
+            <animation effect="slide" end="0,{results_shift}" time="300" tween="cubic" easing="out" condition="Control.HasFocus({results})">Conditional</animation>
+            <control type="image">
+                <left>{x}</left><top>67</top>
+                <width>70</width><height>70</height>
+                <texture colordiffuse="{surface}">circle.png</texture>
+            </control>
+            <control type="image">
+                <left>{mic_x}</left><top>86</top>
+                <width>32</width><height>32</height>
+                <aspectratio>keep</aspectratio>
+                <texture>icon_mic.png</texture>
+            </control>
+            <control type="image">
+                <left>{bar_x}</left><top>67</top>
+                <width>1030</width><height>70</height>
+                <texture border="35" colordiffuse="{surface}">pill.png</texture>
+            </control>
+            <control type="label">
+                <left>{bar_tx}</left><top>67</top>
+                <width>980</width><height>70</height>
+                <font>{font_nav}</font><aligny>center</aligny>
+                <textcolor>{text}</textcolor>
+                <visible>!String.IsEmpty(Window.Property(search.query))</visible>
+                <label>$INFO[Window.Property(search.query)][COLOR {accent}]|[/COLOR]</label>
+            </control>
+            <control type="label">
+                <left>{bar_tx}</left><top>67</top>
+                <width>980</width><height>70</height>
+                <font>{font_nav}</font><aligny>center</aligny>
+                <textcolor>{dim}</textcolor>
+                <visible>String.IsEmpty(Window.Property(search.query))</visible>
+                <label>$ADDON[{addon} 39107]</label>
+            </control>
+            <control type="image">
+                <left>1430</left><top>67</top>
+                <width>400</width><height>70</height>
+                <aspectratio align="right">keep</aspectratio>
+                <texture>$INFO[Window.Property(logo),brand_lockup_,.png]</texture>
+            </control>
+
+            <control type="list" id="{suggest}">
+                <left>{x}</left><top>166</top>
+                <width>500</width><height>340</height>
+                <orientation>vertical</orientation>
+                <onleft>{nav}</onleft>
+                <onright>{keys}</onright>
+                <ondown>{results}</ondown>
+                <scrolltime>150</scrolltime>
+                <itemlayout width="500" height="68">{chip}
+                </itemlayout>
+                <focusedlayout width="500" height="68">{chip_focused}
+                </focusedlayout>
+            </control>
+
+            <control type="panel" id="{keys}">
+                <left>{keys_x}</left><top>{keys_y}</top>
+                <width>{keys_w}</width><height>{keys_h}</height>
+                <orientation>vertical</orientation>
+                <onleft>{suggest}</onleft>
+                <ondown>{actions}</ondown>
+                <scrolltime>0</scrolltime>
+                <itemlayout width="{k}" height="{k}">{key}
+                </itemlayout>
+                <focusedlayout width="{k}" height="{k}">{key_focused}
+                </focusedlayout>
+            </control>
+            <control type="list" id="{actions}">
+                <left>{keys_x}</left><top>{actions_y}</top>
+                <width>{keys_w}</width><height>60</height>
+                <orientation>horizontal</orientation>
+                <onup>{keys}</onup>
+                <ondown>{results}</ondown>
+                <onleft>{suggest}</onleft>
+                <scrolltime>0</scrolltime>
+                <itemlayout width="148" height="60">{action}
+                </itemlayout>
+                <focusedlayout width="148" height="60">{action_focused}
+                </focusedlayout>
+            </control>
+
+            <control type="label">
+                <left>{x}</left><top>{results_top}</top>
+                <width>1600</width><height>40</height>
+                <font>{font_shelf}</font>
+                <textcolor>{text}</textcolor>
+                <label>$INFO[Window.Property(search.title)]</label>
+            </control>
+            <control type="group">
+                <left>0</left><top>{results_top}</top>
+                <visible>String.IsEqual(Window.Property(search.loading),true)</visible>{loading}
+            </control>
+            <control type="list" id="{results}">
+                <left>{lx}</left><top>{results_list_y}</top>
+                <width>{lw}</width><height>{rh}</height>
+                <orientation>horizontal</orientation>
+                <onleft>{nav}</onleft>
+                <onup>{actions}</onup>
+                <scrolltime tween="cubic" easing="out">250</scrolltime>
+                <focusposition>0</focusposition>
+                <movement>1</movement>{tiles}
+            </control>
+        </control>'''.format(
+        view=VIEW_SEARCH, x=CONTENT_X, mic_x=CONTENT_X + 19,
+        bar_x=CONTENT_X + 94, bar_tx=CONTENT_X + 94 + 36,
+        surface=SURFACE, text=TEXT, dim=TEXT_DIM, accent=ACCENT, addon=ADDON,
+        font_nav=FONT_NAV, font_shelf=FONT_SHELF, nav=NAV_ID,
+        suggest=SUGGEST_ID, keys=KEYS_ID, actions=KEY_ACTIONS_ID,
+        results=RESULTS_ID, keys_x=keys_x, keys_y=keys_y, keys_w=8 * KEY,
+        keys_h=4 * KEY, actions_y=actions_y, k=KEY,
+        key=_key(False), key_focused=_key(True),
+        chip=_pill_item(480, 68, SUGGEST_ID, False, icon=True),
+        chip_focused=_pill_item(480, 68, SUGGEST_ID, True, icon=True),
+        action=_pill_item(136, 60, KEY_ACTIONS_ID, False),
+        action_focused=_pill_item(136, 60, KEY_ACTIONS_ID, True),
+        results_top=results_top, results_list_y=results_top + 48,
+        results_shift=FOCUS_TOP - results_top,
+        loading=placeholders(REGULAR, 48), lx=CONTENT_X - PAD,
+        lw=1920 - CONTENT_X + PAD, rh=text_height(REGULAR),
+        tiles=layouts(REGULAR, RESULTS_ID))
+
+
 def nav_item(focused):
     """Rail entry: an icon when collapsed, a white pill with label when the
     rail is focused. The current section's icon stays bright."""
@@ -387,6 +634,8 @@ def build():
             <defaultcontrol>{first}</defaultcontrol>
             <visible>{view_rows}</visible>{scroll}{header}{rows_xml}
         </control>
+
+        <!-- Search view -->{search_view}
 
         <!-- Grid view (search, channel, playlist, related). Filled by the
              window like the shelves, more pages appended as you scroll. -->
@@ -452,7 +701,8 @@ def build():
             <left>0</left><top>191</top><width>420</width><height>860</height>
             <orientation>vertical</orientation>
             <onright condition="{view_grid}">SetFocus({grid_id})</onright>
-            <onright condition="!{view_grid}">SetFocus({rows_id})</onright>
+            <onright condition="{view_search}">SetFocus({keys_id})</onright>
+            <onright condition="!{view_grid} + !{view_search}">SetFocus({rows_id})</onright>
             <scrolltime>0</scrolltime>
             <itemlayout width="420" height="78">{nav_item}
             </itemlayout>
@@ -468,6 +718,8 @@ def build():
            gx=CONTENT_X - PAD, gw=1920 - CONTENT_X + PAD,
            font_page=FONT_PAGE, font_nav=FONT_NAV, rail_w=RAIL_W,
            grid_tiles=layouts(GRID, GRID_ID),
+           view_search=VIEW_SEARCH, keys_id=KEYS_ID,
+           search_view=search_view(),
            nav_item=nav_item(False), nav_focused=nav_item(True))
 
 
