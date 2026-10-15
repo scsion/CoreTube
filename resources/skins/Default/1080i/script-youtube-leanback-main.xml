@@ -2509,11 +2509,148 @@
         <!-- Grid view (search, channel, playlist, related). Filled by the
              window like the shelves, more pages appended as you scroll. -->
         <control type="group">
-            <visible>String.IsEqual(Window.Property(view),grid)</visible>
+            <visible>String.IsEqual(Window.Property(view),grid) | String.IsEqual(Window.Property(view),channel)</visible>
+            <control type="group">
+                <visible>String.IsEqual(Window.Property(view),channel)</visible>
+                <control type="image">
+                    <left>0</left><top>0</top>
+                    <width>1920</width><height>320</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true">$INFO[Window.Property(channel.banner)]</texture>
+                </control>
+                <control type="image">
+                    <left>0</left><top>0</top>
+                    <width>1920</width><height>320</height>
+                    <texture colordiffuse="B30F0F0F">white.png</texture>
+                </control>
+                <control type="image">
+                    <left>0</left><top>120</top>
+                    <width>1920</width><height>200</height>
+                    <texture colordiffuse="FF0F0F0F">grad_bottom.png</texture>
+                </control>
+                <control type="image">
+                    <left>156</left><top>56</top>
+                    <width>140</width><height>140</height>
+                    <texture colordiffuse="FF272727">circle.png</texture>
+                </control>
+                <control type="image">
+                    <left>156</left><top>56</top>
+                    <width>140</width><height>140</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true" diffuse="circle.png">$INFO[Window.Property(channel.avatar)]</texture>
+                </control>
+                <control type="label">
+                    <left>330</left><top>62</top>
+                    <width>1350</width><height>60</height>
+                    <font>font40_title</font>
+                    <textcolor>FFF1F1F1</textcolor>
+                    <label>$INFO[Window.Property(channel.name)]</label>
+                </control>
+                <control type="label">
+                    <left>330</left><top>124</top>
+                    <width>1350</width><height>40</height>
+                    <font>font12</font>
+                    <textcolor>FFAAAAAA</textcolor>
+                    <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
+                </control>
+                <control type="list" id="210">
+                    <left>330</left><top>184</top>
+                    <width>900</width><height>60</height>
+                    <orientation>horizontal</orientation>
+                    <onleft>9000</onleft>
+                    <ondown>200</ondown>
+                    <scrolltime>0</scrolltime>
+                    <itemlayout width="196" height="60">
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <visible>false</visible>
+                        <texture border="26" colordiffuse="FFF1F1F1">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <visible>!false + String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="26" colordiffuse="FF272727">pill.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>false</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <visible>!false + String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>!false + !String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    </itemlayout>
+                    <focusedlayout width="196" height="60">
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <visible>Control.HasFocus(210)</visible>
+                        <texture border="26" colordiffuse="FFF1F1F1">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <visible>!Control.HasFocus(210) + String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="26" colordiffuse="FF272727">pill.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>Control.HasFocus(210)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <visible>!Control.HasFocus(210) + String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>!Control.HasFocus(210) + !String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    </focusedlayout>
+                </control>
+            </control>
             <control type="label">
                 <left>156</left><top>60</top><width>1500</width><height>60</height>
                 <font>font40_title</font>
                 <textcolor>FFF1F1F1</textcolor>
+                <visible>String.IsEqual(Window.Property(view),grid)</visible>
                 <label>$INFO[Window.Property(grid.title)]</label>
             </control>
             <control type="label">
@@ -2532,8 +2669,11 @@
             </control>
             <control type="panel" id="200">
                 <left>146</left><top>150</top><width>1774</width><height>930</height>
+                <!-- Under a channel header the grid starts lower. -->
+                <animation effect="slide" end="0,160" time="0" condition="String.IsEqual(Window.Property(view),channel)">Conditional</animation>
                 <orientation>vertical</orientation>
                 <onleft>9000</onleft>
+                <onup condition="String.IsEqual(Window.Property(view),channel)">SetFocus(210)</onup>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <itemlayout width="441" height="428">
                     <control type="image">
@@ -2739,9 +2879,9 @@
         <control type="list" id="9000">
             <left>0</left><top>191</top><width>420</width><height>860</height>
             <orientation>vertical</orientation>
-            <onright condition="String.IsEqual(Window.Property(view),grid)">SetFocus(200)</onright>
+            <onright condition="String.IsEqual(Window.Property(view),grid) | String.IsEqual(Window.Property(view),channel)">SetFocus(200)</onright>
             <onright condition="String.IsEqual(Window.Property(view),search)">SetFocus(400)</onright>
-            <onright condition="!String.IsEqual(Window.Property(view),grid) + !String.IsEqual(Window.Property(view),search)">SetFocus(100)</onright>
+            <onright condition="!String.IsEqual(Window.Property(view),grid) + !String.IsEqual(Window.Property(view),channel) + !String.IsEqual(Window.Property(view),search)">SetFocus(100)</onright>
             <scrolltime>0</scrolltime>
             <itemlayout width="420" height="78">
                 <control type="image">

@@ -43,6 +43,12 @@ TRENDING_SHELVES = 2
 
 # Channel tab params (protobuf, from the web app) for the Videos tab.
 CHANNEL_VIDEOS_PARAMS = 'EgZ2aWRlb3PyBgQKAjoA'
+# The channel page tabs CoreTube shows, with the web app's tab params.
+CHANNEL_TABS = {
+    'videos': CHANNEL_VIDEOS_PARAMS,
+    'live': 'EgdzdHJlYW1z8gYECgJ6AA==',
+    'playlists': 'EglwbGF5bGlzdHPyBgoKCEIGCgIQaCIA',
+}
 
 # How many recently watched videos seed the keyless "Recommended" row.
 RECOMMEND_SEEDS = 6
@@ -501,13 +507,54 @@ def related(client, video_id, page_token=None):
                        'secondaryResults'))
 
 
-def channel_videos(client, channel_id, page_token=None):
+def channel_header(client, channel_id):
+    """Name, handle, counts, avatar and banner for a channel page header,
+    and which of CHANNEL_TABS the channel has."""
+    result = request(client, 'browse', browseId=channel_id,
+                     params=CHANNEL_VIDEOS_PARAMS)
+    if not result:
+        return None
+    header = dig(result, 'header', 'pageHeaderRenderer', 'content',
+                 'pageHeaderViewModel') or {}
+    meta = dig(result, 'metadata', 'channelMetadataRenderer') or {}
+    rows = [[text(part.get('text')) for part in row.get('metadataParts') or ()]
+            for row in dig(header, 'metadata', 'contentMetadataViewModel',
+                           'metadataRows') or ()]
+    parts = [part for row in rows for part in row if part]
+    tab_titles = set()
+    for tab in dig(result, 'contents', 'twoColumnBrowseResultsRenderer',
+                   'tabs') or ():
+        renderer = tab.get('tabRenderer') or {}
+        params = dig(renderer, 'endpoint', 'browseEndpoint', 'params') or ''
+        for name, tab_params in CHANNEL_TABS.items():
+            if params.replace('%3D', '=') == tab_params:
+                tab_titles.add(name)
+    avatar = (dig(meta, 'avatar', 'thumbnails')
+              or dig(header, 'image', 'decoratedAvatarViewModel', 'avatar',
+                     'avatarViewModel', 'image', 'sources'))
+    return {
+        'title': meta.get('title') or text(dig(header, 'title',
+                                               'dynamicTextViewModel',
+                                               'text')),
+        'handle': next((part for part in parts if part.startswith('@')), ''),
+        'stats': ' \u2022 '.join(part for part in parts
+                                 if not part.startswith('@')),
+        'description': meta.get('description', ''),
+        'avatar': best_thumbnail(avatar),
+        'banner': best_thumbnail(dig(header, 'banner', 'imageBannerViewModel',
+                                     'image', 'sources')),
+        'tabs': [name for name in CHANNEL_TABS
+                 if name in tab_titles or name == 'videos'],
+    }
+
+
+def channel_videos(client, channel_id, page_token=None, tab='videos'):
     if page_token:
         result = request(client, 'browse', continuation=page_token)
         page = collect(result.get('onResponseReceivedActions'))
     else:
         result = request(client, 'browse', browseId=channel_id,
-                         params=CHANNEL_VIDEOS_PARAMS)
+                         params=CHANNEL_TABS.get(tab, CHANNEL_VIDEOS_PARAMS))
         page = collect(result.get('contents'))
         page['title'] = (dig(result, 'metadata', 'channelMetadataRenderer',
                              'title')

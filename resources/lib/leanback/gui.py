@@ -13,7 +13,9 @@
     SPDX-License-Identifier: GPL-2.0-only
 """
 
-from urllib.parse import quote_plus
+import re
+import threading
+from urllib.parse import parse_qs, quote_plus, urlsplit
 
 import xbmc
 import xbmcgui
@@ -36,6 +38,9 @@ KEYS = 400
 KEY_ACTIONS = 401
 SUGGESTIONS = 402
 RESULTS = 403
+# Channel page tabs above its grid.
+TABS = 210
+CHANNEL_TABS = (('videos', 39124), ('live', 39125), ('playlists', 39126))
 CONTENT_IDS = ROW_IDS + (GRID, RESULTS)
 
 FOCUS_WAIT_STEPS = 50
@@ -79,6 +84,8 @@ PATH_KEYLESS_FEED = PLUGIN + '/leanback/feed/{}/'
 PATH_KEYLESS_SEARCH = PLUGIN + '/leanback/search/?q={}'
 PATH_KEYLESS_RELATED = PLUGIN + '/leanback/related/?video_id={}'
 PATH_KEYLESS_CHANNEL = PLUGIN + '/leanback/channel/?channel_id={}&item_name={}'
+PATH_CHANNEL_TAB = (PLUGIN + '/leanback/channeltab/{tab}/'
+                    '?channel_id={channel_id}&item_name={name}')
 # The signed-in account's own lists, read with its sign-in instead of a key.
 PATH_KEYLESS_MINE = PLUGIN + '/leanback/mine/{}/'
 
@@ -290,6 +297,13 @@ class MainWindow(xbmcgui.WindowXML):
                     self._paths.pop(row_id, None)
                     self.getControl(row_id).reset()
             focus = ROWS_GROUP
+        elif view['type'] == 'channel':
+            self._show_channel(view)
+            if view.pop('focus_content', False):
+                # The tabs show at once; the videos take focus on arrival.
+                self.setFocusId(TABS)
+                self._focus_when_filled(GRID, start_focus=TABS)
+            return
         elif view['type'] == 'search':
             self._show_search()
             if view.get('focus_content'):
@@ -303,6 +317,66 @@ class MainWindow(xbmcgui.WindowXML):
             focus = GRID
         if self.getFocusId() != NAV_LIST or view.get('focus_content'):
             self._focus_when_filled(focus)
+
+    # -- channel page -------------------------------------------------------
+
+    def _open_channel(self, channel_id, name=''):
+        self._push({'type': 'channel', 'channel_id': channel_id,
+                    'title': re.sub(r'\[/?[A-Z]+\]', '', name or ''),
+                    'tab': 'videos', 'focus_content': True})
+
+    def _show_channel(self, view):
+        self._loader.cancel()
+        self._paging.clear()
+        channel_id = view['channel_id']
+        header = view.get('header')
+        self._set_channel_header(view, header)
+        if header is None:
+            def fetch():
+                result = self._loader.engine.channel_header(channel_id)
+                view['header'] = result or {}
+                if self._views and self._views[-1] is view:
+                    self._set_channel_header(view, view['header'])
+            threading.Thread(target=fetch, daemon=True).start()
+        self._fill(GRID, PATH_CHANNEL_TAB.format(
+            tab=view['tab'], channel_id=channel_id,
+            name=quote_plus(view.get('title') or '')), 'grid.loading')
+
+    def _set_channel_header(self, view, header):
+        header = header or {}
+        name = header.get('title') or view.get('title') or ''
+        if header.get('title'):
+            view['title'] = header['title']
+        for key, value in (('name', name),
+                           ('handle', header.get('handle')),
+                           ('stats', header.get('stats')),
+                           ('avatar', header.get('avatar')),
+                           ('banner', header.get('banner'))):
+            if value:
+                self.setProperty('channel.' + key, value)
+            else:
+                self.clearProperty('channel.' + key)
+        # Always the same three tabs (a channel without one shows an empty
+        # grid), so the list is never rebuilt under the focus; only the
+        # open tab's marker moves.
+        tabs = self.getControl(TABS)
+        if tabs.size() != len(CHANNEL_TABS):
+            tabs.reset()
+            for key, label in CHANNEL_TABS:
+                item = xbmcgui.ListItem(localize(label))
+                item.setProperty('tab', key)
+                tabs.addItem(item)
+        for index, (key, _) in enumerate(CHANNEL_TABS):
+            tabs.getListItem(index).setProperty(
+                'selected', 'true' if key == view['tab'] else '')
+
+    def _on_tab(self):
+        view = self._views[-1]
+        tab = self.getControl(TABS).getSelectedItem().getProperty('tab')
+        if view.get('type') != 'channel' or not tab or tab == view['tab']:
+            return
+        view['tab'] = tab
+        self._show_channel(view)
 
     # -- search -------------------------------------------------------------
 
@@ -470,9 +544,11 @@ class MainWindow(xbmcgui.WindowXML):
                 return None
         return None
 
-    def _focus_when_filled(self, focus):
-        """Containers fill asynchronously; focus once something has items."""
-        start_focus = self.getFocusId()
+    def _focus_when_filled(self, focus, start_focus=None):
+        """Containers fill asynchronously; focus once something has items.
+        start_focus: the control focus was just sent to, which Kodi may not
+        report yet."""
+        waiting_on = {self.getFocusId(), start_focus or self.getFocusId()}
         monitor = xbmc.Monitor()
         for _ in range(FOCUS_WAIT_STEPS):
             if focus == ROWS_GROUP:
@@ -488,8 +564,13 @@ class MainWindow(xbmcgui.WindowXML):
                 return
             # Stop waiting if the user moved on in the meantime.
             if (monitor.waitForAbort(0.1)
-                    or self.getFocusId() != start_focus):
+                    or self.getFocusId() not in waiting_on):
                 return
+        # Nothing arrived. Don't leave focus on a list of the previous view,
+        # now hidden, where key presses would still act.
+        if not xbmc.getCondVisibility(
+                'Control.IsVisible({})'.format(self.getFocusId())):
+            self.setFocusId(NAV_LIST)
 
     def _open_grid(self, title, path, nav=None):
         view = {'type': 'grid', 'title': title, 'path': path,
@@ -516,6 +597,8 @@ class MainWindow(xbmcgui.WindowXML):
             self._on_key()
         elif control_id == KEY_ACTIONS:
             self._on_key_action()
+        elif control_id == TABS:
+            self._on_tab()
         elif control_id == SUGGESTIONS:
             self._on_suggestion()
         elif control_id == NAV_LIST:
@@ -587,6 +670,14 @@ class MainWindow(xbmcgui.WindowXML):
             return
         if xbmc.getCondVisibility(
                 'Container({}).ListItem.IsFolder'.format(control_id)):
+            parts = urlsplit(path)
+            if parts.path.rstrip('/').endswith('/leanback/channel'):
+                params = parse_qs(parts.query)
+                self._open_channel(
+                    (params.get('channel_id') or [''])[0],
+                    (params.get('item_name') or [''])[0]
+                    or self._item_info(control_id, 'Label'))
+                return
             self._open_grid(self._item_info(control_id, 'Label'), path)
             return
         self._play(path, self._item_info(control_id, 'Property(video_id)'))
@@ -621,9 +712,12 @@ class MainWindow(xbmcgui.WindowXML):
                             lambda: self._play(path, video_id)))
             options.append((localize(39110), lambda: self._open_grid(
                 localize(39110), related_path)))
-        if channel_id:
+        if channel_id and self._has_key:
             options.append((localize(39109), lambda: self._open_grid(
                 channel or localize(39109), channel_path)))
+        elif channel_id:
+            options.append((localize(39109), lambda: self._open_channel(
+                channel_id, channel)))
         if not options:
             return
         choice = xbmcgui.Dialog().contextmenu([label for label, _ in options])

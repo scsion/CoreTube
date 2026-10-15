@@ -30,6 +30,9 @@ KEYS_ID = 400
 KEY_ACTIONS_ID = 401
 SUGGEST_ID = 402
 RESULTS_ID = 403
+# Channel page: tabs (Videos, Live, Playlists) above the grid.
+TABS_ID = 210
+CHANNEL_SHIFT = 160     # the grid sits this much lower under a channel header
 KEY = 67            # keyboard cell, as on YouTube TV at 1080p
 
 BG = 'FF0F0F0F'
@@ -68,6 +71,7 @@ FOCUS_TOP = 96
 VIEW_ROWS = 'String.IsEqual(Window.Property(view),rows)'
 VIEW_GRID = 'String.IsEqual(Window.Property(view),grid)'
 VIEW_SEARCH = 'String.IsEqual(Window.Property(view),search)'
+VIEW_CHANNEL = 'String.IsEqual(Window.Property(view),channel)'
 
 
 def row_top(index):
@@ -440,6 +444,123 @@ def _pill_item(width, height, list_id, focused, icon=False):
         align='left' if icon else 'center', font=FONT_META)
 
 
+def channel_header():
+    """YouTube TV's channel header: the banner fading into the page, the
+    round avatar, name, handle and counts, and the tab pills."""
+    return '''
+            <control type="group">
+                <visible>{view}</visible>
+                <control type="image">
+                    <left>0</left><top>0</top>
+                    <width>1920</width><height>320</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true">$INFO[Window.Property(channel.banner)]</texture>
+                </control>
+                <control type="image">
+                    <left>0</left><top>0</top>
+                    <width>1920</width><height>320</height>
+                    <texture colordiffuse="B30F0F0F">white.png</texture>
+                </control>
+                <control type="image">
+                    <left>0</left><top>120</top>
+                    <width>1920</width><height>200</height>
+                    <texture colordiffuse="{bg}">grad_bottom.png</texture>
+                </control>
+                <control type="image">
+                    <left>{x}</left><top>56</top>
+                    <width>140</width><height>140</height>
+                    <texture colordiffuse="{surface}">circle.png</texture>
+                </control>
+                <control type="image">
+                    <left>{x}</left><top>56</top>
+                    <width>140</width><height>140</height>
+                    <aspectratio>scale</aspectratio>
+                    <fadetime>200</fadetime>
+                    <texture background="true" diffuse="circle.png">$INFO[Window.Property(channel.avatar)]</texture>
+                </control>
+                <control type="label">
+                    <left>{tx}</left><top>62</top>
+                    <width>1350</width><height>60</height>
+                    <font>{font_page}</font>
+                    <textcolor>{text}</textcolor>
+                    <label>$INFO[Window.Property(channel.name)]</label>
+                </control>
+                <control type="label">
+                    <left>{tx}</left><top>124</top>
+                    <width>1350</width><height>40</height>
+                    <font>{font_meta}</font>
+                    <textcolor>{dim}</textcolor>
+                    <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
+                </control>
+                <control type="list" id="{tabs}">
+                    <left>{tx}</left><top>184</top>
+                    <width>900</width><height>60</height>
+                    <orientation>horizontal</orientation>
+                    <onleft>{nav}</onleft>
+                    <ondown>{grid}</ondown>
+                    <scrolltime>0</scrolltime>
+                    <itemlayout width="196" height="60">{tab}
+                    </itemlayout>
+                    <focusedlayout width="196" height="60">{tab_focused}
+                    </focusedlayout>
+                </control>
+            </control>'''.format(
+        view=VIEW_CHANNEL, x=CONTENT_X, tx=CONTENT_X + 174, bg=BG,
+        surface=SURFACE, text=TEXT, dim=TEXT_DIM, font_page=FONT_PAGE,
+        font_meta=FONT_META, tabs=TABS_ID, nav=NAV_ID, grid=GRID_ID,
+        tab=_tab(False), tab_focused=_tab(True))
+
+
+def _tab(focused):
+    """Tab pill: white with dark text while focused; the open tab keeps a
+    grey pill and white text."""
+    on = 'Control.HasFocus({})'.format(TABS_ID) if focused else 'false'
+    selected = 'String.IsEqual(ListItem.Property(selected),true)'
+    return '''
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <visible>{on}</visible>
+                        <texture border="26" colordiffuse="{text}">pill.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <visible>!{on} + {selected}</visible>
+                        <texture border="26" colordiffuse="{surface}">pill.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dark}</textcolor>
+                        <visible>{on}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{text}</textcolor>
+                        <visible>!{on} + {selected}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>0</left><top>0</top>
+                        <width>184</width><height>52</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dim}</textcolor>
+                        <visible>!{on} + !{selected}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>'''.format(on=on, selected=selected, text=TEXT,
+                                     surface=SURFACE, dark=DARK_TEXT,
+                                     dim=TEXT_DIM, font=FONT_META)
+
+
 def search_view():
     """YouTube TV's search screen: the query in the bar, suggestions down
     the left, the keyboard grid with Space/Clear/Search, results below."""
@@ -640,11 +761,12 @@ def build():
         <!-- Grid view (search, channel, playlist, related). Filled by the
              window like the shelves, more pages appended as you scroll. -->
         <control type="group">
-            <visible>{view_grid}</visible>
+            <visible>{view_grid} | {view_channel}</visible>{channel_header}
             <control type="label">
                 <left>{x}</left><top>60</top><width>1500</width><height>60</height>
                 <font>{font_page}</font>
                 <textcolor>{text}</textcolor>
+                <visible>{view_grid}</visible>
                 <label>$INFO[Window.Property(grid.title)]</label>
             </control>
             <control type="label">
@@ -663,8 +785,11 @@ def build():
             </control>
             <control type="panel" id="{grid_id}">
                 <left>{gx}</left><top>150</top><width>{gw}</width><height>930</height>
+                <!-- Under a channel header the grid starts lower. -->
+                <animation effect="slide" end="0,{channel_shift}" time="0" condition="{view_channel}">Conditional</animation>
                 <orientation>vertical</orientation>
                 <onleft>{nav}</onleft>
+                <onup condition="{view_channel}">SetFocus({tabs_id})</onup>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>{grid_tiles}
             </control>
         </control>
@@ -700,9 +825,9 @@ def build():
         <control type="list" id="{nav}">
             <left>0</left><top>191</top><width>420</width><height>860</height>
             <orientation>vertical</orientation>
-            <onright condition="{view_grid}">SetFocus({grid_id})</onright>
+            <onright condition="{view_grid} | {view_channel}">SetFocus({grid_id})</onright>
             <onright condition="{view_search}">SetFocus({keys_id})</onright>
-            <onright condition="!{view_grid} + !{view_search}">SetFocus({rows_id})</onright>
+            <onright condition="!{view_grid} + !{view_channel} + !{view_search}">SetFocus({rows_id})</onright>
             <scrolltime>0</scrolltime>
             <itemlayout width="420" height="78">{nav_item}
             </itemlayout>
@@ -719,6 +844,8 @@ def build():
            font_page=FONT_PAGE, font_nav=FONT_NAV, rail_w=RAIL_W,
            grid_tiles=layouts(GRID, GRID_ID),
            view_search=VIEW_SEARCH, keys_id=KEYS_ID,
+           view_channel=VIEW_CHANNEL, channel_header=channel_header(),
+           channel_shift=CHANNEL_SHIFT, tabs_id=TABS_ID,
            search_view=search_view(),
            nav_item=nav_item(False), nav_focused=nav_item(True))
 

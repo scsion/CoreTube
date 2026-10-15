@@ -300,13 +300,19 @@ def on_related(provider, context, re_match):
 
 
 @AbstractProvider.register_path('^' + PATH_CHANNEL + '/?$')
+@AbstractProvider.register_path(
+    '^' + ROOT + '/channeltab/(?P<tab>videos|live|playlists)/?$')
 def on_channel(provider, context, re_match):
+    """A channel's videos, or one of its tabs at
+    /leanback/channeltab/<videos|live|playlists>/. (Not channel/<tab>/: the
+    engine reads the segment after 'channel' as a channel id.)"""
     channel_id = context.get_param(CHANNEL_ID)
     if not channel_id:
         return False, None
     page = _cached(context, PAGE_CACHE, innertube.channel_videos,
                    provider.get_client(context), channel_id,
-                   context.get_param('page_token'))
+                   context.get_param('page_token'),
+                   (re_match.groupdict().get('tab') or 'videos'))
     if page:
         # Continuation pages don't repeat the channel name.
         name = page.get('title') or context.get_param('item_name')

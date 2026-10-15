@@ -1802,3 +1802,15 @@ msgstr ""
 msgctxt "#39123"
 msgid "Results for “{}”"
 msgstr ""
+
+msgctxt "#39124"
+msgid "Videos"
+msgstr ""
+
+msgctxt "#39125"
+msgid "Live"
+msgstr ""
+
+msgctxt "#39126"
+msgid "Playlists"
+msgstr ""

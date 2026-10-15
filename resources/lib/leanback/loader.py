@@ -79,6 +79,21 @@ class Engine(object):
         return played if played >= min_seconds and percent < max_percent \
             else 0
 
+    def channel_header(self, channel_id):
+        """Header info for a channel page (see innertube.channel_header),
+        cached for a few hours; None when it can't be fetched."""
+        try:
+            self._init()
+            from . import innertube
+            cache = self.context.get_function_cache()
+            return cache.run(innertube.channel_header, 6 * cache.ONE_HOUR,
+                             self.provider.get_client(self.context),
+                             channel_id, _scope=cache.SCOPE_BUILTINS)
+        except Exception as exc:  # pylint: disable=broad-except
+            _log('channel header of {} failed: {!r}'.format(channel_id, exc),
+                 xbmc.LOGWARNING)
+            return None
+
     def recent_searches(self):
         """The engine's search history, newest first (shared with its own
         search pages)."""
