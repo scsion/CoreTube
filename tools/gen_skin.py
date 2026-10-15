@@ -96,12 +96,15 @@ def tile(width, focused):
 
 
 def row(index):
+    # A row shows as soon as it has a path. Kodi never processes a list inside
+    # a hidden group, so gating the row on its list's NumItems would stop the
+    # list from ever loading. The controller leaves out rows it knows are empty.
     list_id = ROWS_GROUP_ID + index
     prop = 'row{}'.format(index)
     return '''
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property({prop}.path)) + [Container({lid}).IsUpdating | Integer.IsGreater(Container({lid}).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property({prop}.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>

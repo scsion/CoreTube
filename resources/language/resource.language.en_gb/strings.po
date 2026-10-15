@@ -1639,6 +1639,18 @@ msgctxt "#39016"
 msgid "Continue watching"
 msgstr ""
 
+msgctxt "#39017"
+msgid "News"
+msgstr ""
+
+msgctxt "#39018"
+msgid "Sports"
+msgstr ""
+
+msgctxt "#39019"
+msgid "Gaming"
+msgstr ""
+
 msgctxt "#39020"
 msgid "Skip SponsorBlock segments"
 msgstr ""
@@ -1757,9 +1769,5 @@ msgstr ""
 
 msgctxt "#39118"
 msgid "Nothing here yet"
-msgstr ""
-
-msgctxt "#39119"
-msgid "YouTube requires your own API key. Enter it under Settings > API (the README explains how to create one). Open settings now?"
 msgstr ""
 

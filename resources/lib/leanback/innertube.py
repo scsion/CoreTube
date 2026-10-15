@@ -1,0 +1,587 @@
+# -*- coding: utf-8 -*-
+"""
+    Keyless listings straight from InnerTube, the private API YouTube's own
+    web and TV apps use.
+
+    The engine's listings go through the Data API v3, which needs a personal
+    API key. InnerTube needs none: browse, search and next all answer
+    anonymous requests. This module sends those requests through the engine's
+    client (same headers, proxy and region settings as playback) and boils
+    the renderer soup down to plain dicts that routes.py turns into items.
+
+    Every page builder returns ``{'items': [...], 'next': token_or_None}``
+    where each item is a dict with a 'kind' of video, channel or playlist.
+
+    SPDX-License-Identifier: GPL-2.0-only
+"""
+
+import re
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
+
+try:
+    from datetime import timezone
+    UTC = timezone.utc
+except ImportError:  # pragma: no cover - Python 2 Kodi builds
+    UTC = None
+
+# YouTube's topic destinations ("Explore"). They are ordinary channels whose
+# home tab is a list of curated shelves, and unlike the personal home feed
+# they are filled for anonymous visitors. The TV client returns them as
+# uniform tile shelves.
+DESTINATIONS = {
+    'news': 'UCYfdidRxbB8Qhf0Nx7ioOYw',
+    'sports': 'UCEgdi0XIXXZ-qJOFPf4JSKw',
+    'gaming': 'UCOpNcN46UbXVtpKMrmU4Abg',
+    'live': 'UC4R8DWoMoI7CAwX8_LjQHig',
+    'learning': 'UCtFRv9O2AHqOZjjynzrv-xg',
+}
+# YouTube dropped its Trending page in 2025; the closest anonymous stand-in
+# is the top shelves of the busiest destinations, interleaved.
+TRENDING_SOURCES = ('news', 'sports', 'gaming', 'learning')
+TRENDING_SHELVES = 2
+
+# Channel tab params (protobuf, from the web app) for the Videos tab.
+CHANNEL_VIDEOS_PARAMS = 'EgZ2aWRlb3PyBgQKAjoA'
+
+# How many recently watched videos seed the keyless "Recommended" row.
+RECOMMEND_SEEDS = 6
+
+_VIEWS_RE = re.compile(r'\b(?:views?|watching)\b', re.IGNORECASE)
+_DURATION_RE = re.compile(r'^(?:(\d+):)?(\d{1,2}):(\d{2})$')
+_AGO_RE = re.compile(
+    r'(\d+)\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|weeks?|wks?'
+    r'|months?|mo|years?|yrs?|s|m|h|d|w|y)\b',
+    re.IGNORECASE,
+)
+_AGO_SECONDS = (
+    ('mo', 30 * 86400),
+    ('s', 1),
+    ('mi', 60),
+    ('m', 60),
+    ('h', 3600),
+    ('d', 86400),
+    ('w', 7 * 86400),
+    ('y', 365 * 86400),
+)
+
+# Renderers that are never what we want and are expensive to walk.
+_SKIP_KEYS = frozenset((
+    'reelShelfRenderer', 'shortsLockupViewModel', 'reelItemRenderer',
+    'menu', 'menuRenderer', 'onLongPressCommand', 'trackingParams',
+    'horizontalCardListRenderer', 'searchPyvRenderer', 'adSlotRenderer',
+    'promotedSparklesWebRenderer', 'frameworkUpdates',
+))
+
+
+# -- small helpers --------------------------------------------------------
+
+def text(node):
+    """Flatten any of InnerTube's text shapes to a plain string."""
+    if not node:
+        return ''
+    if isinstance(node, str):
+        return node
+    if isinstance(node, dict):
+        if 'simpleText' in node:
+            return node['simpleText']
+        if 'runs' in node:
+            return ''.join(run.get('text', '') for run in node['runs'])
+        if 'content' in node:
+            return node['content']
+    return ''
+
+
+def dig(node, *path):
+    for key in path:
+        try:
+            node = node[key]
+        except (KeyError, IndexError, TypeError):
+            return None
+    return node
+
+
+def find_first(node, key, predicate=None):
+    """Depth-first search for the first value stored under ``key``."""
+    stack = [node]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, dict):
+            if key in current:
+                value = current[key]
+                if predicate is None or predicate(value):
+                    return value
+            stack.extend(reversed(list(current.values())))
+        elif isinstance(current, list):
+            stack.extend(reversed(current))
+    return None
+
+
+def _is_channel_id(value):
+    return isinstance(value, str) and value.startswith('UC')
+
+
+def channel_id_in(node):
+    return find_first(node, 'browseId', _is_channel_id)
+
+
+def parse_duration(value):
+    match = _DURATION_RE.match((value or '').strip())
+    if not match:
+        return 0
+    hours, minutes, seconds = match.groups()
+    return int(hours or 0) * 3600 + int(minutes) * 60 + int(seconds)
+
+
+def parse_ago(value):
+    """'7 hours ago', '1mo ago', 'Streamed 2 days ago' -> UTC datetime."""
+    if not value or 'ago' not in value.lower():
+        return None
+    match = _AGO_RE.search(value)
+    if not match:
+        return None
+    amount = int(match.group(1))
+    unit = match.group(2).lower()
+    for prefix, seconds in _AGO_SECONDS:
+        if unit.startswith(prefix):
+            break
+    else:
+        return None
+    now = datetime.now(UTC) if UTC else datetime.utcnow()
+    return now - timedelta(seconds=amount * seconds)
+
+
+def best_thumbnail(thumbnails, min_width=0):
+    if not thumbnails:
+        return ''
+    best = max(thumbnails, key=lambda thumb: thumb.get('width') or 0)
+    if (best.get('width') or 0) < min_width:
+        return ''
+    url = best.get('url') or ''
+    if url.startswith('//'):
+        url = 'https:' + url
+    return url
+
+
+def video_thumbnail(video_id, thumbnails=None, live=False):
+    # Small renderer thumbnails look blurry on a TV; the standard 480px
+    # image always exists.
+    return best_thumbnail(thumbnails, min_width=320) or (
+        'https://i.ytimg.com/vi/{}/{}.jpg'.format(
+            video_id, 'hqdefault_live' if live else 'hqdefault'))
+
+
+def _classify(parts, item):
+    """Sort loose metadata strings into views / published / other."""
+    for part in parts:
+        lower = part.lower()
+        if not part or part in ('•', '\xb7'):
+            continue
+        if _VIEWS_RE.search(part):
+            item.setdefault('views', part)
+        elif 'ago' in lower or lower.startswith(('streamed', 'premiere',
+                                                 'scheduled')):
+            item.setdefault('published', part)
+
+
+def _finish_video(item, overlay_text='', overlay_style=''):
+    style = (overlay_style or '').upper()
+    if 'LIVE' in style or overlay_text.upper() == 'LIVE':
+        item['live'] = True
+    elif 'UPCOMING' in style:
+        item['upcoming'] = True
+    elif 'SHORTS' in style:
+        return None
+    elif overlay_text:
+        item['duration'] = parse_duration(overlay_text)
+    if item.get('views', '').lower().endswith('watching'):
+        item['live'] = True
+    item['thumb'] = video_thumbnail(item['id'], item.pop('_thumbs', None),
+                                    item.get('live'))
+    return item
+
+
+# -- renderer parsers -----------------------------------------------------
+
+def _parse_video_renderer(renderer):
+    video_id = renderer.get('videoId')
+    if not video_id:
+        return None
+    owner = (renderer.get('ownerText') or renderer.get('longBylineText')
+             or renderer.get('shortBylineText'))
+    item = {
+        'kind': 'video',
+        'id': video_id,
+        'title': text(renderer.get('title')) or text(renderer.get('headline')),
+        'channel': text(owner),
+        'channel_id': channel_id_in(owner),
+        '_thumbs': dig(renderer, 'thumbnail', 'thumbnails'),
+        'description': (
+            text(renderer.get('descriptionSnippet'))
+            or text(dig(renderer, 'detailedMetadataSnippets', 0, 'snippetText'))
+        ),
+    }
+    _classify((text(renderer.get('viewCountText')),
+               text(renderer.get('publishedTimeText'))), item)
+    if 'upcomingEventData' in renderer:
+        item['upcoming'] = True
+    overlay = find_first(renderer.get('thumbnailOverlays'),
+                         'thumbnailOverlayTimeStatusRenderer') or {}
+    length = text(renderer.get('lengthText')) or text(overlay.get('text'))
+    style = overlay.get('style', '')
+    for badge in renderer.get('badges') or ():
+        if 'LIVE' in (dig(badge, 'metadataBadgeRenderer', 'style') or ''):
+            style = 'LIVE'
+    if renderer.get('lengthSeconds') and not length:
+        item['duration'] = int(renderer['lengthSeconds'])
+    _classify([text(run) for run in
+               dig(renderer, 'videoInfo', 'runs') or ()], item)
+    return _finish_video(item, length, style)
+
+
+def _parse_tile(tile):
+    content_type = tile.get('contentType', '')
+    metadata = dig(tile, 'metadata', 'tileMetadataRenderer') or {}
+    lines = metadata.get('lines')
+    if not metadata.get('title'):
+        # Carousel tiles keep their text in the focus command instead.
+        spotlight = find_first(tile.get('onFocusCommand'),
+                               'entityMetadataRenderer') or {}
+        metadata = {'title': spotlight.get('title')}
+        lines = spotlight.get('bylines')
+    lines = [
+        [line_text for line_text in (
+            text(dig(entry, 'lineItemRenderer', 'text'))
+            for entry in dig(line, 'lineRenderer', 'items') or ()
+        ) if line_text]
+        for line in lines or ()
+    ]
+    thumbs = dig(tile, 'header', 'tileHeaderRenderer', 'thumbnail',
+                 'thumbnails')
+    title = text(metadata.get('title'))
+    if content_type == 'TILE_CONTENT_TYPE_VIDEO':
+        video_id = (dig(tile, 'onSelectCommand', 'watchEndpoint', 'videoId')
+                    or tile.get('contentId'))
+        if not video_id:
+            return None
+        item = {
+            'kind': 'video',
+            'id': video_id,
+            'title': title,
+            'channel': ' '.join(lines[0]) if lines else '',
+            'channel_id': channel_id_in(tile.get('onLongPressCommand')),
+            '_thumbs': thumbs,
+        }
+        for line in lines[1:]:
+            _classify(line, item)
+        overlay = find_first(
+            dig(tile, 'header', 'tileHeaderRenderer', 'thumbnailOverlays'),
+            'thumbnailOverlayTimeStatusRenderer') or {}
+        return _finish_video(item, text(overlay.get('text')),
+                             overlay.get('style', ''))
+    if content_type == 'TILE_CONTENT_TYPE_CHANNEL':
+        channel_id = (dig(tile, 'onSelectCommand', 'browseEndpoint',
+                          'browseId') or tile.get('contentId'))
+        if not _is_channel_id(channel_id):
+            return None
+        return {'kind': 'channel', 'id': channel_id, 'title': title,
+                'thumb': best_thumbnail(thumbs),
+                'description': ' • '.join(' '.join(l) for l in lines)}
+    if content_type == 'TILE_CONTENT_TYPE_PLAYLIST':
+        playlist_id = (dig(tile, 'onSelectCommand', 'watchPlaylistEndpoint',
+                           'playlistId')
+                       or dig(tile, 'onSelectCommand', 'watchEndpoint',
+                              'playlistId')
+                       or tile.get('contentId'))
+        if not playlist_id:
+            return None
+        return {'kind': 'playlist', 'id': playlist_id, 'title': title,
+                'channel': ' '.join(lines[0]) if lines else '',
+                'thumb': best_thumbnail(thumbs)}
+    return None
+
+
+def _lockup_part(part):
+    part_text = text(part.get('text'))
+    # View counts can be a bare "246K" next to a play icon.
+    label = part.get('accessibilityLabel') or ''
+    if (part_text and not _VIEWS_RE.search(part_text)
+            and _VIEWS_RE.search(label)):
+        part_text = ' '.join((part_text, _VIEWS_RE.search(label).group(0)))
+    return part_text
+
+
+def _parse_lockup(lockup):
+    content_type = lockup.get('contentType', '')
+    content_id = lockup.get('contentId')
+    if not content_id:
+        return None
+    metadata = dig(lockup, 'metadata', 'lockupMetadataViewModel') or {}
+    rows = [
+        [_lockup_part(part) for part in row.get('metadataParts') or ()]
+        for row in dig(metadata, 'metadata', 'contentMetadataViewModel',
+                       'metadataRows') or ()
+    ]
+    image = lockup.get('contentImage') or {}
+    thumbs = (dig(image, 'thumbnailViewModel', 'image', 'sources')
+              or dig(image, 'collectionThumbnailViewModel', 'primaryThumbnail',
+                     'thumbnailViewModel', 'image', 'sources'))
+    title = text(metadata.get('title'))
+    channel_id = channel_id_in(metadata)
+    if content_type == 'LOCKUP_CONTENT_TYPE_VIDEO':
+        item = {
+            'kind': 'video',
+            'id': content_id,
+            'title': title,
+            'channel': '',
+            'channel_id': channel_id,
+            '_thumbs': thumbs,
+        }
+        for index, row in enumerate(rows):
+            _classify(row, item)
+            # The first row is the channel unless it is already the stats.
+            if index == 0 and not ('views' in item or 'published' in item):
+                item['channel'] = ' '.join(row)
+        badge = find_first(image, 'thumbnailBadgeViewModel') or {}
+        return _finish_video(item, badge.get('text', ''),
+                             badge.get('badgeStyle', ''))
+    if content_type in ('LOCKUP_CONTENT_TYPE_PLAYLIST',
+                        'LOCKUP_CONTENT_TYPE_PODCAST'):
+        badge = find_first(image, 'thumbnailBadgeViewModel') or {}
+        return {'kind': 'playlist', 'id': content_id, 'title': title,
+                'channel': ' '.join(rows[0]) if rows else '',
+                'channel_id': channel_id,
+                'description': badge.get('text', ''),
+                'thumb': best_thumbnail(thumbs)}
+    return None
+
+
+def _parse_channel_renderer(renderer):
+    channel_id = renderer.get('channelId')
+    if not channel_id:
+        return None
+    stats = [text(renderer.get('subscriberCountText')),
+             text(renderer.get('videoCountText'))]
+    return {
+        'kind': 'channel',
+        'id': channel_id,
+        'title': text(renderer.get('title')),
+        'thumb': best_thumbnail(dig(renderer, 'thumbnail', 'thumbnails')),
+        'description': '\n'.join(filter(None, (
+            ' • '.join(filter(None, stats)),
+            text(renderer.get('descriptionSnippet')),
+        ))),
+    }
+
+
+def _parse_playlist_renderer(renderer):
+    playlist_id = renderer.get('playlistId')
+    if not playlist_id:
+        return None
+    thumbs = (dig(renderer, 'thumbnails', 0, 'thumbnails')
+              or dig(renderer, 'thumbnail', 'thumbnails'))
+    return {
+        'kind': 'playlist',
+        'id': playlist_id,
+        'title': text(renderer.get('title')),
+        'channel': text(renderer.get('shortBylineText')
+                        or renderer.get('longBylineText')),
+        'description': text(renderer.get('videoCountText')),
+        'thumb': best_thumbnail(thumbs),
+    }
+
+
+PARSERS = {
+    'videoRenderer': _parse_video_renderer,
+    'compactVideoRenderer': _parse_video_renderer,
+    'gridVideoRenderer': _parse_video_renderer,
+    'playlistVideoRenderer': _parse_video_renderer,
+    'tileRenderer': _parse_tile,
+    'lockupViewModel': _parse_lockup,
+    'channelRenderer': _parse_channel_renderer,
+    'playlistRenderer': _parse_playlist_renderer,
+}
+
+
+def collect(*roots):
+    """Pull every known item and the first continuation token out of the
+    given response subtrees, in document order."""
+    items = []
+    seen = set()
+    state = {'next': None}
+
+    def walk(node):
+        if isinstance(node, list):
+            for child in node:
+                walk(child)
+            return
+        if not isinstance(node, dict):
+            return
+        for key, value in node.items():
+            if key in _SKIP_KEYS:
+                continue
+            parser = PARSERS.get(key)
+            if parser:
+                try:
+                    item = parser(value)
+                except (KeyError, IndexError, TypeError, ValueError):
+                    item = None
+                if item and (item['kind'], item['id']) not in seen:
+                    seen.add((item['kind'], item['id']))
+                    items.append(item)
+                continue
+            if key == 'continuationItemRenderer':
+                state['next'] = state['next'] or find_first(
+                    value, 'token', lambda token: isinstance(token, str))
+                continue
+            if key == 'nextContinuationData':
+                state['next'] = state['next'] or value.get('continuation')
+                continue
+            walk(value)
+
+    for root in roots:
+        walk(root)
+    return {'items': items, 'next': state['next']}
+
+
+def interleave(*lists):
+    """Round-robin merge without duplicates."""
+    merged = []
+    seen = set()
+    for index in range(max((len(entries) for entries in lists), default=0)):
+        for entries in lists:
+            if index < len(entries):
+                item = entries[index]
+                key = (item['kind'], item['id'])
+                if key not in seen:
+                    seen.add(key)
+                    merged.append(item)
+    return merged
+
+
+# -- requests ---------------------------------------------------------------
+
+def request(client, endpoint, client_name='web', do_auth=False, **post_data):
+    """POST to /youtubei/v1/<endpoint> without an API key."""
+    result = client.api_request(client_name, 'POST',
+                                path=endpoint,
+                                url=client.V1_API_URL,
+                                post_data=post_data,
+                                do_auth=do_auth,
+                                cache=False,
+                                notify=False)
+    if not isinstance(result, dict) or 'error' in result:
+        return {}
+    return result
+
+
+def search(client, query, page_token=None):
+    if page_token:
+        result = request(client, 'search', continuation=page_token)
+        return collect(result.get('onResponseReceivedCommands'))
+    result = request(client, 'search', query=query)
+    return collect(result.get('contents'))
+
+
+def related(client, video_id, page_token=None):
+    if page_token:
+        result = request(client, 'next', continuation=page_token)
+        return collect(result.get('onResponseReceivedEndpoints'))
+    result = request(client, 'next', videoId=video_id)
+    return collect(dig(result, 'contents', 'twoColumnWatchNextResults',
+                       'secondaryResults'))
+
+
+def channel_videos(client, channel_id, page_token=None):
+    if page_token:
+        result = request(client, 'browse', continuation=page_token)
+        page = collect(result.get('onResponseReceivedActions'))
+    else:
+        result = request(client, 'browse', browseId=channel_id,
+                         params=CHANNEL_VIDEOS_PARAMS)
+        page = collect(result.get('contents'))
+        page['title'] = (dig(result, 'metadata', 'channelMetadataRenderer',
+                             'title')
+                         or text(dig(result, 'header', 'pageHeaderRenderer',
+                                     'pageTitle')))
+    for item in page['items']:
+        if item['kind'] == 'video':
+            item['channel_id'] = item.get('channel_id') or channel_id
+            item['channel'] = item.get('channel') or page.get('title', '')
+    return page
+
+
+def playlist(client, playlist_id, page_token=None):
+    if page_token:
+        result = request(client, 'browse', continuation=page_token)
+        return collect(result.get('onResponseReceivedActions'))
+    result = request(client, 'browse', browseId='VL' + playlist_id)
+    return collect(result.get('contents'))
+
+
+def shelves(client, browse_id, client_name='tv', do_auth=False):
+    """The item lists of every shelf on a browse page, in page order."""
+    result = request(client, 'browse', client_name=client_name,
+                     do_auth=do_auth, browseId=browse_id)
+    found = []
+    stack = [result.get('contents')]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            for key in ('shelfRenderer', 'richShelfRenderer'):
+                if key in node:
+                    found.append(collect(node[key])['items'])
+                    break
+            else:
+                stack.extend(reversed(list(node.values())))
+        elif isinstance(node, list):
+            stack.extend(reversed(node))
+    return [entries for entries in found if entries]
+
+
+def videos_only(entries):
+    """Playable videos; upcoming premieres can't be played yet."""
+    return [item for item in entries
+            if item['kind'] == 'video' and not item.get('upcoming')]
+
+
+def destination(client, name):
+    page = shelves(client, DESTINATIONS[name])
+    return {'items': interleave(*[videos_only(e) for e in page])
+            if name == 'live' else
+            [item for entries in page for item in videos_only(entries)],
+            'next': None}
+
+
+def trending(client):
+    with ThreadPoolExecutor(max_workers=len(TRENDING_SOURCES)) as pool:
+        pages = list(pool.map(
+            lambda name: shelves(client, DESTINATIONS[name]),
+            TRENDING_SOURCES))
+    top = []
+    for page in pages:
+        page = [videos_only(entries) for entries in page]
+        top.extend(entries for entries in page[:TRENDING_SHELVES] if entries)
+    return {'items': interleave(*top), 'next': None}
+
+
+def home_feed(client):
+    """The signed-in account's own TV home feed (needs no API key either)."""
+    page = shelves(client, 'FEwhat_to_watch', do_auth=True)
+    return {'items': interleave(*[videos_only(e) for e in page]),
+            'next': None}
+
+
+def recommended(client, seed_ids):
+    """Related videos of recently watched ones, the way the engine builds
+    its own recommendations, but without the v3 detail lookups."""
+    seed_ids = list(seed_ids)[:RECOMMEND_SEEDS]
+    if not seed_ids:
+        return {'items': [], 'next': None}
+    with ThreadPoolExecutor(max_workers=len(seed_ids)) as pool:
+        pages = list(pool.map(lambda video_id: related(client, video_id),
+                              seed_ids))
+    watched = set(seed_ids)
+    merged = interleave(*[videos_only(page['items']) for page in pages])
+    return {'items': [item for item in merged if item['id'] not in watched],
+            'next': None}

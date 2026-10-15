@@ -52,9 +52,16 @@ PATH_SEARCH = PLUGIN + '/kodion/search/query/?q={}'
 PATH_RELATED = PLUGIN + '/special/related_videos/?video_id={}'
 PATH_CHANNEL = PLUGIN + '/channel/{}/'
 
+# Keyless equivalents served by leanback/routes.py straight from InnerTube.
+PATH_KEYLESS_FEED = PLUGIN + '/leanback/feed/{}/'
+PATH_KEYLESS_SEARCH = PLUGIN + '/leanback/search/?q={}'
+PATH_KEYLESS_RELATED = PLUGIN + '/leanback/related/?video_id={}'
+PATH_KEYLESS_CHANNEL = PLUGIN + '/leanback/channel/?channel_id={}&item_name={}'
+
 
 def has_api_key():
-    """The engine refuses nearly every YouTube request without a user key."""
+    """The engine's own listings need a user key for the Data API v3.
+    Without one the window switches to its keyless InnerTube routes."""
     try:
         return bool(addon().getSetting('youtube.api.key').strip())
     except RuntimeError:
@@ -73,6 +80,27 @@ def is_signed_in():
         xbmc.log('[{}] sign-in check failed: {}'.format(ADDON_ID, exc),
                  xbmc.LOGWARNING)
         return False
+
+
+def without_empty_local_lists(rows):
+    """Drop the history / watch later rows while those lists are empty.
+
+    Rows can't hide themselves when empty (see tools/gen_skin.py), and these
+    two are cheap to check because the engine keeps them locally."""
+    try:
+        from youtube_plugin.kodion.context import XbmcContext
+
+        context = XbmcContext()
+        empty = set()
+        if not context.get_playback_history().get_items(limit=1):
+            empty.add(PATH_HISTORY)
+        if not context.get_watch_later_list().get_items():
+            empty.add(PATH_WATCH_LATER)
+    except Exception as exc:  # pylint: disable=broad-except
+        xbmc.log('[{}] local list check failed: {}'.format(ADDON_ID, exc),
+                 xbmc.LOGWARNING)
+        return rows
+    return [(label, path) for label, path in rows if path not in empty]
 
 
 class MainWindow(xbmcgui.WindowXML):
@@ -94,8 +122,6 @@ class MainWindow(xbmcgui.WindowXML):
             self._nav_ready = True
             self._push({'type': 'rows', 'nav': NAV_HOME,
                         'rows': self._home_rows()})
-            if not self._has_key:
-                self._prompt_for_key()
         else:
             self._show(self._views[-1])
 
@@ -121,12 +147,6 @@ class MainWindow(xbmcgui.WindowXML):
 
     # -- views ------------------------------------------------------------
 
-    def _prompt_for_key(self):
-        if xbmcgui.Dialog().yesno(addon().getAddonInfo('name'),
-                                  localize(39119)):
-            self._open_settings()
-        return self._has_key
-
     def _open_settings(self):
         addon().openSettings()
         self._has_key = has_api_key()
@@ -135,10 +155,9 @@ class MainWindow(xbmcgui.WindowXML):
                             'rows': self._home_rows()})
 
     def _home_rows(self):
-        rows = []
         if not self._has_key:
-            # Only the engine's local lists work without a key.
-            return [(39016, PATH_HISTORY), (39015, PATH_WATCH_LATER)]
+            return self._keyless_home_rows()
+        rows = []
         if setting_bool('leanback.home.subscriptions') and self._signed_in:
             rows.append((39013, PATH_SUBSCRIPTIONS))
         if setting_bool('leanback.home.recommendations'):
@@ -149,6 +168,27 @@ class MainWindow(xbmcgui.WindowXML):
             rows.append((39011, PATH_TRENDING))
         if setting_bool('leanback.home.live'):
             rows.append((39014, PATH_LIVE))
+        if setting_bool('leanback.home.watch_later'):
+            rows.append((39015, PATH_WATCH_LATER))
+        return rows
+
+    def _keyless_home_rows(self):
+        rows = []
+        feed = PATH_KEYLESS_FEED.format
+        if setting_bool('leanback.home.recommendations'):
+            rows.append((39012, feed('recommended')))
+        if setting_bool('leanback.home.trending'):
+            rows.append((39011, feed('trending')))
+        if setting_bool('leanback.home.history'):
+            rows.append((39016, PATH_HISTORY))
+        if setting_bool('leanback.home.live'):
+            rows.append((39014, feed('live')))
+        if setting_bool('leanback.home.trending'):
+            # YouTube's Explore destinations stand in for the gone
+            # Trending page and for the v3 category charts.
+            rows += [(39017, feed('news')),
+                     (39018, feed('sports')),
+                     (39019, feed('gaming'))]
         if setting_bool('leanback.home.watch_later'):
             rows.append((39015, PATH_WATCH_LATER))
         return rows
@@ -179,10 +219,13 @@ class MainWindow(xbmcgui.WindowXML):
     def _show(self, view):
         self.setProperty('view', view['type'])
         if view['type'] == 'rows':
+            # Re-checked on every show, so history appears after the first
+            # video without rebuilding the view.
+            rows = without_empty_local_lists(view['rows'])
             for index, row_id in enumerate(ROW_IDS):
                 prefix = 'row{}.'.format(index + 1)
-                if index < len(view['rows']):
-                    label, path = view['rows'][index]
+                if index < len(rows):
+                    label, path = rows[index]
                     self.setProperty(prefix + 'label', localize(label))
                     self.setProperty(prefix + 'path', path)
                 else:
@@ -249,12 +292,11 @@ class MainWindow(xbmcgui.WindowXML):
             self._reset_to({'type': 'rows', 'nav': key,
                             'rows': self._home_rows(), 'focus_content': True})
         elif key == NAV_SEARCH:
-            if not self._has_key and not self._prompt_for_key():
-                return
             query = xbmcgui.Dialog().input(localize(39107))
             if query:
+                path = PATH_SEARCH if self._has_key else PATH_KEYLESS_SEARCH
                 self._open_grid('{}: {}'.format(localize(39100), query),
-                                PATH_SEARCH.format(quote_plus(query)),
+                                path.format(quote_plus(query)),
                                 nav=key)
         elif key == NAV_SUBSCRIPTIONS:
             if not self._signed_in:
@@ -310,14 +352,21 @@ class MainWindow(xbmcgui.WindowXML):
         channel_id = self._item_info(control_id, 'Property(channel_id)')
         channel = self._item_info(control_id, 'Artist')
         options = []
+        if self._has_key:
+            related_path = PATH_RELATED.format(video_id)
+            channel_path = PATH_CHANNEL.format(channel_id)
+        else:
+            related_path = PATH_KEYLESS_RELATED.format(video_id)
+            channel_path = PATH_KEYLESS_CHANNEL.format(
+                channel_id, quote_plus(channel))
         if video_id:
             options.append((localize(39108),
                             lambda: self._play(path, video_id)))
             options.append((localize(39110), lambda: self._open_grid(
-                localize(39110), PATH_RELATED.format(video_id))))
+                localize(39110), related_path)))
         if channel_id:
             options.append((localize(39109), lambda: self._open_grid(
-                channel or localize(39109), PATH_CHANNEL.format(channel_id))))
+                channel or localize(39109), channel_path)))
         if not options:
             return
         choice = xbmcgui.Dialog().contextmenu([label for label, _ in options])

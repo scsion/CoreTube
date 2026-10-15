@@ -66,7 +66,7 @@
             <visible>String.IsEqual(Window.Property(view),rows)</visible>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row1.path)) + [Container(101).IsUpdating | Integer.IsGreater(Container(101).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row1.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
@@ -202,7 +202,7 @@
             </control>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row2.path)) + [Container(102).IsUpdating | Integer.IsGreater(Container(102).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row2.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
@@ -338,7 +338,7 @@
             </control>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row3.path)) + [Container(103).IsUpdating | Integer.IsGreater(Container(103).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row3.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
@@ -474,7 +474,7 @@
             </control>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row4.path)) + [Container(104).IsUpdating | Integer.IsGreater(Container(104).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row4.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
@@ -610,7 +610,7 @@
             </control>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row5.path)) + [Container(105).IsUpdating | Integer.IsGreater(Container(105).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row5.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
@@ -746,7 +746,7 @@
             </control>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row6.path)) + [Container(106).IsUpdating | Integer.IsGreater(Container(106).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row6.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
@@ -882,7 +882,7 @@
             </control>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row7.path)) + [Container(107).IsUpdating | Integer.IsGreater(Container(107).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row7.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
@@ -1018,7 +1018,7 @@
             </control>
             <control type="group">
                 <height>380</height>
-                <visible>!String.IsEmpty(Window.Property(row8.path)) + [Container(108).IsUpdating | Integer.IsGreater(Container(108).NumItems,0)]</visible>
+                <visible>!String.IsEmpty(Window.Property(row8.path))</visible>
                 <control type="label">
                     <left>14</left><top>0</top>
                     <width>1200</width><height>44</height>
