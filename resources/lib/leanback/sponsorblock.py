@@ -50,7 +50,7 @@ END_TOLERANCE = 0.75
 
 
 def log(msg, level=xbmc.LOGINFO):
-    xbmc.log('[script.youtube.leanback] SponsorBlock: ' + msg, level)
+    xbmc.log('[script.coretube] SponsorBlock: ' + msg, level)
 
 
 def enabled_categories():
@@ -63,7 +63,7 @@ def fetch_segments(video_id, categories):
     prefix = hashlib.sha256(video_id.encode('utf-8')).hexdigest()[:4]
     url = API_URL.format(prefix=prefix,
                          categories=quote(json.dumps(categories)))
-    request = Request(url, headers={'User-Agent': 'script.youtube.leanback'})
+    request = Request(url, headers={'User-Agent': 'script.coretube'})
     try:
         with urlopen(request, timeout=10) as response:
             data = json.loads(response.read().decode('utf-8'))

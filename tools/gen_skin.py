@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = (ROOT / 'resources' / 'skins' / 'Default' / '1080i'
-       / 'script-youtube-leanback-main.xml')
+       / 'script-coretube-main.xml')
 
 ROW_COUNT = 8
 NAV_ID = 9000
@@ -46,7 +46,7 @@ TEXT = 'FFF1F1F1'
 TEXT_DIM = 'FFAAAAAA'
 DARK_TEXT = 'FF0F0F0F'
 ACCENT = 'FFFF0033'        # YouTube red: progress bars, live badge
-ADDON = 'script.youtube.leanback'
+ADDON = 'script.coretube'
 
 # Bald's fonts (DM Sans). Sizes match YouTube TV's at 1080p.
 FONT_SHELF = 'font25_title'      # SemiBold 25 - shelf titles

@@ -19,9 +19,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 UPSTREAM_ID = 'plugin.video.youtube'
-ADDON_ID = 'script.youtube.leanback'
+ADDON_ID = 'script.coretube'
 # Upstream's local MPD/proxy server port. Shifted so both add-ons can coexist.
-WINDOW_XML = 'script-youtube-leanback-main.xml'
+WINDOW_XML = 'script-coretube-main.xml'
 UPSTREAM_PORT = '50152'
 ADDON_PORT = '50162'
 

@@ -43,7 +43,7 @@
                 <focusedcolor>FF0F0F0F</focusedcolor>
                 <texturefocus border="35" colordiffuse="FFF1F1F1">pill70.png</texturefocus>
                 <texturenofocus border="35" colordiffuse="FF272727">pill70.png</texturenofocus>
-                <label>$ADDON[script.youtube.leanback 39100]</label>
+                <label>$ADDON[script.coretube 39100]</label>
                 <onleft>9000</onleft>
                 <ondown>101</ondown>
             </control>
@@ -2024,7 +2024,7 @@
                 <font>font13</font><aligny>center</aligny>
                 <textcolor>FFAAAAAA</textcolor>
                 <visible>String.IsEmpty(Window.Property(search.query))</visible>
-                <label>$ADDON[script.youtube.leanback 39107]</label>
+                <label>$ADDON[script.coretube 39107]</label>
             </control>
             <control type="image">
                 <left>1430</left><top>67</top>
@@ -2935,14 +2935,14 @@
                 <font>font13</font><align>center</align>
                 <textcolor>FFAAAAAA</textcolor>
                 <visible>String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container(200).NumItems,0)</visible>
-                <label>$ADDON[script.youtube.leanback 39127]</label>
+                <label>$ADDON[script.coretube 39127]</label>
             </control>
             <control type="label">
                 <left>156</left><top>400</top><width>1600</width><height>60</height>
                 <font>font13</font><align>center</align>
                 <textcolor>FFAAAAAA</textcolor>
                 <visible>!String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container(200).NumItems,0)</visible>
-                <label>$ADDON[script.youtube.leanback 39118]</label>
+                <label>$ADDON[script.coretube 39118]</label>
             </control>
             <control type="panel" id="200">
                 <left>146</left><top>150</top><width>1774</width><height>930</height>

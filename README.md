@@ -61,9 +61,9 @@ Settings → **API**. CoreTube then uses the official API listings instead.
 Instead of widgets, CoreTube works well as its own entry in Bald's home menu:
 
 1. Open Bald's home menu editor and add a new item labelled **CoreTube**.
-2. Set its action to `RunScript(script.youtube.leanback)`.
+2. Set its action to `RunScript(script.coretube)`.
 3. Optionally, set its background to
-   `special://home/addons/script.youtube.leanback/resources/brand/fanart.jpg`.
+   `special://home/addons/script.coretube/resources/brand/fanart.jpg`.
 
 Selecting the entry opens the TV interface straight away. Opening CoreTube
 from **Videos → Video add-ons** does the same.

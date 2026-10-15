@@ -24,7 +24,7 @@ from .const_lang_region import (
 
 
 # Addon paths
-ADDON_ID = 'script.youtube.leanback'
+ADDON_ID = 'script.coretube'
 ADDON_PATH = 'special://home/addons/' + ADDON_ID
 DATA_PATH = 'special://profile/addon_data/' + ADDON_ID
 MEDIA_PATH = ADDON_PATH + '/resources/media'

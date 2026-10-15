@@ -25,7 +25,7 @@ from . import brand
 from . import search
 from .loader import RowLoader
 
-XML_FILE = 'script-youtube-leanback-main.xml'
+XML_FILE = 'script-coretube-main.xml'
 
 NAV_LIST = 9000
 ROWS_GROUP = 100

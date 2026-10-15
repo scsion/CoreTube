@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <settings version="1">
-    <section id="script.youtube.leanback">
+    <section id="script.coretube">
         <category id="leanback" label="39000" help="">
             <group id="leanback_home" label="39010">
                 <setting id="leanback.home.trending" type="boolean" label="39011" help="">

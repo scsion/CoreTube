@@ -7,7 +7,7 @@
 
 import xbmcaddon
 
-ADDON_ID = 'script.youtube.leanback'
+ADDON_ID = 'script.coretube'
 PLUGIN = 'plugin://' + ADDON_ID
 # Home window property the GUI sets just before it starts playback, so the
 # SponsorBlock service knows the video id even if the player item lacks it.

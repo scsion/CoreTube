@@ -4,7 +4,7 @@
     python tools/build_zip.py   ->   dist/CoreTube-<version>.zip
 
 The zip is named for people downloading it; inside, the add-on keeps its
-id (script.youtube.leanback), which Kodi needs as the top folder.
+id (script.coretube), which Kodi needs as the top folder.
 """
 
 import re
@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ADDON_ID = 'script.youtube.leanback'
+ADDON_ID = 'script.coretube'
 INCLUDE = ['addon.xml', 'README.md', 'UPSTREAM_VERSION', 'LICENSES', 'resources']
 # Build inputs only - already merged into settings.xml / strings.po.
 EXCLUDE_NAMES = {'leanback_settings.xml', 'leanback_strings.po'}

@@ -108,7 +108,7 @@ class RequestHandler(BaseHTTPRequestHandler, object):
     log = logging.getLogger(__name__)
 
     protocol_version = 'HTTP/1.1'
-    server_version = 'script.youtube.leanback/1.0'
+    server_version = 'script.coretube/1.0'
 
     _context = None
     _close_all = False

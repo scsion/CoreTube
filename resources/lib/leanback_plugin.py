@@ -19,7 +19,7 @@ import sys
 import xbmc
 import xbmcplugin
 
-ROOT = 'plugin://script.youtube.leanback'
+ROOT = 'plugin://script.coretube'
 
 
 def _opened_from_video_addons():
@@ -33,7 +33,7 @@ def _opened_from_video_addons():
 
 if _opened_from_video_addons():
     xbmcplugin.endOfDirectory(int(sys.argv[1]), succeeded=False)
-    xbmc.executebuiltin('RunScript(script.youtube.leanback)')
+    xbmc.executebuiltin('RunScript(script.coretube)')
 else:
     from leanback import routes  # noqa: F401 - registers the /leanback/ paths
     from youtube_plugin.kodion import plugin_runner
