@@ -1759,3 +1759,7 @@ msgctxt "#39118"
 msgid "Nothing here yet"
 msgstr ""
 
+msgctxt "#39119"
+msgid "YouTube requires your own API key. Enter it under Settings > API (the README explains how to create one). Open settings now?"
+msgstr ""
+

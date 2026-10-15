@@ -1098,7 +1098,7 @@ class XbmcContext(AbstractContext):
         return self.is_plugin_path(
             uri=XbmcContextUI.get_container_info(
                 FOLDER_URI,
-            ),
+            ) or '',
             uri_path=folder_path,
             partial=partial,
         )

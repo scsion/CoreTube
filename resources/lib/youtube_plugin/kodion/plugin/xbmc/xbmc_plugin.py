@@ -401,7 +401,8 @@ class XbmcPlugin(AbstractPlugin):
                                 WINDOW_RETURN: False,
                             }),
                         )
-                    else:
+                    elif not xbmc.getCondVisibility(
+                            'Window.IsActive(script-youtube-leanback-main.xml)'):
                         _, _post_run_action = self.uri_action(
                             context,
                             'command://Action(Back)',

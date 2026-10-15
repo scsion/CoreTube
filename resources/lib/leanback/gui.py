@@ -53,6 +53,14 @@ PATH_RELATED = PLUGIN + '/special/related_videos/?video_id={}'
 PATH_CHANNEL = PLUGIN + '/channel/{}/'
 
 
+def has_api_key():
+    """The engine refuses nearly every YouTube request without a user key."""
+    try:
+        return bool(addon().getSetting('youtube.api.key').strip())
+    except RuntimeError:
+        return False
+
+
 def is_signed_in():
     """Ask the engine's access manager whether a YouTube account is linked."""
     try:
@@ -72,6 +80,7 @@ class MainWindow(xbmcgui.WindowXML):
         super(MainWindow, self).__init__(*args, **kwargs)
         self._views = []
         self._signed_in = False
+        self._has_key = False
         self._nav_ready = False
 
     # -- lifecycle --------------------------------------------------------
@@ -80,10 +89,13 @@ class MainWindow(xbmcgui.WindowXML):
         # onInit runs again whenever we come back from fullscreen video.
         if not self._nav_ready:
             self._signed_in = is_signed_in()
+            self._has_key = has_api_key()
             self._build_nav()
             self._nav_ready = True
             self._push({'type': 'rows', 'nav': NAV_HOME,
                         'rows': self._home_rows()})
+            if not self._has_key:
+                self._prompt_for_key()
         else:
             self._show(self._views[-1])
 
@@ -109,8 +121,24 @@ class MainWindow(xbmcgui.WindowXML):
 
     # -- views ------------------------------------------------------------
 
+    def _prompt_for_key(self):
+        if xbmcgui.Dialog().yesno(addon().getAddonInfo('name'),
+                                  localize(39119)):
+            self._open_settings()
+        return self._has_key
+
+    def _open_settings(self):
+        addon().openSettings()
+        self._has_key = has_api_key()
+        if self._views and self._views[-1].get('nav') == NAV_HOME:
+            self._reset_to({'type': 'rows', 'nav': NAV_HOME,
+                            'rows': self._home_rows()})
+
     def _home_rows(self):
         rows = []
+        if not self._has_key:
+            # Only the engine's local lists work without a key.
+            return [(39016, PATH_HISTORY), (39015, PATH_WATCH_LATER)]
         if setting_bool('leanback.home.subscriptions') and self._signed_in:
             rows.append((39013, PATH_SUBSCRIPTIONS))
         if setting_bool('leanback.home.recommendations'):
@@ -221,6 +249,8 @@ class MainWindow(xbmcgui.WindowXML):
             self._reset_to({'type': 'rows', 'nav': key,
                             'rows': self._home_rows(), 'focus_content': True})
         elif key == NAV_SEARCH:
+            if not self._has_key and not self._prompt_for_key():
+                return
             query = xbmcgui.Dialog().input(localize(39107))
             if query:
                 self._open_grid('{}: {}'.format(localize(39100), query),
@@ -245,10 +275,7 @@ class MainWindow(xbmcgui.WindowXML):
             self._reset_to({'type': 'rows', 'nav': NAV_HOME,
                             'rows': self._home_rows()})
         elif key == NAV_SETTINGS:
-            addon().openSettings()
-            if self._views and self._views[-1].get('nav') == NAV_HOME:
-                self._reset_to({'type': 'rows', 'nav': NAV_HOME,
-                                'rows': self._home_rows()})
+            self._open_settings()
 
     def _item_info(self, control_id, label):
         return xbmc.getInfoLabel(

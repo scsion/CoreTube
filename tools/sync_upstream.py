@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 UPSTREAM_ID = 'plugin.video.youtube'
 ADDON_ID = 'script.youtube.leanback'
 # Upstream's local MPD/proxy server port. Shifted so both add-ons can coexist.
+WINDOW_XML = 'script-youtube-leanback-main.xml'
 UPSTREAM_PORT = '50152'
 ADDON_PORT = '50162'
 
@@ -41,13 +42,19 @@ LEANBACK_STRINGS_FILE = ROOT / 'resources' / 'leanback_strings.po'
 
 def copy(src, dst):
     if dst.is_dir():
-        shutil.rmtree(dst)
+        # Empty it rather than removing it: on Windows a directory that is
+        # some process's cwd can't be deleted, but its contents can.
+        for child in dst.iterdir():
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
     elif dst.exists():
         dst.unlink()
     dst.parent.mkdir(parents=True, exist_ok=True)
     if src.is_dir():
-        shutil.copytree(src, dst, ignore=shutil.ignore_patterns(
-            '__pycache__', '*.pyc'))
+        shutil.copytree(src, dst, dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
     else:
         shutil.copy2(src, dst)
 
@@ -87,6 +94,30 @@ def main():
     patch(lib / 'kodion' / 'network' / 'http_server.py', [
         ("server_version = '{}/1.0'".format(UPSTREAM_ID),
          "server_version = '{}/1.0'".format(ADDON_ID), 1),
+    ])
+    # Listings requested by the leanback window's containers have no plugin
+    # folder: container info comes back as False rather than a path.
+    patch(lib / 'kodion' / 'context' / 'xbmc' / 'xbmc_context.py', [
+        ('            uri=XbmcContextUI.get_container_info(\n'
+         '                FOLDER_URI,\n'
+         '            ),\n',
+         '            uri=XbmcContextUI.get_container_info(\n'
+         '                FOLDER_URI,\n'
+         "            ) or '',\n", 1),
+    ])
+    # A failed listing makes the engine send Action(Back); inside the
+    # leanback window that would close pages or exit, so skip it there.
+    patch(lib / 'kodion' / 'plugin' / 'xbmc' / 'xbmc_plugin.py', [
+        ('                    else:\n'
+         '                        _, _post_run_action = self.uri_action(\n'
+         '                            context,\n'
+         "                            'command://Action(Back)',\n",
+         '                    elif not xbmc.getCondVisibility(\n'
+         "                            'Window.IsActive({})'):\n"
+         '                        _, _post_run_action = self.uri_action(\n'
+         '                            context,\n'
+         "                            'command://Action(Back)',\n"
+         .format(WINDOW_XML), 1),
     ])
 
     settings = ROOT / 'resources' / 'settings.xml'
