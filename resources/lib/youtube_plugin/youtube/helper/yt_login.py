@@ -61,7 +61,6 @@ def _do_login(provider, context, client=None, **kwargs):
     function_cache = context.get_function_cache()
     ui = context.get_ui()
 
-    ui.on_ok(localize('sign.multi.title'), localize('sign.multi.text'))
 
     (
         access_tokens,

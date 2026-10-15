@@ -11,6 +11,7 @@ The QR matrix comes from script.module.pyqrcode (Kodi's official repo);
 the PNG is written here with zlib, so no image library is needed.
 """
 
+import os
 import struct
 import zlib
 
@@ -94,9 +95,11 @@ class SignInDialog(object):
         shown_url = url.split('://', 1)[-1]
         if shown_url.startswith('www.'):
             shown_url = shown_url[4:]
-        # One file per code: Kodi caches textures by path.
-        self._qr = QR_PATH.format(ADDON_ID, code)
-        has_qr = write_qr('{}?user_code={}'.format(url, code), self._qr)
+        # One file per code: Kodi caches textures by path. A real path, not
+        # special://, for Kodi's texture loader.
+        self._qr = xbmcvfs.translatePath(QR_PATH.format(ADDON_ID, code))
+        self._qr_retry = self._qr[:-4] + '-2.png'
+        self._has_qr = write_qr('{}?user_code={}'.format(url, code), self._qr)
         self._total = 1
         self._done = 0
         self._window = _Window(XML_FILE, addon().getAddonInfo('path'),
@@ -108,18 +111,25 @@ class SignInDialog(object):
                                  localize(39132).format(shown_url))
         self._window.setProperty('code', code)
         self._window.setProperty('status', localize(39133))
-        self._window.setProperty('qr', self._qr if has_qr else '')
         self._set_expiry()
 
     def __enter__(self):
         self._window.show()
+        # Point at the image only once the dialog is up: set while Kodi was
+        # still opening it, the texture load could fail and never retry.
+        xbmc.Monitor().waitForAbort(0.3)
+        if self._has_qr:
+            self._window.setProperty('qr', self._qr)
         return self
 
     def __exit__(self, *exc):
         self._window.close()
         del self._window
-        if xbmcvfs.exists(self._qr):
-            xbmcvfs.delete(self._qr)
+        for path in (self._qr, self._qr_retry):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
         return False
 
     # The engine's progress dialog interface.
@@ -132,6 +142,17 @@ class SignInDialog(object):
     def update(self, *_args, **_kwargs):
         self._done += 1
         self._set_expiry()
+        # Second poll, a few seconds in: show a fresh copy of the image, so
+        # a texture load that failed gets another go under a new path.
+        if self._done == 2 and self._has_qr:
+            try:
+                with open(self._qr, 'rb') as src:
+                    data = src.read()
+                with open(self._qr_retry, 'wb') as dst:
+                    dst.write(data)
+            except OSError:
+                return
+            self._window.setProperty('qr', self._qr_retry)
 
     def _set_expiry(self):
         left = CODE_MINUTES * (self._total - self._done)

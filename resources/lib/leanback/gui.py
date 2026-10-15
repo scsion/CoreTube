@@ -790,9 +790,17 @@ class MainWindow(xbmcgui.WindowXML):
                             'rows': self._library_rows(),
                             'focus_content': True})
         elif key == NAV_ACCOUNT:
-            mode = 'out' if self._signed_in else 'in'
-            xbmc.executebuiltin('RunPlugin({}/sign/{}/)'.format(PLUGIN, mode),
-                                True)
+            if self._signed_in:
+                # Ask here rather than in the engine: its Yes/No, opened from
+                # a plugin call, can come up with nothing focused, and then
+                # the remote can't answer it.
+                if not xbmcgui.Dialog().yesno(localize(39105),
+                                              xbmc.getLocalizedString(750)):
+                    return
+                path = '{}/sign/out/?confirmed=true'.format(PLUGIN)
+            else:
+                path = '{}/sign/in/'.format(PLUGIN)
+            xbmc.executebuiltin('RunPlugin({})'.format(path), True)
             self._signed_in = is_signed_in()
             self._build_nav()
             self._reset_to({'type': 'rows', 'nav': NAV_HOME,

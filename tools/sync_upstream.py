@@ -214,6 +214,11 @@ def main():
     # code that opens google.com/device with the code filled in, and
     # "Step 1 of 2" so the second code (VR client) isn't taken for a repeat.
     patch(lib / 'youtube' / 'helper' / 'yt_login.py', [
+        # The upstream "you may be prompted ... multiple applications" box
+        # before the first code: our dialog says Step 1 of 2 instead.
+        ("    ui.on_ok(localize('sign.multi.title'),"
+         " localize('sign.multi.text'))\n",
+         '', 1),
         ('from ...kodion import logging\n',
          'from ...kodion import logging\n'
          'from leanback.signin import sign_in_dialog\n', 1),
