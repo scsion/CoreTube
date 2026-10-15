@@ -31,6 +31,22 @@
                     <control type="toggle"/>
                 </setting>
             </group>
+            <group id="leanback_appearance" label="39050">
+                <setting id="leanback.logo" type="string" label="39051" help="39052">
+                    <level>0</level>
+                    <default>a</default>
+                    <constraints>
+                        <options>
+                            <option label="39053">a</option>
+                            <option label="39054">b</option>
+                        </options>
+                        <allowempty>false</allowempty>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>39051</heading>
+                    </control>
+                </setting>
+            </group>
             <group id="leanback_sponsorblock" label="39030">
                 <setting id="leanback.sb.enabled" type="boolean" label="39020" help="">
                     <level>0</level>

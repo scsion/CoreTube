@@ -27,6 +27,14 @@ RED = (227, 6, 19, 255)
 WHITE = (255, 255, 255, 255)
 BG = (15, 15, 15)
 
+# The two logo options users pick between in the add-on settings
+# (leanback.logo): YouTube's red play badge, or a white one with a red
+# triangle that stands out more against the red ring when small.
+VARIANTS = {
+    'a': {'badge': RED, 'play': WHITE},
+    'b': {'badge': WHITE, 'play': RED},
+}
+
 # Emblem geometry in CoreELEC's 128 px logo units, centre at (64, 64).
 UNIT = 128
 RING_R, RING_W = 54, 16           # red ring: mid radius, stroke
@@ -87,9 +95,9 @@ def wordmark(fonts, height, color=WHITE):
                       Image.LANCZOS)
 
 
-def lockup(fonts, height, gap=0.28):
+def lockup(fonts, height, gap=0.28, variant='a'):
     """Emblem left of the wordmark, wordmark cap height ~ 0.42 emblem."""
-    mark = emblem(height)
+    mark = emblem(height, **VARIANTS[variant])
     words = wordmark(fonts, int(height * 0.48))
     w = mark.width + int(height * gap) + words.width
     img = Image.new('RGBA', (w, height), (0, 0, 0, 0))
@@ -99,7 +107,7 @@ def lockup(fonts, height, gap=0.28):
     return img
 
 
-def background(fonts, size=(1920, 1080), with_logo=True):
+def background(fonts, size=(1920, 1080), with_logo=True, variant='a'):
     """Neutral backdrop: near-black with a soft red glow behind a centred
     lockup, quiet enough to sit behind any menu."""
     w, h = size
@@ -116,7 +124,7 @@ def background(fonts, size=(1920, 1080), with_logo=True):
     img = img.convert('RGBA')
     img.alpha_composite(ring, (int(w * 0.52), int(-h * 0.15)))
     if with_logo:
-        logo = lockup(fonts, int(h * 0.16))
+        logo = lockup(fonts, int(h * 0.16), variant=variant)
         img.alpha_composite(logo, ((w - logo.width) // 2,
                                    (h - logo.height) // 2))
     return img.convert('RGB')
@@ -128,13 +136,18 @@ def main():
                         help='folder with Gotham-Medium.otf and Gotham-Light.otf')
     args = parser.parse_args()
 
-    outputs = {
-        SKIN_MEDIA / 'brand_emblem.png': emblem(96),
-        SKIN_MEDIA / 'brand_wordmark.png': wordmark(args.fonts, 48),
-        BRAND / 'icon.png': _icon(),
-        BRAND / 'fanart.jpg': background(args.fonts),
-        SKIN_MEDIA / 'brand_lockup.png': lockup(args.fonts, 64),
-    }
+    # Per option: the window header's lockup, and the icon and backdrop that
+    # leanback/brand.py copies to resources/brand/ when the option changes
+    # (the add-on icon and the Bald hub point there). Option A ships active.
+    outputs = {}
+    for name in VARIANTS:
+        outputs[SKIN_MEDIA / 'brand_lockup_{}.png'.format(name)] = lockup(
+            args.fonts, 64, variant=name)
+        outputs[BRAND / name / 'icon.png'] = _icon(name)
+        outputs[BRAND / name / 'fanart.jpg'] = background(args.fonts,
+                                                          variant=name)
+    outputs[BRAND / 'icon.png'] = _icon('a')
+    outputs[BRAND / 'fanart.jpg'] = background(args.fonts, variant='a')
     for path, img in outputs.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         if path.suffix == '.jpg':
@@ -144,10 +157,10 @@ def main():
         print('Wrote', path.relative_to(ROOT))
 
 
-def _icon():
+def _icon(variant):
     """Add-on icon: the emblem on Kodi's dark tile."""
     img = Image.new('RGBA', (256, 256), BG + (255,))
-    img.alpha_composite(emblem(196), (30, 30))
+    img.alpha_composite(emblem(196, **VARIANTS[variant]), (30, 30))
     return img
 
 

@@ -1695,6 +1695,26 @@ msgctxt "#39038"
 msgid "Filler tangents"
 msgstr ""
 
+msgctxt "#39050"
+msgid "Appearance"
+msgstr ""
+
+msgctxt "#39051"
+msgid "CoreTube logo"
+msgstr ""
+
+msgctxt "#39052"
+msgid "The emblem in the TV interface header, the add-on icon and the background behind the CoreTube menu entry. Both keep CoreELEC's red open ring with YouTube's play badge inside. A: YouTube's own red badge with a white play triangle, as on its TV app. B: a white badge with a red play triangle, which stands out more against the red ring, especially when small."
+msgstr ""
+
+msgctxt "#39053"
+msgid "A - Red YouTube badge (YouTube TV style)"
+msgstr ""
+
+msgctxt "#39054"
+msgid "B - White badge, red play triangle (high contrast)"
+msgstr ""
+
 msgctxt "#39100"
 msgid "Search"
 msgstr ""

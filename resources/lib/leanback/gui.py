@@ -17,6 +17,7 @@ import xbmc
 import xbmcgui
 
 from . import ADDON_ID, HINT_PROPERTY, PLUGIN, addon, localize, setting_bool
+from . import brand
 from .loader import RowLoader
 
 XML_FILE = 'script-youtube-leanback-main.xml'
@@ -123,6 +124,7 @@ class MainWindow(xbmcgui.WindowXML):
 
     def onInit(self):
         # onInit runs again whenever we come back from fullscreen video.
+        self.setProperty('logo', brand.current())
         if not self._nav_ready:
             self._signed_in = is_signed_in()
             self._has_key = has_api_key()
@@ -159,6 +161,7 @@ class MainWindow(xbmcgui.WindowXML):
 
     def _open_settings(self):
         addon().openSettings()
+        self.setProperty('logo', brand.current())
         self._has_key = has_api_key()
         if self._views and self._views[-1].get('nav') == NAV_HOME:
             self._reset_to({'type': 'rows', 'nav': NAV_HOME,
