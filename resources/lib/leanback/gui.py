@@ -38,9 +38,9 @@ KEYS = 400
 KEY_ACTIONS = 401
 SUGGESTIONS = 402
 RESULTS = 403
-# Channel page tabs above its grid.
+# Channel page tabs above its grid: the channel's own (YouTube names and
+# orders them), opening on the first, normally Home.
 TABS = 210
-CHANNEL_TABS = (('videos', 39124), ('live', 39125), ('playlists', 39126))
 CONTENT_IDS = ROW_IDS + (GRID, RESULTS)
 
 FOCUS_WAIT_STEPS = 50
@@ -299,10 +299,6 @@ class MainWindow(xbmcgui.WindowXML):
             focus = ROWS_GROUP
         elif view['type'] == 'channel':
             self._show_channel(view)
-            if view.pop('focus_content', False):
-                # The tabs show at once; the videos take focus on arrival.
-                self.setFocusId(TABS)
-                self._focus_when_filled(GRID, start_focus=TABS)
             return
         elif view['type'] == 'search':
             self._show_search()
@@ -323,24 +319,43 @@ class MainWindow(xbmcgui.WindowXML):
     def _open_channel(self, channel_id, name=''):
         self._push({'type': 'channel', 'channel_id': channel_id,
                     'title': re.sub(r'\[/?[A-Z]+\]', '', name or ''),
-                    'tab': 'videos', 'focus_content': True})
+                    'tab': None, 'focus_content': True})
 
     def _show_channel(self, view):
+        """The header and tabs come first (they say which tabs exist);
+        the open tab's grid follows."""
         self._loader.cancel()
         self._paging.clear()
-        channel_id = view['channel_id']
-        header = view.get('header')
+        if view.get('header') is not None:
+            self._show_channel_tab(view)
+            return
+        self._set_channel_header(view, {})
+        self.getControl(TABS).reset()
+        self._tab_keys = ()
+        self.setProperty('grid.loading', 'true')
+        self.getControl(GRID).reset()
+        self._paths.pop(GRID, None)
+
+        def fetch():
+            view['header'] = (self._loader.engine.channel_header(
+                view['channel_id']) or {})
+            if self._views and self._views[-1] is view:
+                self._show_channel_tab(view)
+        threading.Thread(target=fetch, daemon=True).start()
+
+    def _show_channel_tab(self, view):
+        header = view['header']
+        tabs = header.get('tabs') or [{'key': 'videos', 'title': 'Videos'}]
+        if view['tab'] not in [tab['key'] for tab in tabs]:
+            view['tab'] = tabs[0]['key']
         self._set_channel_header(view, header)
-        if header is None:
-            def fetch():
-                result = self._loader.engine.channel_header(channel_id)
-                view['header'] = result or {}
-                if self._views and self._views[-1] is view:
-                    self._set_channel_header(view, view['header'])
-            threading.Thread(target=fetch, daemon=True).start()
         self._fill(GRID, PATH_CHANNEL_TAB.format(
-            tab=view['tab'], channel_id=channel_id,
+            tab=view['tab'], channel_id=view['channel_id'],
             name=quote_plus(view.get('title') or '')), 'grid.loading')
+        if view.pop('focus_content', False):
+            # The tabs show at once; the videos take focus on arrival.
+            self.setFocusId(TABS)
+            self._focus_when_filled(GRID, start_focus=TABS)
 
     def _set_channel_header(self, view, header):
         header = header or {}
@@ -356,17 +371,20 @@ class MainWindow(xbmcgui.WindowXML):
                 self.setProperty('channel.' + key, value)
             else:
                 self.clearProperty('channel.' + key)
-        # Always the same three tabs (a channel without one shows an empty
-        # grid), so the list is never rebuilt under the focus; only the
-        # open tab's marker moves.
+        # The list is only rebuilt for another channel's set of tabs, never
+        # under the focus when switching tabs; only the open tab's marker
+        # moves.
+        entries = header.get('tabs') or ()
+        keys = tuple(tab['key'] for tab in entries)
         tabs = self.getControl(TABS)
-        if tabs.size() != len(CHANNEL_TABS):
+        if keys != getattr(self, '_tab_keys', ()):
+            self._tab_keys = keys
             tabs.reset()
-            for key, label in CHANNEL_TABS:
-                item = xbmcgui.ListItem(localize(label))
-                item.setProperty('tab', key)
+            for tab in entries:
+                item = xbmcgui.ListItem(tab['title'])
+                item.setProperty('tab', tab['key'])
                 tabs.addItem(item)
-        for index, (key, _) in enumerate(CHANNEL_TABS):
+        for index, key in enumerate(keys):
             tabs.getListItem(index).setProperty(
                 'selected', 'true' if key == view['tab'] else '')
 
@@ -376,7 +394,9 @@ class MainWindow(xbmcgui.WindowXML):
         if view.get('type') != 'channel' or not tab or tab == view['tab']:
             return
         view['tab'] = tab
-        self._show_channel(view)
+        self._loader.cancel()
+        self._paging.clear()
+        self._show_channel_tab(view)
 
     # -- search -------------------------------------------------------------
 
@@ -589,6 +609,12 @@ class MainWindow(xbmcgui.WindowXML):
             self.setProperty('focusrow', str(ROW_IDS.index(control_id) + 1))
         elif control_id == SEARCH_BAR:
             self.setProperty('focusrow', '1')
+        elif control_id == TABS:
+            # Coming up from the videos lands on the open tab, as on YouTube.
+            view = self._views[-1] if self._views else {}
+            keys = getattr(self, '_tab_keys', ())
+            if view.get('type') == 'channel' and view.get('tab') in keys:
+                self.getControl(TABS).selectItem(keys.index(view['tab']))
 
     def onClick(self, control_id):
         if control_id == SEARCH_BAR:

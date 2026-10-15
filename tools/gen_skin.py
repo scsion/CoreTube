@@ -33,6 +33,7 @@ RESULTS_ID = 403
 # Channel page: tabs (Videos, Live, Playlists) above the grid.
 TABS_ID = 210
 CHANNEL_SHIFT = 160     # the grid sits this much lower under a channel header
+TAB_W = 200             # tab chip slot (chip plus gap)
 KEY = 67            # keyboard cell, as on YouTube TV at 1080p
 
 BG = 'FF0F0F0F'
@@ -495,70 +496,70 @@ def channel_header():
                 </control>
                 <control type="list" id="{tabs}">
                     <left>{tx}</left><top>184</top>
-                    <width>900</width><height>60</height>
+                    <width>1560</width><height>64</height>
                     <orientation>horizontal</orientation>
                     <onleft>{nav}</onleft>
                     <ondown>{grid}</ondown>
-                    <scrolltime>0</scrolltime>
-                    <itemlayout width="196" height="60">{tab}
+                    <scrolltime tween="cubic" easing="out">200</scrolltime>
+                    <itemlayout width="{tab_w}" height="64">{tab}
                     </itemlayout>
-                    <focusedlayout width="196" height="60">{tab_focused}
+                    <focusedlayout width="{tab_w}" height="64">{tab_focused}
                     </focusedlayout>
                 </control>
             </control>'''.format(
         view=VIEW_CHANNEL, x=CONTENT_X, tx=CONTENT_X + 174, bg=BG,
         surface=SURFACE, text=TEXT, dim=TEXT_DIM, font_page=FONT_PAGE,
         font_meta=FONT_META, tabs=TABS_ID, nav=NAV_ID, grid=GRID_ID,
-        tab=_tab(False), tab_focused=_tab(True))
+        tab=_tab(False), tab_focused=_tab(True), tab_w=TAB_W)
 
 
 def _tab(focused):
-    """Tab pill: white with dark text while focused; the open tab keeps a
-    grey pill and white text."""
+    """Tab chip, as YouTube draws its chips: a rounded rectangle, the open
+    tab light with dark text, the others dark grey with white text. The
+    focused chip gets the same white ring as a focused video tile."""
     on = 'Control.HasFocus({})'.format(TABS_ID) if focused else 'false'
     selected = 'String.IsEqual(ListItem.Property(selected),true)'
+    w, h = TAB_W - 16, 52
     return '''
                     <control type="image">
                         <left>0</left><top>0</top>
-                        <width>184</width><height>52</height>
-                        <visible>{on}</visible>
-                        <texture border="26" colordiffuse="{text}">pill.png</texture>
+                        <width>{w}</width><height>{h}</height>
+                        <visible>{selected}</visible>
+                        <texture border="12" colordiffuse="{light}">round12.png</texture>
                     </control>
                     <control type="image">
                         <left>0</left><top>0</top>
-                        <width>184</width><height>52</height>
-                        <visible>!{on} + {selected}</visible>
-                        <texture border="26" colordiffuse="{surface}">pill.png</texture>
+                        <width>{w}</width><height>{h}</height>
+                        <visible>!{selected}</visible>
+                        <texture border="12" colordiffuse="{surface}">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>-6</left><top>-6</top>
+                        <width>{rw}</width><height>{rh}</height>
+                        <visible>{on}</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>
                     <control type="label">
                         <left>0</left><top>0</top>
-                        <width>184</width><height>52</height>
+                        <width>{w}</width><height>{h}</height>
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>{dark}</textcolor>
-                        <visible>{on}</visible>
+                        <visible>{selected}</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
                         <left>0</left><top>0</top>
-                        <width>184</width><height>52</height>
+                        <width>{w}</width><height>{h}</height>
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>{text}</textcolor>
-                        <visible>!{on} + {selected}</visible>
+                        <visible>!{selected}</visible>
                         <label>$INFO[ListItem.Label]</label>
-                    </control>
-                    <control type="label">
-                        <left>0</left><top>0</top>
-                        <width>184</width><height>52</height>
-                        <font>{font}</font>
-                        <align>center</align><aligny>center</aligny>
-                        <textcolor>{dim}</textcolor>
-                        <visible>!{on} + !{selected}</visible>
-                        <label>$INFO[ListItem.Label]</label>
-                    </control>'''.format(on=on, selected=selected, text=TEXT,
-                                     surface=SURFACE, dark=DARK_TEXT,
-                                     dim=TEXT_DIM, font=FONT_META)
+                    </control>'''.format(on=on, selected=selected, w=w, h=h,
+                                     rw=w + 12, rh=h + 12, light=TEXT,
+                                     text=TEXT, surface=SURFACE,
+                                     dark=DARK_TEXT, font=FONT_TITLE)
 
 
 def search_view():

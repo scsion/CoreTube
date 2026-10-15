@@ -2557,90 +2557,84 @@
                 </control>
                 <control type="list" id="210">
                     <left>330</left><top>184</top>
-                    <width>900</width><height>60</height>
+                    <width>1560</width><height>64</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
                     <ondown>200</ondown>
-                    <scrolltime>0</scrolltime>
-                    <itemlayout width="196" height="60">
+                    <scrolltime tween="cubic" easing="out">200</scrolltime>
+                    <itemlayout width="200" height="64">
                     <control type="image">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <visible>false</visible>
-                        <texture border="26" colordiffuse="FFF1F1F1">pill.png</texture>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="image">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <visible>!false + String.IsEqual(ListItem.Property(selected),true)</visible>
-                        <texture border="26" colordiffuse="FF272727">pill.png</texture>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>-6</left><top>-6</top>
+                        <width>196</width><height>64</height>
+                        <visible>false</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>
                     <control type="label">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <font>font12</font>
+                        <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FF0F0F0F</textcolor>
-                        <visible>false</visible>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <font>font12</font>
+                        <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FFF1F1F1</textcolor>
-                        <visible>!false + String.IsEqual(ListItem.Property(selected),true)</visible>
-                        <label>$INFO[ListItem.Label]</label>
-                    </control>
-                    <control type="label">
-                        <left>0</left><top>0</top>
-                        <width>184</width><height>52</height>
-                        <font>font12</font>
-                        <align>center</align><aligny>center</aligny>
-                        <textcolor>FFAAAAAA</textcolor>
-                        <visible>!false + !String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     </itemlayout>
-                    <focusedlayout width="196" height="60">
+                    <focusedlayout width="200" height="64">
                     <control type="image">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <visible>Control.HasFocus(210)</visible>
-                        <texture border="26" colordiffuse="FFF1F1F1">pill.png</texture>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="image">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <visible>!Control.HasFocus(210) + String.IsEqual(ListItem.Property(selected),true)</visible>
-                        <texture border="26" colordiffuse="FF272727">pill.png</texture>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>-6</left><top>-6</top>
+                        <width>196</width><height>64</height>
+                        <visible>Control.HasFocus(210)</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>
                     <control type="label">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <font>font12</font>
+                        <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FF0F0F0F</textcolor>
-                        <visible>Control.HasFocus(210)</visible>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
                         <left>0</left><top>0</top>
                         <width>184</width><height>52</height>
-                        <font>font12</font>
+                        <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FFF1F1F1</textcolor>
-                        <visible>!Control.HasFocus(210) + String.IsEqual(ListItem.Property(selected),true)</visible>
-                        <label>$INFO[ListItem.Label]</label>
-                    </control>
-                    <control type="label">
-                        <left>0</left><top>0</top>
-                        <width>184</width><height>52</height>
-                        <font>font12</font>
-                        <align>center</align><aligny>center</aligny>
-                        <textcolor>FFAAAAAA</textcolor>
-                        <visible>!Control.HasFocus(210) + !String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     </focusedlayout>

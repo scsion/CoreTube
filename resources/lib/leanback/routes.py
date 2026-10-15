@@ -300,24 +300,26 @@ def on_related(provider, context, re_match):
 
 
 @AbstractProvider.register_path('^' + PATH_CHANNEL + '/?$')
-@AbstractProvider.register_path(
-    '^' + ROOT + '/channeltab/(?P<tab>videos|live|playlists)/?$')
+@AbstractProvider.register_path('^' + ROOT + '/channeltab/(?P<tab>[a-z0-9-]+)/?$')
 def on_channel(provider, context, re_match):
-    """A channel's videos, or one of its tabs at
-    /leanback/channeltab/<videos|live|playlists>/. (Not channel/<tab>/: the
-    engine reads the segment after 'channel' as a channel id.)"""
+    """A channel's videos, or one of its tabs (Home, Shorts, Live, Shows...)
+    at /leanback/channeltab/<tab key>/. (Not channel/<tab>/: the engine
+    reads the segment after 'channel' as a channel id.)"""
     channel_id = context.get_param(CHANNEL_ID)
     if not channel_id:
         return False, None
-    page = _cached(context, PAGE_CACHE, innertube.channel_videos,
+    page = _cached(context, PAGE_CACHE, innertube.channel_tab,
                    provider.get_client(context), channel_id,
-                   context.get_param('page_token'),
-                   (re_match.groupdict().get('tab') or 'videos'))
+                   re_match.groupdict().get('tab') or 'videos',
+                   context.get_param('page_token'))
     if page:
         # Continuation pages don't repeat the channel name.
-        name = page.get('title') or context.get_param('item_name')
+        name = (page.get('header_title') or page.get('title')
+                or context.get_param('item_name'))
         for data in page.get('items') or ():
-            data['channel'] = data.get('channel') or name
+            if data['kind'] == 'video':
+                data['channel'] = data.get('channel') or name
+                data['channel_id'] = data.get('channel_id') or channel_id
     return _listing(provider, context, page,
                     category_label=context.get_param('item_name'))
 

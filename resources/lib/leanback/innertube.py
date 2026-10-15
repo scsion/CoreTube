@@ -16,6 +16,7 @@
 """
 
 import re
+from urllib.parse import unquote
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
@@ -43,7 +44,9 @@ TRENDING_SHELVES = 2
 
 # Channel tab params (protobuf, from the web app) for the Videos tab.
 CHANNEL_VIDEOS_PARAMS = 'EgZ2aWRlb3PyBgQKAjoA'
-# The channel page tabs CoreTube shows, with the web app's tab params.
+# Channel tabs CoreTube doesn't show (community posts suit a phone).
+SKIPPED_TABS = frozenset(('posts', 'community'))
+# Known tab params, for when the channel header can't be read.
 CHANNEL_TABS = {
     'videos': CHANNEL_VIDEOS_PARAMS,
     'live': 'EgdzdHJlYW1z8gYECgJ6AA==',
@@ -406,6 +409,41 @@ def _parse_playlist_renderer(renderer):
     }
 
 
+def _parse_short(lockup):
+    """A Short in a channel's Shorts tab (or Home)."""
+    video_id = dig(lockup, 'onTap', 'innertubeCommand', 'reelWatchEndpoint',
+                   'videoId')
+    if not video_id:
+        return None
+    meta = lockup.get('overlayMetadata') or {}
+    item = {
+        'kind': 'video',
+        'id': video_id,
+        'title': text(meta.get('primaryText')),
+        'channel': '',
+        'channel_id': None,
+        'short': True,
+        '_thumbs': dig(lockup, 'thumbnail', 'sources'),
+    }
+    _classify((text(meta.get('secondaryText')),), item)
+    return _finish_video(item)
+
+
+def _parse_show(show):
+    """A channel 'Shows' card: opens like a playlist."""
+    browse_id = dig(show, 'navigationEndpoint', 'browseEndpoint', 'browseId')
+    if not browse_id:
+        return None
+    return {
+        'kind': 'playlist',
+        'id': browse_id[2:] if browse_id.startswith('VL') else browse_id,
+        'title': text(show.get('title')),
+        'thumb': best_thumbnail(dig(show, 'thumbnailRenderer',
+                                    'showCustomThumbnailRenderer',
+                                    'thumbnail', 'thumbnails')),
+    }
+
+
 PARSERS = {
     'videoRenderer': _parse_video_renderer,
     'compactVideoRenderer': _parse_video_renderer,
@@ -415,12 +453,20 @@ PARSERS = {
     'lockupViewModel': _parse_lockup,
     'channelRenderer': _parse_channel_renderer,
     'playlistRenderer': _parse_playlist_renderer,
+    'gridShowRenderer': _parse_show,
 }
+# Only on channel pages: elsewhere Shorts stay out of the 16:9 shelves.
+SHORTS_PARSERS = dict(PARSERS, shortsLockupViewModel=_parse_short)
 
 
-def collect(*roots):
+def collect(*roots, **options):
     """Pull every known item and the first continuation token out of the
-    given response subtrees, in document order."""
+    given response subtrees, in document order. shorts=True also takes
+    Shorts, which are skipped by default."""
+    shorts = options.get('shorts', False)
+    parsers = SHORTS_PARSERS if shorts else PARSERS
+    skip = _SKIP_KEYS - {'shortsLockupViewModel', 'reelShelfRenderer'} \
+        if shorts else _SKIP_KEYS
     items = []
     seen = set()
     state = {'next': None}
@@ -433,9 +479,9 @@ def collect(*roots):
         if not isinstance(node, dict):
             return
         for key, value in node.items():
-            if key in _SKIP_KEYS:
+            if key in skip:
                 continue
-            parser = PARSERS.get(key)
+            parser = parsers.get(key)
             if parser:
                 try:
                     item = parser(value)
@@ -521,14 +567,17 @@ def channel_header(client, channel_id):
             for row in dig(header, 'metadata', 'contentMetadataViewModel',
                            'metadataRows') or ()]
     parts = [part for row in rows for part in row if part]
-    tab_titles = set()
+    tabs = []
     for tab in dig(result, 'contents', 'twoColumnBrowseResultsRenderer',
                    'tabs') or ():
+        # The Search tab is an expandableTabRenderer without params.
         renderer = tab.get('tabRenderer') or {}
-        params = dig(renderer, 'endpoint', 'browseEndpoint', 'params') or ''
-        for name, tab_params in CHANNEL_TABS.items():
-            if params.replace('%3D', '=') == tab_params:
-                tab_titles.add(name)
+        params = dig(renderer, 'endpoint', 'browseEndpoint', 'params')
+        title = renderer.get('title')
+        # Posts are left out: they suit a phone better than a TV.
+        if params and title and tab_key(title) not in SKIPPED_TABS:
+            tabs.append({'key': tab_key(title), 'title': title,
+                         'params': unquote(params)})
     avatar = (dig(meta, 'avatar', 'thumbnails')
               or dig(header, 'image', 'decoratedAvatarViewModel', 'avatar',
                      'avatarViewModel', 'image', 'sources'))
@@ -543,19 +592,40 @@ def channel_header(client, channel_id):
         'avatar': best_thumbnail(avatar),
         'banner': best_thumbnail(dig(header, 'banner', 'imageBannerViewModel',
                                      'image', 'sources')),
-        'tabs': [name for name in CHANNEL_TABS
-                 if name in tab_titles or name == 'videos'],
+        'tabs': tabs or [{'key': 'videos', 'title': 'Videos',
+                          'params': CHANNEL_VIDEOS_PARAMS}],
     }
 
 
-def channel_videos(client, channel_id, page_token=None, tab='videos'):
+def tab_key(title):
+    """URL-safe key for a channel tab title: 'Home', 'Videos'..."""
+    return re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-') or 'tab'
+
+
+def channel_tab(client, channel_id, key, page_token=None):
+    """One tab of a channel page, found by its key in the channel header
+    (YouTube names and orders the tabs per channel)."""
+    if page_token:
+        # A continuation carries the tab with it.
+        return channel_videos(client, channel_id, page_token)
+    header = channel_header(client, channel_id) or {}
+    params = next((tab['params'] for tab in header.get('tabs') or ()
+                   if tab['key'] == key), CHANNEL_TABS.get(key))
+    page = channel_videos(client, channel_id, params=params)
+    page['header_title'] = header.get('title')
+    return page
+
+
+def channel_videos(client, channel_id, page_token=None, tab='videos',
+                   params=None):
     if page_token:
         result = request(client, 'browse', continuation=page_token)
-        page = collect(result.get('onResponseReceivedActions'))
+        page = collect(result.get('onResponseReceivedActions'), shorts=True)
     else:
         result = request(client, 'browse', browseId=channel_id,
-                         params=CHANNEL_TABS.get(tab, CHANNEL_VIDEOS_PARAMS))
-        page = collect(result.get('contents'))
+                         params=params or CHANNEL_TABS.get(
+                             tab, CHANNEL_VIDEOS_PARAMS))
+        page = collect(result.get('contents'), shorts=True)
         page['title'] = (dig(result, 'metadata', 'channelMetadataRenderer',
                              'title')
                          or text(dig(result, 'header', 'pageHeaderRenderer',
