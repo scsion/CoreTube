@@ -30,9 +30,9 @@ BG = (15, 15, 15)
 # Sized for 55"+ TVs: the header logo's height in the 1080p window, how big
 # the backdrop's logo is against the screen height, and the wordmark's size
 # against the emblem (bigger than CoreELEC's 0.48, to read from the sofa).
-HEADER_HEIGHT = 84
-BACKDROP_LOGO = 0.22
-WORDMARK = 0.62
+HEADER_HEIGHT = 70           # = the search bar: never taller than it
+BACKDROP_LOGO = 0.19
+WORDMARK = 0.56
 
 # The two logo options users pick between in the add-on settings
 # (leanback.logo): YouTube's red play badge, or a white one with a red
