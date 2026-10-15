@@ -1,0 +1,152 @@
+msgctxt "#39000"
+msgid "TV interface"
+msgstr ""
+
+msgctxt "#39010"
+msgid "Home rows"
+msgstr ""
+
+msgctxt "#39011"
+msgid "Trending"
+msgstr ""
+
+msgctxt "#39012"
+msgid "Recommended"
+msgstr ""
+
+msgctxt "#39013"
+msgid "Subscriptions"
+msgstr ""
+
+msgctxt "#39014"
+msgid "Live now"
+msgstr ""
+
+msgctxt "#39015"
+msgid "Watch later"
+msgstr ""
+
+msgctxt "#39016"
+msgid "Continue watching"
+msgstr ""
+
+msgctxt "#39020"
+msgid "Skip SponsorBlock segments"
+msgstr ""
+
+msgctxt "#39021"
+msgid "Show a notification when skipping"
+msgstr ""
+
+msgctxt "#39030"
+msgid "SponsorBlock"
+msgstr ""
+
+msgctxt "#39031"
+msgid "Sponsors"
+msgstr ""
+
+msgctxt "#39032"
+msgid "Unpaid / self promotion"
+msgstr ""
+
+msgctxt "#39033"
+msgid "Interaction reminders"
+msgstr ""
+
+msgctxt "#39034"
+msgid "Intermissions / intro animations"
+msgstr ""
+
+msgctxt "#39035"
+msgid "Endcards / credits"
+msgstr ""
+
+msgctxt "#39036"
+msgid "Previews / recaps"
+msgstr ""
+
+msgctxt "#39037"
+msgid "Non-music sections in music videos"
+msgstr ""
+
+msgctxt "#39038"
+msgid "Filler tangents"
+msgstr ""
+
+msgctxt "#39100"
+msgid "Search"
+msgstr ""
+
+msgctxt "#39101"
+msgid "Home"
+msgstr ""
+
+msgctxt "#39102"
+msgid "Subscriptions"
+msgstr ""
+
+msgctxt "#39103"
+msgid "Library"
+msgstr ""
+
+msgctxt "#39104"
+msgid "Sign in"
+msgstr ""
+
+msgctxt "#39105"
+msgid "Sign out"
+msgstr ""
+
+msgctxt "#39106"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#39107"
+msgid "Search YouTube"
+msgstr ""
+
+msgctxt "#39108"
+msgid "Play"
+msgstr ""
+
+msgctxt "#39109"
+msgid "Go to channel"
+msgstr ""
+
+msgctxt "#39110"
+msgid "Related videos"
+msgstr ""
+
+msgctxt "#39111"
+msgid "Add to Watch later"
+msgstr ""
+
+msgctxt "#39112"
+msgid "Skipped: {}"
+msgstr ""
+
+msgctxt "#39113"
+msgid "Sign in to see your subscriptions"
+msgstr ""
+
+msgctxt "#39114"
+msgid "Watch history"
+msgstr ""
+
+msgctxt "#39115"
+msgid "Liked videos"
+msgstr ""
+
+msgctxt "#39116"
+msgid "My playlists"
+msgstr ""
+
+msgctxt "#39117"
+msgid "Saved playlists"
+msgstr ""
+
+msgctxt "#39118"
+msgid "Nothing here yet"
+msgstr ""
+

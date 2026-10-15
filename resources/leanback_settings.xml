@@ -1,0 +1,131 @@
+        <category id="leanback" label="39000" help="">
+            <group id="leanback_home" label="39010">
+                <setting id="leanback.home.trending" type="boolean" label="39011" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.home.recommendations" type="boolean" label="39012" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.home.subscriptions" type="boolean" label="39013" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.home.live" type="boolean" label="39014" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.home.watch_later" type="boolean" label="39015" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.home.history" type="boolean" label="39016" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            <group id="leanback_sponsorblock" label="39030">
+                <setting id="leanback.sb.enabled" type="boolean" label="39020" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.notify" type="boolean" label="39021" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.sponsor" type="boolean" label="39031" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.selfpromo" type="boolean" label="39032" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.interaction" type="boolean" label="39033" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.intro" type="boolean" label="39034" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.outro" type="boolean" label="39035" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.preview" type="boolean" label="39036" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.music_offtopic" type="boolean" label="39037" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.sb.filler" type="boolean" label="39038" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition setting="leanback.sb.enabled" operator="is">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>

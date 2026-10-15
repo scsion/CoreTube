@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.youtube.leanback" name="YouTube Leanback" version="0.1.0" provider-name="Stefan">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.27.1"/>
+        <import addon="inputstream.adaptive" version="19.0.0"/>
+        <import addon="script.module.inputstreamhelper" version="0.2.2" optional="true"/>
+        <import addon="script.module.pysocks" optional="true"/>
+    </requires>
+    <!-- Forked plugin.video.youtube engine: listings, sign-in and playback. -->
+    <extension point="xbmc.python.pluginsource" library="resources/lib/plugin.py">
+        <provides>video</provides>
+    </extension>
+    <!-- Engine service (local MPD server, playback tracking) plus SponsorBlock. -->
+    <extension point="xbmc.service" library="resources/lib/service_main.py"/>
+    <!-- TV interface; also handles the engine's RunScript actions from settings. -->
+    <extension point="xbmc.python.script" library="resources/lib/default.py">
+        <provides>executable video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">YouTube with a TV-style leanback interface</summary>
+        <description lang="en_GB">A full-screen, remote-friendly YouTube interface for Kodi with home rows, search, subscriptions and SponsorBlock skipping. Built on a fork of the plugin.video.youtube engine.</description>
+        <disclaimer lang="en_GB">Not affiliated with or endorsed by Google or YouTube.</disclaimer>
+        <platform>all</platform>
+        <license>GPL-2.0-only</license>
+        <source>https://github.com/anxdpanic/plugin.video.youtube</source>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
