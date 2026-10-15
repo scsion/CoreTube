@@ -146,8 +146,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>642</left><top>371</top>
                             <width>78</width><height>34</height>
@@ -170,7 +171,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>648</left><top>371</top>
                             <width>72</width><height>34</height>
@@ -179,6 +180,45 @@
                         <control type="label">
                             <left>648</left><top>371</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>604</left><top>361</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>564</left><top>361</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>564</left><top>361</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>616</left><top>361</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>616</left><top>361</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -228,8 +268,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>642</left><top>371</top>
                             <width>78</width><height>34</height>
@@ -252,7 +293,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>648</left><top>371</top>
                             <width>72</width><height>34</height>
@@ -261,6 +302,45 @@
                         <control type="label">
                             <left>648</left><top>371</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>604</left><top>361</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>564</left><top>361</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>564</left><top>361</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>616</left><top>361</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>616</left><top>361</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -316,8 +396,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -340,7 +421,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -349,6 +430,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -398,8 +518,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -422,7 +543,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -431,6 +552,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -533,8 +693,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -557,7 +718,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -566,6 +727,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -615,8 +815,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -639,7 +840,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -648,6 +849,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -750,8 +990,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -774,7 +1015,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -783,6 +1024,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -832,8 +1112,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -856,7 +1137,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -865,6 +1146,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -967,8 +1287,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -991,7 +1312,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1000,6 +1321,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1049,8 +1409,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1073,7 +1434,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1082,6 +1443,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1184,8 +1584,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1208,7 +1609,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1217,6 +1618,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1266,8 +1706,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1290,7 +1731,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1299,6 +1740,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1401,8 +1881,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1425,7 +1906,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1434,6 +1915,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1483,8 +2003,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1507,7 +2028,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1516,6 +2037,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1618,8 +2178,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1642,7 +2203,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1651,6 +2212,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1700,8 +2300,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1724,7 +2325,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1733,6 +2334,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1835,8 +2475,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1859,7 +2500,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1868,6 +2509,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -1917,8 +2597,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -1941,7 +2622,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -1950,6 +2631,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -2368,8 +3088,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -2392,7 +3113,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -2401,6 +3122,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -2450,8 +3210,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>450</left><top>263</top>
                             <width>78</width><height>34</height>
@@ -2474,7 +3235,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
@@ -2483,6 +3244,45 @@
                         <control type="label">
                             <left>456</left><top>263</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -2978,8 +3778,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>327</left><top>194</top>
                             <width>78</width><height>34</height>
@@ -3002,7 +3803,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>333</left><top>194</top>
                             <width>72</width><height>34</height>
@@ -3011,6 +3812,45 @@
                         <control type="label">
                             <left>333</left><top>194</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>289</left><top>184</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>249</left><top>184</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>249</left><top>184</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>301</left><top>184</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>301</left><top>184</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>
@@ -3060,8 +3900,9 @@
                         <midtexture colordiffuse="FFFF0033">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
+
                     <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
                         <control type="image">
                             <left>327</left><top>194</top>
                             <width>78</width><height>34</height>
@@ -3084,7 +3925,7 @@
                         </control>
                     </control>
                     <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
                         <control type="image">
                             <left>333</left><top>194</top>
                             <width>72</width><height>34</height>
@@ -3093,6 +3934,45 @@
                         <control type="label">
                             <left>333</left><top>194</top>
                             <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>289</left><top>184</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>249</left><top>184</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>249</left><top>184</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>301</left><top>184</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>301</left><top>184</top>
+                            <width>104</width><height>44</height>
                             <font>Bald_DetailValue</font>
                             <align>center</align><aligny>center</aligny>
                             <textcolor>FFF1F1F1</textcolor>

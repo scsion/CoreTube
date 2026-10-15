@@ -1224,8 +1224,8 @@ msgid "Play (Ask for quality)"
 msgstr "Lejátszás (Kérdezze meg a minőséget)"
 
 msgctxt "#30731"
-msgid "The YouTube add-on now requires that you use your own API keys.[CR]For more information see the wiki: [B]https://ytaddon.page.link/keys[/B][CR][CR]Sorry for the inconvenience."
-msgstr "A YouTube kiegészítő mostantól megköveteli az API Kulcsok használatát. [CR]További részletek a Wiki oldalon: [B]https://ytaddon.page.link/keys[/B][CR][CR]Elnézést a kellemetlenségért."
+msgid "This needs your own YouTube Data API key (Settings > API).[CR][CR]Home rows, search and channels work without one."
+msgstr "This needs your own YouTube Data API key (Settings > API).[CR][CR]Home rows, search and channels work without one."
 
 msgctxt "#30732"
 msgid "Comments"

@@ -13,6 +13,7 @@ import hashlib
 import json
 import re
 import threading
+import time
 from urllib.error import URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
@@ -47,6 +48,9 @@ VIDEO_ID_RE = re.compile(r'(?:video_id=|/vi/|v=)([A-Za-z0-9_-]{11})')
 POLL_SECONDS = 0.25
 # Don't seek for a segment we are already within this distance of the end of.
 END_TOLERANCE = 0.75
+# How long after a seek the position is left alone: a user's seek always
+# wins over a skip, and the player needs a moment to land.
+SEEK_SETTLE = 1.5
 
 
 def log(msg, level=xbmc.LOGINFO):
@@ -96,6 +100,8 @@ class SponsorBlockPlayer(xbmc.Player):
         self._monitor = xbmc.Monitor()
         self._session = 0
         self._lock = threading.Lock()
+        self._user_seek_at = 0.0
+        self._own_seek_at = 0.0
 
     def shutdown(self):
         self._new_session()
@@ -143,6 +149,15 @@ class SponsorBlockPlayer(xbmc.Player):
         thread.daemon = True
         thread.start()
 
+    def onPlayBackSeek(self, time_ms, offset_ms):
+        # Our own skips report here too; only the user's seeks count.
+        if time.monotonic() - self._own_seek_at > SEEK_SETTLE:
+            self._user_seek_at = time.monotonic()
+
+    def _user_seeking(self):
+        return (time.monotonic() - self._user_seek_at < SEEK_SETTLE
+                or xbmc.getCondVisibility('Player.Seeking'))
+
     def onPlayBackStopped(self):
         self._new_session()
 
@@ -162,19 +177,34 @@ class SponsorBlockPlayer(xbmc.Player):
         log('{}: {} segment(s)'.format(video_id, len(segments)))
         notify = setting_bool('leanback.sb.notify')
         skipped = set()
+        landing = False
 
         while self._is_current(session):
+            if self._user_seeking():
+                landing = True
+                if self._monitor.waitForAbort(POLL_SECONDS):
+                    break
+                continue
             try:
                 if not self.isPlaying():
                     break
                 now = self.getTime()
             except RuntimeError:
                 break
+            if landing:
+                # The user picked this spot: don't skip a segment they
+                # seeked into, only ones they play into from before.
+                landing = False
+                skipped.update(index for index, (start, end, _) in
+                               enumerate(segments) if start <= now < end)
             for index, (start, end, category) in enumerate(segments):
                 if index in skipped or not start <= now < end - END_TOLERANCE:
                     continue
+                if self._user_seeking():
+                    break
                 # Skip once only, so seeking back into a segment works.
                 skipped.add(index)
+                self._own_seek_at = time.monotonic()
                 try:
                     self.seekTime(end)
                 except RuntimeError:

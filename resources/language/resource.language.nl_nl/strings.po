@@ -1225,8 +1225,8 @@ msgid "Play (Ask for quality)"
 msgstr "Afspelen (Naar kwaliteit vragen)"
 
 msgctxt "#30731"
-msgid "The YouTube add-on now requires that you use your own API keys.[CR]For more information see the wiki: [B]https://ytaddon.page.link/keys[/B][CR][CR]Sorry for the inconvenience."
-msgstr "De YouTube addon vereist vanaf nu, dat je een persoonlijke API sleutel gebruikt. [CR]Voor meer informatie, zie wiki:[B]https://ytaddon.page.link/keys[/B][CR][CR]"
+msgid "This needs your own YouTube Data API key (Settings > API).[CR][CR]Home rows, search and channels work without one."
+msgstr "This needs your own YouTube Data API key (Settings > API).[CR][CR]Home rows, search and channels work without one."
 
 msgctxt "#30732"
 msgid "Comments"

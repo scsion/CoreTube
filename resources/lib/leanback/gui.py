@@ -169,6 +169,10 @@ class MainWindow(xbmcgui.WindowXML):
     def onInit(self):
         # onInit runs again whenever we come back from fullscreen video.
         self.setProperty('logo', brand.current())
+        # The window's fonts are Bald's; any other skin falls back to its
+        # font13, so the badges switch to their larger sizes (gen_skin.py).
+        self.setProperty('fonts', '' if xbmc.getSkinDir() == 'skin.bald'
+                         else 'fallback')
         if not self._nav_ready:
             self._signed_in = is_signed_in()
             self._has_key = has_api_key()

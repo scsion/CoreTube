@@ -90,6 +90,68 @@ def text_height(size):
     return size['h'] + 2 * PAD + 22 + 84 + 6 + 34 + 34
 
 
+
+# Duration / LIVE badge sizes (width short, width over an hour, live width,
+# height). Under another skin our Bald font names don't exist and Kodi falls
+# back to the skin's font13, about 1.5x wider: the window sets the property
+# below then (leanback/gui.py), and the larger badges are shown instead.
+FALLBACK_FONTS = 'String.IsEqual(Window.Property(fonts),fallback)'
+BADGES = (('!' + FALLBACK_FONTS, (78, 104, 72, 34)),
+          (FALLBACK_FONTS, (116, 156, 104, 44)))
+
+
+def _badges(w, h):
+    wide = 'Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)'
+    out = []
+    for fonts, (short_w, long_w, live_w, bh) in BADGES:
+        out.append('''
+                    <control type="group">
+                        <visible>{fonts} + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>{short_x}</left><top>{y}</top>
+                            <width>{short_w}</width><height>{bh}</height>
+                            <visible>!{wide}</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>{long_x}</left><top>{y}</top>
+                            <width>{long_w}</width><height>{bh}</height>
+                            <visible>{wide}</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>{long_x}</left><top>{y}</top>
+                            <width>{text_w}</width><height>{bh}</height>
+                            <font>{font}</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>{text}</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>{fonts} + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>{live_x}</left><top>{y}</top>
+                            <width>{live_w}</width><height>{bh}</height>
+                            <texture border="8" colordiffuse="{accent}">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>{live_x}</left><top>{y}</top>
+                            <width>{live_w}</width><height>{bh}</height>
+                            <font>{font}</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>{text}</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>'''.format(
+            fonts=fonts, wide=wide, short_w=short_w, long_w=long_w,
+            live_w=live_w, bh=bh, text_w=long_w - 10,
+            short_x=PAD + w - 10 - short_w, long_x=PAD + w - 10 - long_w,
+            live_x=PAD + w - 10 - live_w, y=PAD + h - 10 - bh,
+            font=FONT_BADGE, text=TEXT, accent=ACCENT))
+    return ''.join(out)
+
+
 def tile(size, focused, list_id):
     """One video tile as YouTube TV draws it. Kodi draws the focused layout
     for each list's selected item even while another list has focus, so the
@@ -103,7 +165,6 @@ def tile(size, focused, list_id):
                         <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>'''.format(x=PAD - 6, rw=w + 12, rh=h + 12,
                                          lid=list_id) if focused else ''
-    wide = 'Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)'
     return '''
                     <control type="image">
                         <left>{p}</left><top>{p}</top>
@@ -125,45 +186,7 @@ def tile(size, focused, list_id):
                         <midtexture colordiffuse="{accent}">white.png</midtexture>
                         <info>ListItem.PercentPlayed</info>
                     </control>
-                    <control type="group">
-                        <visible>!String.IsEmpty(ListItem.Duration)</visible>
-                        <control type="image">
-                            <left>{badge_x}</left><top>{badge_y}</top>
-                            <width>78</width><height>34</height>
-                            <visible>!{wide}</visible>
-                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
-                        </control>
-                        <control type="image">
-                            <left>{badge_wx}</left><top>{badge_y}</top>
-                            <width>104</width><height>34</height>
-                            <visible>{wide}</visible>
-                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
-                        </control>
-                        <control type="label">
-                            <left>{badge_wx}</left><top>{badge_y}</top>
-                            <width>{badge_text_w}</width><height>34</height>
-                            <font>{font_badge}</font>
-                            <align>right</align><aligny>center</aligny>
-                            <textcolor>{text}</textcolor>
-                            <label>$INFO[ListItem.Duration]</label>
-                        </control>
-                    </control>
-                    <control type="group">
-                        <visible>String.IsEqual(ListItem.Property(live),true)</visible>
-                        <control type="image">
-                            <left>{live_x}</left><top>{badge_y}</top>
-                            <width>72</width><height>34</height>
-                            <texture border="8" colordiffuse="{accent}">round8.png</texture>
-                        </control>
-                        <control type="label">
-                            <left>{live_x}</left><top>{badge_y}</top>
-                            <width>72</width><height>34</height>
-                            <font>{font_badge}</font>
-                            <align>center</align><aligny>center</aligny>
-                            <textcolor>{text}</textcolor>
-                            <label>LIVE</label>
-                        </control>
-                    </control>{ring}
+{badges}{ring}
                     <control type="textbox">
                         <left>{p}</left><top>{title_y}</top>
                         <width>{w}</width><height>78</height>
@@ -186,11 +209,9 @@ def tile(size, focused, list_id):
                         <label>$INFO[ListItem.Label2]</label>
                     </control>'''.format(
         p=PAD, w=w, h=h, mask=size['mask'], surface=SURFACE, accent=ACCENT,
-        text=TEXT, dim=TEXT_DIM, ring=ring, wide=wide,
+        text=TEXT, dim=TEXT_DIM, ring=ring,
         bar_y=PAD + h - 6,
-        badge_x=PAD + w - 10 - 78, badge_wx=PAD + w - 10 - 104,
-        badge_y=PAD + h - 10 - 34, badge_text_w=104 - 10,
-        live_x=PAD + w - 10 - 72,
+        badges=_badges(w, h),
         title_y=PAD + h + 22, channel_y=PAD + h + 22 + 84 + 6,
         meta_y=PAD + h + 22 + 84 + 6 + 34,
         font_title=FONT_TITLE, font_meta=FONT_META, font_badge=FONT_BADGE)

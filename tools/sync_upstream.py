@@ -72,7 +72,12 @@ def patch(path, replacements):
 
 # The engine titles its dialogs (setup wizard, sign-in) with string #30003,
 # its add-on name. Show ours there, in every language.
-REBRAND = (('#30003', 'CoreTube'), ('#30634', 'CoreTube API Configuration'))
+REBRAND = (
+    ('#30003', 'CoreTube'),
+    ('#30634', 'CoreTube API Configuration'),
+    ('#30731', 'This needs your own YouTube Data API key (Settings > API).'
+               '[CR][CR]Home rows, search and channels work without one.'),
+)
 
 
 def rebrand_strings():
@@ -139,6 +144,20 @@ def main():
          '                            context,\n'
          "                            'command://Action(Back)',\n"
          .format(WINDOW_XML), 1),
+    ])
+
+    # CoreTube works without a Data API key: callers of a skipped v3
+    # request fall back (built-in language list, the /leanback/ InnerTube
+    # routes), so don't stop the user with a key prompt. Upstream also
+    # passes the prompt unlocalized, which shows the bare string id.
+    patch(lib / 'youtube' / 'client' / 'data_client.py', [
+        ("            if abort_prompt and kwargs.get('notify', True):\n"
+         '                context.get_ui().on_ok(context.get_name(), abort_prompt)\n',
+         "            if (abort_prompt and abort_prompt != 'key.requirement'\n"
+         "                    and kwargs.get('notify', True)):\n"
+         '                context.get_ui().on_ok(context.get_name(),\n'
+         '                                       context.localize(abort_prompt))\n',
+         1),
     ])
 
     settings = ROOT / 'resources' / 'settings.xml'

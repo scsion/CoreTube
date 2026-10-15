@@ -1224,8 +1224,8 @@ msgid "Play (Ask for quality)"
 msgstr "재생(품질 확인)"
 
 msgctxt "#30731"
-msgid "The YouTube add-on now requires that you use your own API keys.[CR]For more information see the wiki: [B]https://ytaddon.page.link/keys[/B][CR][CR]Sorry for the inconvenience."
-msgstr "이제 YouTube 부가기능을 사용하려면 고유한 API 키를 사용해야 합니다.[CR]자세한 내용은 다음 위키를 참조하세요. [B]https://ytaddon.page.link/keys[/B][CR][CR]불편을 양해바랍니다."
+msgid "This needs your own YouTube Data API key (Settings > API).[CR][CR]Home rows, search and channels work without one."
+msgstr "This needs your own YouTube Data API key (Settings > API).[CR][CR]Home rows, search and channels work without one."
 
 msgctxt "#30732"
 msgid "Comments"
