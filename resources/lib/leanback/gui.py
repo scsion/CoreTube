@@ -342,7 +342,11 @@ class MainWindow(xbmcgui.WindowXML):
             self._paging.discard(control_id)
             if self._paths.get(control_id) != path:
                 return
+            # Kodi moves the selection back towards the top when items are
+            # added, so put it back where the user is.
+            position = control.getSelectedPosition()
             control.addItems(self._keep_next_page(control_id, listitems))
+            control.selectItem(position)
 
         self._loader.load(next_path, done)
 
