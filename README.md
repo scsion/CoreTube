@@ -1,4 +1,4 @@
-# YouTube Leanback for Kodi
+# CoreTube (YouTube Leanback for Kodi)
 
 A full-screen, remote-first YouTube interface for Kodi (built for CoreELEC on
 Kodi 22 "Piers"), styled after the YouTube TV app that

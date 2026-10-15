@@ -31,19 +31,6 @@ def rounded(size, radius, stroke=0, fill=True):
     return img.resize(size, Image.LANCZOS)
 
 
-def play_badge():
-    """Red rounded badge with a white play triangle, for the header."""
-    w, h = 56, 40
-    img = Image.new('RGBA', (w * SS, h * SS), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    draw.rounded_rectangle((0, 0, w * SS - 1, h * SS - 1), 10 * SS,
-                           fill=(255, 0, 51, 255))
-    cx, cy, s = w * SS / 2 + SS, h * SS / 2, 9 * SS
-    draw.polygon([(cx - s * 0.8, cy - s), (cx - s * 0.8, cy + s),
-                  (cx + s, cy)], fill=(255, 255, 255, 255))
-    return img.resize((w, h), Image.LANCZOS)
-
-
 ICON = 96          # icon canvas; shown at 32 px, so strokes stay crisp
 STROKE = 7
 WHITE = (255, 255, 255, 255)
@@ -134,7 +121,6 @@ TEXTURES = {
     'round12.png': lambda: rounded((48, 48), 12),
     'pill.png': lambda: rounded((80, 80), 40),
     'circle.png': lambda: rounded((96, 96), 48),
-    'play_badge.png': play_badge,
 }
 
 

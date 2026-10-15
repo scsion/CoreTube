@@ -303,17 +303,10 @@ def header():
                 <ondown>{first}</ondown>
             </control>
             <control type="image">
-                <left>1600</left><top>82</top>
-                <width>56</width><height>40</height>
-                <texture>play_badge.png</texture>
-            </control>
-            <control type="label">
-                <left>1664</left><top>72</top>
-                <width>240</width><height>60</height>
-                <font>{font_page}</font>
-                <aligny>center</aligny>
-                <textcolor>{text}</textcolor>
-                <label>YouTube</label>
+                <left>1567</left><top>74</top>
+                <width>197</width><height>56</height>
+                <aspectratio>keep</aspectratio>
+                <texture>brand_lockup.png</texture>
             </control>'''.format(x=CONTENT_X, mic_x=CONTENT_X + 19,
                                  pill_x=CONTENT_X + 94, surface=SURFACE,
                                  addon=ADDON, search=SEARCH_ID,

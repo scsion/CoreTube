@@ -48,17 +48,10 @@
                 <ondown>101</ondown>
             </control>
             <control type="image">
-                <left>1600</left><top>82</top>
-                <width>56</width><height>40</height>
-                <texture>play_badge.png</texture>
-            </control>
-            <control type="label">
-                <left>1664</left><top>72</top>
-                <width>240</width><height>60</height>
-                <font>font40_title</font>
-                <aligny>center</aligny>
-                <textcolor>FFF1F1F1</textcolor>
-                <label>YouTube</label>
+                <left>1567</left><top>74</top>
+                <width>197</width><height>56</height>
+                <aspectratio>keep</aspectratio>
+                <texture>brand_lockup.png</texture>
             </control>
             <control type="group">
                 <left>0</left><top>180</top>
