@@ -499,11 +499,6 @@ def channel_header():
                     <textcolor>{dim}</textcolor>
                     <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
                 </control>
-                <control type="image">
-                    <left>{divider_x}</left><top>{divider_y}</top>
-                    <width>1540</width><height>2</height>
-                    <texture colordiffuse="33FFFFFF">white.png</texture>
-                </control>
                 <control type="list" id="{tabs}">
                     <left>{tabs_x}</left><top>{tabs_y}</top>
                     <width>1560</width><height>{tabs_h}</height>
@@ -540,7 +535,6 @@ def channel_header():
         tab=_text_tab(False), tab_focused=_text_tab(True), tab_w=TAB_W,
         sort=_tab(False, SORTS_ID), sort_focused=_tab(True, SORTS_ID),
         sorts=SORTS_ID, has_sorts=HAS_SORTS, sorts_y=184 - TAB_PAD + 72,
-        divider_x=CONTENT_X + 174, divider_y=184 + 52 + 6,
         tabs_x=CONTENT_X + 174 - TAB_PAD, tabs_y=184 - TAB_PAD,
         tabs_h=52 + 2 * TAB_PAD)
 

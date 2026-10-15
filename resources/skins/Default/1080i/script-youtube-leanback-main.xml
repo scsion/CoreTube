@@ -2569,11 +2569,6 @@
                     <textcolor>FFAAAAAA</textcolor>
                     <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
                 </control>
-                <control type="image">
-                    <left>330</left><top>242</top>
-                    <width>1540</width><height>2</height>
-                    <texture colordiffuse="33FFFFFF">white.png</texture>
-                </control>
                 <control type="list" id="210">
                     <left>322</left><top>176</top>
                     <width>1560</width><height>68</height>
