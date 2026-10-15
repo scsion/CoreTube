@@ -118,7 +118,20 @@ def g_history(d, u, w):
            width=w, joint='curve')
 
 
+def glow():
+    """Soft horizontal glow under a focused tab's underline."""
+    from PIL import ImageFilter
+    w, h = 128, 32
+    img = Image.new('L', (w, h), 0)
+    ImageDraw.Draw(img).rounded_rectangle((16, 13, w - 17, 18), 3, fill=255)
+    img = img.filter(ImageFilter.GaussianBlur(5))
+    white = Image.new('RGBA', (w, h), (255, 255, 255, 0))
+    white.putalpha(img)
+    return white
+
+
 TEXTURES = {
+    'glow.png': glow,
     'icon_backspace.png': icon(g_backspace),
     'icon_history.png': icon(g_history),
     'icon_search.png': icon(g_search),

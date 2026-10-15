@@ -551,45 +551,41 @@ UNDERLINES = tuple(range(40, 201, 20))
 
 
 def _text_tab(focused):
-    """Channel tab as YouTube draws them, to tell them from the sort chips
-    below: plain text, grey, the open tab white with a white underline.
-    The tab under the remote's focus gets a white highlight, as on
-    YouTube TV."""
-    on = 'Control.HasFocus({})'.format(TABS_ID) if focused else 'false'
+    """Channel tab as YouTube draws them, unlike the filled sort chips
+    below: plain text, grey, the open tab white. A white underline marks
+    the open tab; while the row has the remote's focus it follows the
+    focused tab instead and glows. No fill, ever."""
+    row_focus = 'Control.HasFocus({})'.format(TABS_ID)
+    on = row_focus if focused else 'false'
     selected = 'String.IsEqual(ListItem.Property(selected),true)'
+    marked = '[[{s} + !{r}] | {on}]'.format(s=selected, r=row_focus, on=on)
     w, h, pad = TAB_W - 16, 52, TAB_PAD
+    y = pad + h - 2
     underlines = ''.join('''
+                    <control type="image">
+                        <left>{gx}</left><top>{gy}</top>
+                        <width>{gw}</width><height>16</height>
+                        <visible>{on} + String.IsEqual(ListItem.Property(ulw),{uw})</visible>
+                        <texture colordiffuse="CCFFFFFF">glow.png</texture>
+                    </control>
                     <control type="image">
                         <left>{x}</left><top>{y}</top>
                         <width>{uw}</width><height>4</height>
-                        <visible>{selected} + !{on} + String.IsEqual(ListItem.Property(ulw),{uw})</visible>
+                        <visible>{marked} + String.IsEqual(ListItem.Property(ulw),{uw})</visible>
                         <texture border="2" colordiffuse="{text}">round8.png</texture>
-                    </control>'''.format(x=pad + (w - uw) // 2, y=pad + h - 2, uw=uw,
-                                     selected=selected, on=on, text=TEXT)
+                    </control>'''.format(x=pad + (w - uw) // 2, y=y, uw=uw,
+                                     gx=pad + (w - uw) // 2 - 24, gy=y - 6,
+                                     gw=uw + 48, on=on, marked=marked,
+                                     text=TEXT)
                          for uw in UNDERLINES)
-    return '''
-                    <control type="image">
-                        <left>{pad}</left><top>{pad}</top>
-                        <width>{w}</width><height>{h}</height>
-                        <visible>{on}</visible>
-                        <texture border="12" colordiffuse="{text}">round12.png</texture>
-                    </control>{underlines}
-                    <control type="label">
-                        <left>{pad}</left><top>{pad}</top>
-                        <width>{w}</width><height>{lh}</height>
-                        <font>{font}</font>
-                        <align>center</align><aligny>center</aligny>
-                        <textcolor>{dark}</textcolor>
-                        <visible>{on}</visible>
-                        <label>$INFO[ListItem.Label]</label>
-                    </control>
+    return '''{underlines}
                     <control type="label">
                         <left>{pad}</left><top>{pad}</top>
                         <width>{w}</width><height>{lh}</height>
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>{text}</textcolor>
-                        <visible>!{on} + {selected}</visible>
+                        <visible>{selected} | {on}</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
@@ -598,12 +594,11 @@ def _text_tab(focused):
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>{dim}</textcolor>
-                        <visible>!{on} + !{selected}</visible>
+                        <visible>!{selected} + !{on}</visible>
                         <label>$INFO[ListItem.Label]</label>
-                    </control>'''.format(on=on, selected=selected, w=w, h=h, lh=h - 6,
+                    </control>'''.format(on=on, selected=selected, w=w, lh=h - 6,
                                      pad=pad, text=TEXT, dim=TEXT_DIM,
-                                     dark=DARK_TEXT, font=FONT_TITLE,
-                                     underlines=underlines)
+                                     font=FONT_TITLE, underlines=underlines)
 
 
 def _tab(focused, list_id=TABS_ID):
