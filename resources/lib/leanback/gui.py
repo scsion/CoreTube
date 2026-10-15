@@ -57,6 +57,8 @@ PATH_KEYLESS_FEED = PLUGIN + '/leanback/feed/{}/'
 PATH_KEYLESS_SEARCH = PLUGIN + '/leanback/search/?q={}'
 PATH_KEYLESS_RELATED = PLUGIN + '/leanback/related/?video_id={}'
 PATH_KEYLESS_CHANNEL = PLUGIN + '/leanback/channel/?channel_id={}&item_name={}'
+# The signed-in account's own lists, read with its sign-in instead of a key.
+PATH_KEYLESS_MINE = PLUGIN + '/leanback/mine/{}/'
 
 
 def has_api_key():
@@ -175,6 +177,8 @@ class MainWindow(xbmcgui.WindowXML):
     def _keyless_home_rows(self):
         rows = []
         feed = PATH_KEYLESS_FEED.format
+        if setting_bool('leanback.home.subscriptions') and self._signed_in:
+            rows.append((39013, PATH_KEYLESS_MINE.format('subscriptions')))
         if setting_bool('leanback.home.recommendations'):
             rows.append((39012, feed('recommended')))
         if setting_bool('leanback.home.trending'):
@@ -195,10 +199,15 @@ class MainWindow(xbmcgui.WindowXML):
 
     def _library_rows(self):
         rows = [(39114, PATH_HISTORY), (39015, PATH_WATCH_LATER)]
-        if self._signed_in:
+        if self._signed_in and self._has_key:
             rows += [(39115, PATH_LIKED),
                      (39116, PATH_MY_PLAYLISTS),
                      (39117, PATH_SAVED_PLAYLISTS)]
+        elif self._signed_in:
+            mine = PATH_KEYLESS_MINE.format
+            rows += [(39115, mine('liked')),
+                     (39116, mine('playlists')),
+                     (39117, mine('saved_playlists'))]
         return rows
 
     def _push(self, view):
@@ -303,7 +312,10 @@ class MainWindow(xbmcgui.WindowXML):
                 xbmcgui.Dialog().notification(addon().getAddonInfo('name'),
                                               localize(39113))
                 return
-            self._open_grid(localize(39102), PATH_SUBSCRIPTIONS, nav=key)
+            self._open_grid(localize(39102),
+                            PATH_SUBSCRIPTIONS if self._has_key else
+                            PATH_KEYLESS_MINE.format('subscriptions'),
+                            nav=key)
         elif key == NAV_LIBRARY:
             self._reset_to({'type': 'rows', 'nav': key,
                             'rows': self._library_rows(),

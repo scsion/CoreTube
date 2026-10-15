@@ -15,6 +15,12 @@
         /leanback/related/?video_id=
         /leanback/channel/?channel_id=[&item_name=<channel title>]
         /leanback/playlist/?playlist_id=
+        /leanback/mine/<name>/       subscriptions, liked, playlists,
+                                     saved_playlists (signed in only)
+
+    Signed in, the recommended feed, playlists and the mine/ lists are read
+    as the account through the engine's TV sign-in, which needs no key
+    either.
 
     SPDX-License-Identifier: GPL-2.0-only
 """
@@ -37,13 +43,23 @@ PATH_SEARCH = ROOT + '/search'
 PATH_RELATED = ROOT + '/related'
 PATH_CHANNEL = ROOT + '/channel'
 PATH_PLAYLIST = ROOT + '/playlist'
+PATH_MINE = ROOT + '/mine'
 
 FEEDS = frozenset(innertube.DESTINATIONS) | {'trending', 'recommended'}
+# The signed-in account's own lists, read with its TV sign-in.
+MINE = {
+    'subscriptions': innertube.subscriptions,
+    'liked': innertube.liked,
+    'playlists': innertube.my_playlists,
+    'saved_playlists': innertube.saved_playlists,
+}
 
 # Shelf contents change through the day; paged lists are only ever re-read
-# when someone pages back, so they can live a little longer.
+# when someone pages back, so they can live a little longer. The account's
+# own lists change when the user acts, so they expire sooner.
 FEED_CACHE = 30 * 60
 PAGE_CACHE = 60 * 60
+MINE_CACHE = 5 * 60
 
 SEPARATOR = ' • '
 
@@ -166,6 +182,16 @@ def _listing(provider, context, page, category_label=None):
     }
 
 
+def _account(context, client):
+    """The signed-in account's ID, or None when signed out. Authed requests
+    must wait for this: signed out, the engine answers them with a sign-in
+    prompt. The ID goes into cache keys, so one account's lists are never
+    shown to another."""
+    if not client.logged_in:
+        return None
+    return context.get_access_manager().get_current_user_id()
+
+
 def _cached(context, seconds, func, *args, **kwargs):
     """Cache parsed pages. The engine client is reduced to its type in the
     cache key, so only the builtin arguments tell results apart."""
@@ -199,8 +225,10 @@ def on_feed(provider, context, re_match):
 
 
 def _recommended(context, client):
-    if client.logged_in:
-        page = _cached(context, FEED_CACHE, innertube.home_feed, client)
+    account = _account(context, client)
+    if account:
+        page = _cached(context, FEED_CACHE, innertube.home_feed, client,
+                       account)
         if page and page.get('items'):
             return page
     seeds = ()
@@ -218,6 +246,20 @@ def _recommended(context, client):
     # The seed list is part of the cache key: watching something new
     # refreshes the row straight away.
     return _cached(context, FEED_CACHE, innertube.recommended, client, seeds)
+
+
+@AbstractProvider.register_path('^' + PATH_MINE + '/(?P<name>[a-z_]+)/?$')
+def on_mine(provider, context, re_match):
+    func = MINE.get(re_match.group('name'))
+    if not func:
+        return False, None
+    client = provider.get_client(context)
+    account = _account(context, client)
+    if not account:
+        return False, None
+    page = _cached(context, MINE_CACHE, func, client, account,
+                   context.get_param('page_token'))
+    return _listing(provider, context, page)
 
 
 @AbstractProvider.register_path('^' + PATH_SEARCH + '/?$')
@@ -264,7 +306,14 @@ def on_playlist(provider, context, re_match):
     playlist_id = context.get_param(PLAYLIST_ID)
     if not playlist_id:
         return False, None
-    page = _cached(context, PAGE_CACHE, innertube.playlist,
-                   provider.get_client(context), playlist_id,
-                   context.get_param('page_token'))
+    client = provider.get_client(context)
+    page_token = context.get_param('page_token')
+    account = _account(context, client)
+    if account:
+        # Signed in, private playlists (watch later, own lists) open too.
+        page = _cached(context, MINE_CACHE, innertube.account_playlist,
+                       client, account, playlist_id, page_token)
+    else:
+        page = _cached(context, PAGE_CACHE, innertube.playlist,
+                       client, playlist_id, page_token)
     return _listing(provider, context, page)

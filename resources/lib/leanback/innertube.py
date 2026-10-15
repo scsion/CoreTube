@@ -47,6 +47,14 @@ CHANNEL_VIDEOS_PARAMS = 'EgZ2aWRlb3PyBgQKAjoA'
 # How many recently watched videos seed the keyless "Recommended" row.
 RECOMMEND_SEEDS = 6
 
+# Signed-in lists. A TV subscriptions page holds only a dozen videos, so a
+# listing page joins a few; the library playlist grid is read whole.
+HOME_PAGES = 3
+SUBSCRIPTION_PAGES = 3
+LIBRARY_PAGES = 10
+# Every account has these two, owned by the account's own channel.
+ACCOUNT_LISTS = frozenset(('LL', 'WL'))
+
 _VIEWS_RE = re.compile(r'\b(?:views?|watching)\b', re.IGNORECASE)
 _DURATION_RE = re.compile(r'^(?:(\d+):)?(\d{1,2}):(\d{2})$')
 _AGO_RE = re.compile(
@@ -297,6 +305,7 @@ def _parse_tile(tile):
             return None
         return {'kind': 'playlist', 'id': playlist_id, 'title': title,
                 'channel': ' '.join(lines[0]) if lines else '',
+                'channel_id': channel_id_in(tile.get('onLongPressCommand')),
                 'thumb': best_thumbnail(thumbs)}
     return None
 
@@ -565,10 +574,150 @@ def trending(client):
     return {'items': interleave(*top), 'next': None}
 
 
-def home_feed(client):
-    """The signed-in account's own TV home feed (needs no API key either)."""
-    page = shelves(client, 'FEwhat_to_watch', do_auth=True)
-    return {'items': interleave(*[videos_only(e) for e in page]),
+# -- the signed-in account ---------------------------------------------------
+#
+# These read the account's own lists with the engine's TV sign-in (the TV
+# client accepts that token; the web client does not). Callers must check
+# client.logged_in first: without a token the engine skips the request.
+# The ``_account`` argument only keys the result cache per account.
+
+def _tv_browse(client, **post_data):
+    return request(client, 'browse', client_name='tv', do_auth=True,
+                   **post_data)
+
+
+def _next_token(renderer):
+    return dig(renderer, 'continuations', 0, 'nextContinuationData',
+               'continuation')
+
+
+def _unique(entries):
+    seen = set()
+    unique = []
+    for item in entries:
+        key = (item['kind'], item['id'])
+        if key not in seen:
+            seen.add(key)
+            unique.append(item)
+    return unique
+
+
+def _sections(client, browse_id, page_token, pages):
+    """The shelves of up to ``pages`` pages of a TV section list, and the
+    token of the page after them."""
+    found = []
+    for _ in range(pages):
+        if page_token:
+            result = _tv_browse(client, continuation=page_token)
+            section = dig(result, 'continuationContents',
+                          'sectionListContinuation')
+        else:
+            result = _tv_browse(client, browseId=browse_id)
+            contents = result.get('contents')
+            # Subscriptions keep the feed in the selected tab of a nav whose
+            # other tabs are the single channels, still unloaded.
+            tabs = find_first(contents, 'tabs')
+            if tabs:
+                contents = next((tab for tab in tabs
+                                 if dig(tab, 'tabRenderer', 'selected')),
+                                tabs[0])
+            section = find_first(contents, 'sectionListRenderer')
+        if not section:
+            return found, None
+        found.extend(content['shelfRenderer']
+                     for content in section.get('contents') or ()
+                     if 'shelfRenderer' in content)
+        page_token = _next_token(section)
+        if not page_token:
+            break
+    return found, page_token
+
+
+def _shelf_videos(found):
+    return _unique(videos_only(
+        [item for shelf in found for item in collect(shelf)['items']]))
+
+
+def home_feed(client, _account=None):
+    """The account's own TV home feed, shelf after shelf."""
+    found, _ = _sections(client, 'FEwhat_to_watch', None, HOME_PAGES)
+    return {'items': _shelf_videos(found), 'next': None}
+
+
+def subscriptions(client, _account, page_token=None):
+    """Newest uploads of the subscribed channels, newest first.
+
+    The TV feed opens with labelled picks ("Most relevant", Shorts); the
+    unlabelled shelves after them are the plain upload feed, three videos
+    each, so a listing page joins a few feed pages."""
+    found, page_token = _sections(client, 'FEsubscriptions', page_token,
+                                  SUBSCRIPTION_PAGES)
+    feed = [shelf for shelf in found
+            if not text(find_first(shelf.get('headerRenderer'), 'title'))]
+    return {'items': _shelf_videos(feed or found), 'next': page_token}
+
+
+def account_playlist(client, _account, playlist_id, page_token=None):
+    """A playlist read as the account, so private ones (liked videos,
+    watch later, the account's own private lists) open as well."""
+    if page_token:
+        result = _tv_browse(client, continuation=page_token)
+        return collect(result.get('continuationContents'))
+    result = _tv_browse(client, browseId='VL' + playlist_id)
+    return collect(result.get('contents'))
+
+
+def liked(client, account, page_token=None):
+    return account_playlist(client, account, 'LL', page_token)
+
+
+def _library_playlists(client):
+    """Every playlist in the account's library, and the account's own
+    channel ID (the owner of its liked videos and watch later lists)."""
+    entries = []
+    seen = set()
+    page_token = None
+    for _ in range(LIBRARY_PAGES):
+        if page_token:
+            result = _tv_browse(client, continuation=page_token)
+            root = result.get('continuationContents')
+        else:
+            result = _tv_browse(client, browseId='FEplaylist_aggregation')
+            root = result.get('contents')
+        grid = find_first(root, 'gridRenderer')
+        if not grid:
+            break
+        new = [item for item in collect(grid.get('items'))['items']
+               if item['kind'] == 'playlist' and item['id'] not in seen]
+        if not new:
+            # The grid's "show more" pages repeat what it already holds.
+            break
+        seen.update(item['id'] for item in new)
+        entries.extend(new)
+        page_token = _next_token(grid)
+        if not page_token:
+            break
+    own_id = next((item['channel_id'] for item in entries
+                   if item['id'] in ACCOUNT_LISTS and item.get('channel_id')),
+                  None)
+    return entries, own_id
+
+
+def my_playlists(client, _account, _page_token=None):
+    """Playlists the account owns. Liked videos has a row of its own."""
+    entries, own_id = _library_playlists(client)
+    return {'items': [item for item in entries
+                      if own_id and item.get('channel_id') == own_id
+                      and item['id'] != 'LL'],
+            'next': None}
+
+
+def saved_playlists(client, _account, _page_token=None):
+    """Other channels' playlists the account saved to its library."""
+    entries, own_id = _library_playlists(client)
+    return {'items': [item for item in entries
+                      if item['id'] not in ACCOUNT_LISTS
+                      and not (own_id and item.get('channel_id') == own_id)],
             'next': None}
 
 

@@ -39,6 +39,11 @@ the YouTube web and TV apps use, which answers anonymous requests:
   Explore destination pages (YouTube retired its Trending page in 2025)
 - **Search, channel videos, playlists, related videos**: the web client's
   search, browse and next endpoints
+- **Signed in: subscriptions, liked videos, your playlists, saved
+  playlists**: the TV client's browse pages (`FEsubscriptions`, `VLLL`,
+  `FEplaylist_aggregation`), read with the engine's TV sign-in, which needs
+  no key either. Playlists open as the account too, so private ones such as
+  Watch later work
 
 tizen-youtube is GPL-3.0 and was used
 only as a visual and feature reference. None of its code is included.
@@ -68,13 +73,14 @@ tools/build_zip.py             builds dist/script.youtube.leanback-<ver>.zip
 
 ### Signing in
 
-Everything on the home screen and search works without any keys. Subscriptions,
-liked videos and your playlists still go through the Data API, which needs your
-own API keys. Open **Settings**
-in the left rail, go to the **API** category and enter your API key, client ID
-and client secret. The engine's setup wizard explains how to create them in the
-Google Cloud console. Then choose **Sign in** in the rail and follow the
-device-code prompt on your phone.
+Choose **Sign in** in the rail and enter the codes it shows at
+google.com/device on your phone (there are two: the engine signs in its TV and
+VR clients). No API key is needed: subscriptions, liked videos, your playlists,
+saved playlists and the personal home feed then come straight from InnerTube.
+
+With your own Data API key (Settings, **API** category; the engine's setup
+wizard explains how to create one in the Google Cloud console) the window uses
+the engine's Data API listings instead.
 
 ## Updating the engine when YouTube breaks something
 
