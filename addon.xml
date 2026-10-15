@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.youtube.leanback" name="CoreTube" version="0.7.9" provider-name="Stefan">
+<addon id="script.youtube.leanback" name="CoreTube" version="0.8.0" provider-name="scsion">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.27.1"/>
@@ -22,11 +22,12 @@
     <extension point="xbmc.service" library="resources/lib/service_main.py"/>
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">CoreTube: YouTube with a TV-style interface for CoreELEC</summary>
-        <description lang="en_GB">A full-screen, remote-friendly YouTube interface for Kodi with home rows, search, subscriptions and SponsorBlock skipping. Built on a fork of the plugin.video.youtube engine.</description>
-        <disclaimer lang="en_GB">Not affiliated with or endorsed by Google or YouTube.</disclaimer>
+        <description lang="en_GB">CoreTube is a full-screen, remote-friendly YouTube interface for Kodi, laid out like YouTube's TV app: home rows, search with suggestions, channel pages, subscriptions and SponsorBlock skipping. Works without an API key. Built on a fork of the plugin.video.youtube engine. Tested on a Ugoos AM9 Pro with CoreELEC 22 and the Bald skin.</description>
+        <disclaimer lang="en_GB">Not affiliated with or endorsed by Google, YouTube or the CoreELEC team.</disclaimer>
         <platform>all</platform>
         <license>GPL-2.0-only</license>
-        <source>https://github.com/anxdpanic/plugin.video.youtube</source>
+        <website>https://github.com/scsion/CoreTube</website>
+        <source>https://github.com/scsion/CoreTube</source>
         <reuselanguageinvoker>true</reuselanguageinvoker>
         <assets>
             <icon>resources/brand/icon.png</icon>

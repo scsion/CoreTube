@@ -50,8 +50,8 @@ msgstr ""
 
 #, fuzzy
 msgctxt "#30003"
-msgid "YouTube"
-msgstr "YouTube"
+msgid "CoreTube"
+msgstr "CoreTube"
 
 # empty strings from id 30004 to 30006
 msgctxt "#30007"
@@ -838,8 +838,8 @@ msgid "http://<ipaddress>:<port>/youtube/api (see Advanced > HTTP Server)"
 msgstr "http://<ipaddress>:<port>/youtube/api (ver Servidor HTTP)"
 
 msgctxt "#30634"
-msgid "YouTube Add-on API Configuration"
-msgstr "Ajusta de configuração da API do add-on do Youtube"
+msgid "CoreTube API Configuration"
+msgstr "CoreTube API Configuration"
 
 msgctxt "#30635"
 msgid "No changes detected, API keys were not updated."

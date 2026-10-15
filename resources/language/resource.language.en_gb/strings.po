@@ -51,7 +51,7 @@ msgid ""
 msgstr ""
 
 msgctxt "#30003"
-msgid "YouTube"
+msgid "CoreTube"
 msgstr ""
 
 # empty strings from id 30004 to 30006
@@ -842,7 +842,7 @@ msgid "http://<ipaddress>:<port>/youtube/api (see Advanced > HTTP Server)"
 msgstr ""
 
 msgctxt "#30634"
-msgid "YouTube Add-on API Configuration"
+msgid "CoreTube API Configuration"
 msgstr ""
 
 msgctxt "#30635"

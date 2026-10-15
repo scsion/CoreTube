@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Package the add-on as an installable zip for Kodi ("Install from zip file").
 
-    python tools/build_zip.py   ->   dist/script.youtube.leanback-<version>.zip
+    python tools/build_zip.py   ->   dist/CoreTube-<version>.zip
+
+The zip is named for people downloading it; inside, the add-on keeps its
+id (script.youtube.leanback), which Kodi needs as the top folder.
 """
 
 import re
@@ -33,7 +36,7 @@ def files():
 def main():
     xml = (ROOT / 'addon.xml').read_text(encoding='utf-8')
     version = re.search(r'<addon[^>]+version="([^"]+)"', xml).group(1)
-    out = ROOT / 'dist' / '{}-{}.zip'.format(ADDON_ID, version)
+    out = ROOT / 'dist' / 'CoreTube-{}.zip'.format(version)
     out.parent.mkdir(exist_ok=True)
     count = 0
     with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as zf:

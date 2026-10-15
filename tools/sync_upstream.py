@@ -70,6 +70,27 @@ def patch(path, replacements):
     path.write_text(text, encoding='utf-8', newline='\n')
 
 
+# The engine titles its dialogs (setup wizard, sign-in) with string #30003,
+# its add-on name. Show ours there, in every language.
+REBRAND = (('#30003', 'CoreTube'), ('#30634', 'CoreTube API Configuration'))
+
+
+def rebrand_strings():
+    import re
+    for po in (ROOT / 'resources' / 'language').glob('*/strings.po'):
+        text = po.read_text(encoding='utf-8')
+        for ctxt, name in REBRAND:
+            english = po.parent.name == 'resource.language.en_gb'
+            text, n = re.subn(
+                r'(msgctxt "{}"\nmsgid ")[^"\n]*("\nmsgstr ")[^"\n]*(")'
+                .format(ctxt),
+                (r'\g<1>{0}\g<2>\g<3>' if english else r'\g<1>{0}\g<2>{0}\g<3>')
+                .format(name), text)
+            if english and n != 1:
+                sys.exit('rebrand failed: {} found {} times'.format(ctxt, n))
+        po.write_text(text, encoding='utf-8', newline='\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     parser.add_argument('upstream', type=Path,
@@ -137,6 +158,7 @@ def main():
         f.write('\n{}\n\n'.format(LEANBACK_STRINGS_START))
         f.write(LEANBACK_STRINGS_FILE.read_text(encoding='utf-8'))
 
+    rebrand_strings()
     (ROOT / 'UPSTREAM_VERSION').write_text(version + '\n', encoding='utf-8')
     print('Synced {} {} into {}'.format(UPSTREAM_ID, version, ROOT))
 
