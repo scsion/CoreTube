@@ -150,7 +150,12 @@ TEXTURES = {
     'focus_ring.png': lambda: rounded((64, 64), 20, stroke=6, fill=False),
     'round8.png': lambda: rounded((32, 32), 8),
     'round12.png': lambda: rounded((48, 48), 12),
-    'pill.png': lambda: rounded((80, 80), 40),
+    # Pills: one per height, sliced at exactly half the height in the XML,
+    # or the 9-slice cuts the curve and the ends come out pointy.
+    'pill50.png': lambda: rounded((50, 50), 25),
+    'pill58.png': lambda: rounded((58, 58), 29),
+    'pill64.png': lambda: rounded((64, 64), 32),
+    'pill70.png': lambda: rounded((70, 70), 35),
     'circle.png': lambda: rounded((96, 96), 48),
 }
 

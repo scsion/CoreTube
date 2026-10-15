@@ -322,8 +322,8 @@ def header():
                 <aligny>center</aligny>
                 <textcolor>{dim}</textcolor>
                 <focusedcolor>{dark}</focusedcolor>
-                <texturefocus border="35" colordiffuse="{text}">pill.png</texturefocus>
-                <texturenofocus border="35" colordiffuse="{surface}">pill.png</texturenofocus>
+                <texturefocus border="35" colordiffuse="{text}">pill70.png</texturefocus>
+                <texturenofocus border="35" colordiffuse="{surface}">pill70.png</texturenofocus>
                 <label>$ADDON[{addon} 39100]</label>
                 <onleft>{nav}</onleft>
                 <ondown>{first}</ondown>
@@ -417,13 +417,13 @@ def _pill_item(width, height, list_id, focused, icon=False):
                         <left>0</left><top>0</top>
                         <width>{w}</width><height>{h}</height>
                         <visible>!{on}</visible>
-                        <texture border="25" colordiffuse="{surface}">pill.png</texture>
+                        <texture border="{r}" colordiffuse="{surface}">pill{h}.png</texture>
                     </control>
                     <control type="image">
                         <left>0</left><top>0</top>
                         <width>{w}</width><height>{h}</height>
                         <visible>{on}</visible>
-                        <texture border="25" colordiffuse="{text}">pill.png</texture>
+                        <texture border="{r}" colordiffuse="{text}">pill{h}.png</texture>
                     </control>{icon}
                     <control type="label">
                         <left>{tx}</left><top>0</top>
@@ -444,7 +444,7 @@ def _pill_item(width, height, list_id, focused, icon=False):
                         <visible>{on}</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>'''.format(
-        w=width, h=height - 10, on=on, surface=SURFACE, text=TEXT,
+        w=width, h=height - 10, r=(height - 10) // 2, on=on, surface=SURFACE, text=TEXT,
         dim=TEXT_DIM, dark=DARK_TEXT, icon=icon_xml, tx=text_x,
         tw=width - text_x - (24 if icon else 0),
         align='left' if icon else 'center', font=FONT_META)
@@ -671,7 +671,7 @@ def search_view():
             <control type="image">
                 <left>{bar_x}</left><top>67</top>
                 <width>1030</width><height>70</height>
-                <texture border="35" colordiffuse="{surface}">pill.png</texture>
+                <texture border="35" colordiffuse="{surface}">pill70.png</texture>
             </control>
             <control type="label">
                 <left>{bar_tx}</left><top>67</top>
@@ -792,7 +792,7 @@ def nav_item(focused):
                     <left>30</left><top>7</top>
                     <width>360</width><height>64</height>
                     <visible>Control.HasFocus({nav})</visible>
-                    <texture border="32" colordiffuse="{text}">pill.png</texture>
+                    <texture border="32" colordiffuse="{text}">pill64.png</texture>
                 </control>'''.format(nav=NAV_ID, text=TEXT) if focused else ''
     # Kodi also uses the focused layout for the rail's selected item while the
     # rail is collapsed, so the dark-on-white icon only applies with focus.
