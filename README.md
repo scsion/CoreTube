@@ -48,9 +48,11 @@ sign-in are kept.
 
 ### Signing in (optional)
 
-Choose **Sign in** in the rail. Then, on your phone, enter the codes it shows
-at google.com/device. There are two codes, because the engine signs in both
-its TV and VR clients. No API key is needed: subscriptions, liked videos,
+Choose **Sign in** in the rail. Two steps follow, because the engine signs in
+both YouTube's TV and VR apps. Each step shows a code and a **QR code**. Scan
+the QR code with your phone: Google's approval page opens with the code
+already filled in, so you just approve. You can also type the code at
+google.com/device. No API key is needed: subscriptions, liked videos,
 playlists and the personal home feed come straight from YouTube.
 
 If you have your own YouTube Data API key, you can enter it under
