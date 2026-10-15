@@ -10,7 +10,9 @@ Kodi 22 "Piers"), styled after the YouTube TV app that
   related videos fall back to YouTube's own keyless InnerTube API
 - **Signed-in feeds**: subscriptions, liked videos, your playlists and saved playlists
 - **SponsorBlock**: skips sponsor and other segments automatically, with a choice of categories
-- A left navigation rail that expands on focus and a large preview of the focused video
+- **YouTube TV look**: laid out like YouTube's own TV app (what TizenTube shows):
+  icon rail that expands on focus, search bar, big first shelf, focus ring,
+  duration / LIVE badges and progress bars, focused shelf scrolls to the top
 
 ## How it's built
 
@@ -22,10 +24,12 @@ InputStream Adaptive. It's vendored into `resources/lib/youtube_plugin` and
 runs under this add-on's own id, so it doesn't depend on the YouTube add-on
 and can run alongside it (its local server uses port 50162 instead of 50152).
 
-The interface (`resources/lib/leanback`, `resources/skins`) never calls YouTube
-directly. Each row and grid is a Kodi container whose content is a
-`plugin://script.youtube.leanback/...` path served by the engine, so Kodi
-handles loading, caching and thumbnails.
+The interface (`resources/lib/leanback`, `resources/skins`) shows
+`plugin://script.youtube.leanback/...` listings served by the engine. Grid
+pages are Kodi containers that load those paths themselves. Home and Library
+shelves are filled by the window (`leanback/loader.py`), which runs the same
+engine routes in worker threads: all shelves arrive together in about three
+seconds instead of one plugin run after another.
 
 Without a Data API key the window uses the add-on's own `/leanback/...` plugin
 routes instead (`resources/lib/leanback/routes.py`, registered on the engine's
@@ -55,9 +59,10 @@ resources/lib/service_main.py  service entry: SponsorBlock + engine service
 resources/lib/leanback_plugin.py plugin entry: engine + keyless /leanback/ routes
 resources/lib/leanback/        TV UI controller, keyless InnerTube routes, SponsorBlock
 resources/lib/youtube_plugin/  vendored engine (do not edit - re-sync instead)
-resources/skins/Default/       window XML (generated) and textures
+resources/skins/Default/       window XML and textures (both generated)
 tools/sync_upstream.py         re-vendor the engine from an upstream checkout
 tools/gen_skin.py              generates the window XML
+tools/gen_textures.py          draws the rounded shapes and rail icons (needs Pillow)
 tools/build_zip.py             builds dist/script.youtube.leanback-<ver>.zip
 ```
 

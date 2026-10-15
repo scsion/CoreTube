@@ -25,6 +25,8 @@
     SPDX-License-Identifier: GPL-2.0-only
 """
 
+import re
+
 from youtube_plugin.kodion.abstract_provider import AbstractProvider
 from youtube_plugin.kodion.constants import (
     CHANNEL_ID,
@@ -63,6 +65,15 @@ MINE_CACHE = 5 * 60
 
 SEPARATOR = ' • '
 
+# Emoji and their joiners/variation selectors. Kodi's fonts have no colour
+# emoji and draw them as empty boxes, so titles drop them.
+_EMOJI = re.compile('[\U0001F000-\U0001FAFF☀-➿️‍'
+                    '⬀-⯿\U000E0000-\U000E007F]+')
+
+
+def _clean(title):
+    return ' '.join(_EMOJI.sub(' ', title or '').split())
+
 
 # -- item conversion --------------------------------------------------------
 
@@ -75,7 +86,7 @@ def _plot(data):
 def _video_item(context, data, play_data):
     video_id = data['id']
     item = VideoItem(
-        data.get('title') or video_id,
+        _clean(data.get('title')) or video_id,
         context.create_uri((PATHS.PLAY,), {VIDEO_ID: video_id}),
         image=data.get('thumb'),
         plot=_plot(data),
@@ -84,6 +95,10 @@ def _video_item(context, data, play_data):
     )
     if data.get('channel'):
         item.add_artist(data['channel'])
+    # Label2 under the tile, worded the way YouTube shows it:
+    # "28K views • 3 years ago".
+    item.set_short_details(SEPARATOR.join(filter(None, (
+        data.get('views'), data.get('published')))))
     if data.get('duration'):
         item.set_duration_from_seconds(data['duration'])
     published = innertube.parse_ago(data.get('published'))

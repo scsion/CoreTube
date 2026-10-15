@@ -2,10 +2,11 @@
 """
     Leanback TV interface.
 
-    The window never talks to YouTube itself. Every row and grid is a skin
-    container whose <content> is a plugin:// path of the forked engine, set
-    through window properties. Kodi fetches and caches those listings, and
-    this controller only handles navigation, playback and the context menu.
+    Every row and grid shows a plugin:// listing of the forked engine. Grids
+    are skin containers whose <content> Kodi loads. Rows are filled by this
+    window itself (loader.py), which runs the same engine routes in worker
+    threads: much faster than one plugin run per row, and it lets the layout
+    react to loading. Playback always goes through the engine's /play/ path.
 
     SPDX-License-Identifier: GPL-2.0-only
 """
@@ -16,6 +17,7 @@ import xbmc
 import xbmcgui
 
 from . import ADDON_ID, HINT_PROPERTY, PLUGIN, addon, localize, setting_bool
+from .loader import RowLoader
 
 XML_FILE = 'script-youtube-leanback-main.xml'
 
@@ -23,6 +25,7 @@ NAV_LIST = 9000
 ROWS_GROUP = 100
 ROW_IDS = tuple(range(101, 109))
 GRID = 200
+SEARCH_BAR = 300
 CONTENT_IDS = ROW_IDS + (GRID,)
 
 FOCUS_WAIT_STEPS = 50
@@ -112,6 +115,9 @@ class MainWindow(xbmcgui.WindowXML):
         self._signed_in = False
         self._has_key = False
         self._nav_ready = False
+        self._loader = RowLoader()
+        # Path each row list currently holds (or is loading).
+        self._row_paths = {}
 
     # -- lifecycle --------------------------------------------------------
 
@@ -130,15 +136,17 @@ class MainWindow(xbmcgui.WindowXML):
     def _build_nav(self):
         nav = self.getControl(NAV_LIST)
         nav.reset()
-        media = 'special://home/addons/{}/resources/media/'.format(ADDON_ID)
+        # White line icons drawn by tools/gen_textures.py.
+        media = ('special://home/addons/{}/resources/skins/Default/media/'
+                 .format(ADDON_ID))
         entries = (
-            (NAV_SEARCH, 39100, 'search.png'),
-            (NAV_HOME, 39101, 'home.png'),
-            (NAV_SUBSCRIPTIONS, 39102, 'channels.png'),
-            (NAV_LIBRARY, 39103, 'playlist.png'),
+            (NAV_SEARCH, 39100, 'icon_search.png'),
+            (NAV_HOME, 39101, 'icon_home.png'),
+            (NAV_SUBSCRIPTIONS, 39102, 'icon_subscriptions.png'),
+            (NAV_LIBRARY, 39103, 'icon_library.png'),
             (NAV_ACCOUNT, 39105 if self._signed_in else 39104,
-             'sign_out.png' if self._signed_in else 'sign_in.png'),
-            (NAV_SETTINGS, 39106, 'settings.png'),
+             'icon_account.png'),
+            (NAV_SETTINGS, 39106, 'icon_settings.png'),
         )
         for key, label, icon in entries:
             item = xbmcgui.ListItem(localize(label))
@@ -227,19 +235,30 @@ class MainWindow(xbmcgui.WindowXML):
 
     def _show(self, view):
         self.setProperty('view', view['type'])
+        if view.get('nav'):
+            self.setProperty('section', view['nav'])
         if view['type'] == 'rows':
             # Re-checked on every show, so history appears after the first
             # video without rebuilding the view.
             rows = without_empty_local_lists(view['rows'])
+            self._loader.cancel()
+            self.setProperty('focusrow', '1')
+            # The first home shelf gets YouTube TV's big tiles.
+            self.setProperty('row1.large',
+                             'true' if view.get('nav') == NAV_HOME else '')
             for index, row_id in enumerate(ROW_IDS):
                 prefix = 'row{}.'.format(index + 1)
                 if index < len(rows):
                     label, path = rows[index]
                     self.setProperty(prefix + 'label', localize(label))
                     self.setProperty(prefix + 'path', path)
+                    self._fill_row(row_id, prefix, path)
                 else:
                     self.clearProperty(prefix + 'label')
                     self.clearProperty(prefix + 'path')
+                    self.clearProperty(prefix + 'loading')
+                    self._row_paths.pop(row_id, None)
+                    self.getControl(row_id).reset()
             self.clearProperty('grid.path')
             focus = ROWS_GROUP
         else:
@@ -249,16 +268,58 @@ class MainWindow(xbmcgui.WindowXML):
         if self.getFocusId() != NAV_LIST or view.get('focus_content'):
             self._focus_when_filled(focus)
 
+    def _fill_row(self, row_id, prefix, path):
+        control = self.getControl(row_id)
+        # Coming back to a view keeps loaded rows (and their scroll
+        # position), except local lists that playback just changed.
+        if (self._row_paths.get(row_id) == path and control.size()
+                and '/kodion/' not in path):
+            return
+        self._row_paths[row_id] = path
+        control.reset()
+        self.setProperty(prefix + 'loading', 'true')
+
+        def done(listitems):
+            if self._row_paths.get(row_id) != path:
+                return
+            control.reset()
+            control.addItems(listitems)
+            self.clearProperty(prefix + 'loading')
+            if not listitems:
+                # Nothing to show: hide the shelf.
+                self.clearProperty(prefix + 'path')
+
+        self._loader.load(path, done)
+
+    def _first_filled_row(self, wait_for_loading=False):
+        """The topmost shelf with items. With wait_for_loading, None while a
+        shelf above it is still loading, so startup focus lands on the top
+        shelf even when a lower one arrives first."""
+        for index, row_id in enumerate(ROW_IDS):
+            if xbmc.getCondVisibility(
+                    'Integer.IsGreater(Container({}).NumItems,0)'
+                    .format(row_id)):
+                return row_id
+            if wait_for_loading and self.getProperty(
+                    'row{}.loading'.format(index + 1)) == 'true':
+                return None
+        return None
+
     def _focus_when_filled(self, focus):
         """Containers fill asynchronously; focus once something has items."""
-        ids = ROW_IDS if focus == ROWS_GROUP else (GRID,)
         start_focus = self.getFocusId()
         monitor = xbmc.Monitor()
         for _ in range(FOCUS_WAIT_STEPS):
-            if any(xbmc.getCondVisibility(
-                    'Integer.IsGreater(Container({}).NumItems,0)'.format(cid))
-                   for cid in ids):
-                self.setFocusId(focus)
+            if focus == ROWS_GROUP:
+                target = self._first_filled_row(wait_for_loading=True)
+            elif xbmc.getCondVisibility(
+                    'Integer.IsGreater(Container({}).NumItems,0)'
+                    .format(GRID)):
+                target = GRID
+            else:
+                target = None
+            if target:
+                self.setFocusId(target)
                 return
             # Stop waiting if the user moved on in the meantime.
             if (monitor.waitForAbort(0.1)
@@ -276,8 +337,17 @@ class MainWindow(xbmcgui.WindowXML):
 
     # -- input ------------------------------------------------------------
 
+    def onFocus(self, control_id):
+        # Drives the skin's scroll: the focused shelf slides to the top.
+        if control_id in ROW_IDS:
+            self.setProperty('focusrow', str(ROW_IDS.index(control_id) + 1))
+        elif control_id == SEARCH_BAR:
+            self.setProperty('focusrow', '1')
+
     def onClick(self, control_id):
-        if control_id == NAV_LIST:
+        if control_id == SEARCH_BAR:
+            self._on_nav(NAV_SEARCH)
+        elif control_id == NAV_LIST:
             self._on_nav(self.getControl(NAV_LIST)
                          .getSelectedItem().getProperty('nav'))
         elif control_id in CONTENT_IDS:
@@ -286,6 +356,11 @@ class MainWindow(xbmcgui.WindowXML):
     def onAction(self, action):
         action_id = action.getId()
         if action_id in (ACTION_NAV_BACK, ACTION_PREVIOUS_MENU):
+            # Like YouTube TV: Back from a lower shelf returns to the top.
+            first = self._first_filled_row()
+            if self.getFocusId() in ROW_IDS and self.getFocusId() != first:
+                self.setFocusId(first)
+                return
             if self._pop():
                 return
             if self.getFocusId() != NAV_LIST:
@@ -390,4 +465,5 @@ def run():
     window = MainWindow(XML_FILE, addon().getAddonInfo('path'),
                         'Default', '1080i')
     window.doModal()
+    window._loader.shutdown()  # pylint: disable=protected-access
     del window
