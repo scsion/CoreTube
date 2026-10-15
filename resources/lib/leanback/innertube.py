@@ -602,15 +602,74 @@ def tab_key(title):
     return re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-') or 'tab'
 
 
-def channel_tab(client, channel_id, key, page_token=None):
-    """One tab of a channel page, found by its key in the channel header
-    (YouTube names and orders the tabs per channel)."""
-    if page_token:
-        # A continuation carries the tab with it.
-        return channel_videos(client, channel_id, page_token)
+def _tab_params(client, channel_id, key):
     header = channel_header(client, channel_id) or {}
     params = next((tab['params'] for tab in header.get('tabs') or ()
                    if tab['key'] == key), CHANNEL_TABS.get(key))
+    return params, header
+
+
+def channel_sorts(client, channel_id, key):
+    """The chips YouTube offers above a channel tab: sort orders such as
+    Latest / Popular / Oldest, or filters such as Members only. Each opens
+    a re-sorted listing through its continuation token."""
+    params, _ = _tab_params(client, channel_id, key)
+    result = request(client, 'browse', browseId=channel_id, params=params)
+    chips = []
+    for bar in _find_all(result.get('contents'), 'chipBarViewModel'):
+        for chip in bar.get('chips') or ():
+            model = chip.get('chipViewModel') or {}
+            title = model.get('text')
+            token = find_first(model.get('tapCommand'), 'token',
+                               lambda value: isinstance(value, str))
+            if title and token:
+                chips.append({'key': tab_key(title), 'title': title,
+                              'token': token,
+                              'selected': model.get('selected') is not False})
+        break
+    # Whichever YouTube marks selected is the tab's own listing.
+    if chips and not any(chip['selected'] for chip in chips):
+        chips[0]['selected'] = True
+    elif chips:
+        first = next(chip for chip in chips if chip['selected'])
+        for chip in chips:
+            chip['selected'] = chip is first
+    return chips
+
+
+def _find_all(node, key):
+    found = []
+    stack = [node]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, dict):
+            if key in current:
+                found.append(current[key])
+            stack.extend(reversed(list(current.values())))
+        elif isinstance(current, list):
+            stack.extend(reversed(current))
+    return found
+
+
+def channel_tab(client, channel_id, key, page_token=None, sort=None):
+    """One tab of a channel page, found by its key in the channel header
+    (YouTube names and orders the tabs per channel), optionally in the
+    order of one of its sort chips."""
+    if page_token:
+        # A continuation carries the tab (and its order) with it.
+        return channel_videos(client, channel_id, page_token)
+    if sort:
+        chip = next((chip for chip in channel_sorts(client, channel_id, key)
+                     if chip['key'] == sort), None)
+        if chip and not chip['selected']:
+            result = request(client, 'browse', continuation=chip['token'])
+            page = collect(result.get('onResponseReceivedActions'),
+                           shorts=True)
+            for item in page['items']:
+                if item['kind'] == 'video':
+                    item['channel_id'] = item.get('channel_id') or channel_id
+            return page
+    params, header = _tab_params(client, channel_id, key)
     page = channel_videos(client, channel_id, params=params)
     page['header_title'] = header.get('title')
     return page

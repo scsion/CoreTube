@@ -94,6 +94,22 @@ class Engine(object):
                  xbmc.LOGWARNING)
             return None
 
+    def channel_sorts(self, channel_id, tab):
+        """Sort chips for a channel tab (innertube.channel_sorts), cached
+        for an hour; [] when there are none or they can't be fetched."""
+        try:
+            self._init()
+            from . import innertube
+            cache = self.context.get_function_cache()
+            return cache.run(innertube.channel_sorts, cache.ONE_HOUR,
+                             self.provider.get_client(self.context),
+                             channel_id, tab,
+                             _scope=cache.SCOPE_BUILTINS) or []
+        except Exception as exc:  # pylint: disable=broad-except
+            _log('sorts of {}/{} failed: {!r}'.format(channel_id, tab, exc),
+                 xbmc.LOGWARNING)
+            return []
+
     def recent_searches(self):
         """The engine's search history, newest first (shared with its own
         search pages)."""

@@ -32,6 +32,9 @@ SUGGEST_ID = 402
 RESULTS_ID = 403
 # Channel page: tabs (Videos, Live, Playlists) above the grid.
 TABS_ID = 210
+SORTS_ID = 211          # the tab's sort chips (Latest / Popular / Oldest)
+SORTS_SHIFT = 72        # extra grid offset while a tab has sort chips
+HAS_SORTS = '!String.IsEmpty(Window.Property(channel.sorts))'
 CHANNEL_SHIFT = 160     # the grid sits this much lower under a channel header
 TAB_W = 200             # tab chip slot (chip plus gap)
 TAB_PAD = 8             # room around a chip for its focus ring
@@ -268,6 +271,7 @@ def row(index):
                     <onleft>{nav}</onleft>
                     <onup>{up}</onup>
                     <ondown>{down}</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>{tiles}
@@ -500,11 +504,28 @@ def channel_header():
                     <width>1560</width><height>{tabs_h}</height>
                     <orientation>horizontal</orientation>
                     <onleft>{nav}</onleft>
-                    <ondown>{grid}</ondown>
+                    <ondown condition="{has_sorts}">SetFocus({sorts})</ondown>
+                    <ondown condition="!{has_sorts}">SetFocus({grid})</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">200</scrolltime>
                     <itemlayout width="{tab_w}" height="{tabs_h}">{tab}
                     </itemlayout>
                     <focusedlayout width="{tab_w}" height="{tabs_h}">{tab_focused}
+                    </focusedlayout>
+                </control>
+                <control type="list" id="{sorts}">
+                    <left>{tabs_x}</left><top>{sorts_y}</top>
+                    <width>1560</width><height>{tabs_h}</height>
+                    <visible>{has_sorts}</visible>
+                    <orientation>horizontal</orientation>
+                    <onleft>{nav}</onleft>
+                    <onup>{tabs}</onup>
+                    <ondown>{grid}</ondown>
+                    <onright>noop</onright>
+                    <scrolltime tween="cubic" easing="out">200</scrolltime>
+                    <itemlayout width="{tab_w}" height="{tabs_h}">{sort}
+                    </itemlayout>
+                    <focusedlayout width="{tab_w}" height="{tabs_h}">{sort_focused}
                     </focusedlayout>
                 </control>
             </control>'''.format(
@@ -512,15 +533,17 @@ def channel_header():
         surface=SURFACE, text=TEXT, dim=TEXT_DIM, font_page=FONT_PAGE,
         font_meta=FONT_META, tabs=TABS_ID, nav=NAV_ID, grid=GRID_ID,
         tab=_tab(False), tab_focused=_tab(True), tab_w=TAB_W,
+        sort=_tab(False, SORTS_ID), sort_focused=_tab(True, SORTS_ID),
+        sorts=SORTS_ID, has_sorts=HAS_SORTS, sorts_y=184 - TAB_PAD + 68,
         tabs_x=CONTENT_X + 174 - TAB_PAD, tabs_y=184 - TAB_PAD,
         tabs_h=52 + 2 * TAB_PAD)
 
 
-def _tab(focused):
+def _tab(focused, list_id=TABS_ID):
     """Tab chip, as YouTube draws its chips: a rounded rectangle, the open
     tab light with dark text, the others dark grey with white text. The
     focused chip gets the same white ring as a focused video tile."""
-    on = 'Control.HasFocus({})'.format(TABS_ID) if focused else 'false'
+    on = 'Control.HasFocus({})'.format(list_id) if focused else 'false'
     selected = 'String.IsEqual(ListItem.Property(selected),true)'
     w, h = TAB_W - 16, 52
     pad = TAB_PAD
@@ -624,6 +647,7 @@ def search_view():
                 <onleft>{nav}</onleft>
                 <onright>{keys}</onright>
                 <ondown>{results}</ondown>
+                <onup>noop</onup>
                 <scrolltime>150</scrolltime>
                 <itemlayout width="500" height="68">{chip}
                 </itemlayout>
@@ -637,6 +661,8 @@ def search_view():
                 <orientation>vertical</orientation>
                 <onleft>{suggest}</onleft>
                 <ondown>{actions}</ondown>
+                <onup>noop</onup>
+                <onright>noop</onright>
                 <scrolltime>0</scrolltime>
                 <itemlayout width="{k}" height="{k}">{key}
                 </itemlayout>
@@ -650,6 +676,7 @@ def search_view():
                 <onup>{keys}</onup>
                 <ondown>{results}</ondown>
                 <onleft>{suggest}</onleft>
+                <onright>noop</onright>
                 <scrolltime>0</scrolltime>
                 <itemlayout width="148" height="60">{action}
                 </itemlayout>
@@ -674,6 +701,8 @@ def search_view():
                 <orientation>horizontal</orientation>
                 <onleft>{nav}</onleft>
                 <onup>{actions}</onup>
+                <onright>noop</onright>
+                <ondown>noop</ondown>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>
                 <focusposition>0</focusposition>
                 <movement>1</movement>{tiles}
@@ -792,9 +821,14 @@ def build():
                 <left>{gx}</left><top>150</top><width>{gw}</width><height>930</height>
                 <!-- Under a channel header the grid starts lower. -->
                 <animation effect="slide" end="0,{channel_shift}" time="0" condition="{view_channel}">Conditional</animation>
+                <animation effect="slide" end="0,{sorts_shift}" time="0" condition="{view_channel} + {has_sorts}">Conditional</animation>
                 <orientation>vertical</orientation>
                 <onleft>{nav}</onleft>
-                <onup condition="{view_channel}">SetFocus({tabs_id})</onup>
+                <onup condition="{view_channel} + {has_sorts}">SetFocus({sorts_id})</onup>
+                <onup condition="{view_channel} + !{has_sorts}">SetFocus({tabs_id})</onup>
+                <onup condition="!{view_channel}">noop</onup>
+                <ondown>noop</ondown>
+                <onright>noop</onright>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>{grid_tiles}
             </control>
         </control>
@@ -830,6 +864,8 @@ def build():
         <control type="list" id="{nav}">
             <left>0</left><top>191</top><width>420</width><height>860</height>
             <orientation>vertical</orientation>
+            <onup>noop</onup>
+            <ondown>noop</ondown>
             <onright condition="{view_grid} | {view_channel}">SetFocus({grid_id})</onright>
             <onright condition="{view_search}">SetFocus({keys_id})</onright>
             <onright condition="!{view_grid} + !{view_channel} + !{view_search}">SetFocus({rows_id})</onright>
@@ -851,6 +887,7 @@ def build():
            view_search=VIEW_SEARCH, keys_id=KEYS_ID,
            view_channel=VIEW_CHANNEL, channel_header=channel_header(),
            channel_shift=CHANNEL_SHIFT, tabs_id=TABS_ID,
+           sorts_shift=SORTS_SHIFT, sorts_id=SORTS_ID, has_sorts=HAS_SORTS,
            search_view=search_view(),
            nav_item=nav_item(False), nav_focused=nav_item(True))
 

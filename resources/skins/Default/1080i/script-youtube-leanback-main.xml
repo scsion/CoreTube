@@ -121,6 +121,7 @@
                     <onleft>9000</onleft>
                     <onup>300</onup>
                     <ondown>102</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -507,6 +508,7 @@
                     <onleft>9000</onleft>
                     <onup>101</onup>
                     <ondown>103</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -723,6 +725,7 @@
                     <onleft>9000</onleft>
                     <onup>102</onup>
                     <ondown>104</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -939,6 +942,7 @@
                     <onleft>9000</onleft>
                     <onup>103</onup>
                     <ondown>105</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -1155,6 +1159,7 @@
                     <onleft>9000</onleft>
                     <onup>104</onup>
                     <ondown>106</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -1371,6 +1376,7 @@
                     <onleft>9000</onleft>
                     <onup>105</onup>
                     <ondown>107</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -1587,6 +1593,7 @@
                     <onleft>9000</onleft>
                     <onup>106</onup>
                     <ondown>108</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -1803,6 +1810,7 @@
                     <onleft>9000</onleft>
                     <onup>107</onup>
                     <ondown>108</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -2032,6 +2040,7 @@
                 <onleft>9000</onleft>
                 <onright>400</onright>
                 <ondown>403</ondown>
+                <onup>noop</onup>
                 <scrolltime>150</scrolltime>
                 <itemlayout width="500" height="68">
                     <control type="image">
@@ -2135,6 +2144,8 @@
                 <orientation>vertical</orientation>
                 <onleft>402</onleft>
                 <ondown>401</ondown>
+                <onup>noop</onup>
+                <onright>noop</onright>
                 <scrolltime>0</scrolltime>
                 <itemlayout width="67" height="67">
                     <control type="image">
@@ -2224,6 +2235,7 @@
                 <onup>400</onup>
                 <ondown>403</ondown>
                 <onleft>402</onleft>
+                <onright>noop</onright>
                 <scrolltime>0</scrolltime>
                 <itemlayout width="148" height="60">
                     <control type="image">
@@ -2330,6 +2342,8 @@
                 <orientation>horizontal</orientation>
                 <onleft>9000</onleft>
                 <onup>401</onup>
+                <onright>noop</onright>
+                <ondown>noop</ondown>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>
                 <focusposition>0</focusposition>
                 <movement>1</movement>
@@ -2560,7 +2574,9 @@
                     <width>1560</width><height>68</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
-                    <ondown>200</ondown>
+                    <ondown condition="!String.IsEmpty(Window.Property(channel.sorts))">SetFocus(211)</ondown>
+                    <ondown condition="!!String.IsEmpty(Window.Property(channel.sorts))">SetFocus(200)</ondown>
+                    <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">200</scrolltime>
                     <itemlayout width="200" height="68">
                     <control type="image">
@@ -2639,6 +2655,93 @@
                     </control>
                     </focusedlayout>
                 </control>
+                <control type="list" id="211">
+                    <left>322</left><top>244</top>
+                    <width>1560</width><height>68</height>
+                    <visible>!String.IsEmpty(Window.Property(channel.sorts))</visible>
+                    <orientation>horizontal</orientation>
+                    <onleft>9000</onleft>
+                    <onup>210</onup>
+                    <ondown>200</ondown>
+                    <onright>noop</onright>
+                    <scrolltime tween="cubic" easing="out">200</scrolltime>
+                    <itemlayout width="200" height="68">
+                    <control type="image">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>2</left><top>2</top>
+                        <width>196</width><height>64</height>
+                        <visible>false</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <font>Bald_InfoTagline</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <font>Bald_InfoTagline</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    </itemlayout>
+                    <focusedlayout width="200" height="68">
+                    <control type="image">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>2</left><top>2</top>
+                        <width>196</width><height>64</height>
+                        <visible>Control.HasFocus(211)</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
+                    </control>
+                    <control type="label">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <font>Bald_InfoTagline</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>52</height>
+                        <font>Bald_InfoTagline</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    </focusedlayout>
+                </control>
             </control>
             <control type="label">
                 <left>156</left><top>60</top><width>1500</width><height>60</height>
@@ -2665,9 +2768,14 @@
                 <left>146</left><top>150</top><width>1774</width><height>930</height>
                 <!-- Under a channel header the grid starts lower. -->
                 <animation effect="slide" end="0,160" time="0" condition="String.IsEqual(Window.Property(view),channel)">Conditional</animation>
+                <animation effect="slide" end="0,72" time="0" condition="String.IsEqual(Window.Property(view),channel) + !String.IsEmpty(Window.Property(channel.sorts))">Conditional</animation>
                 <orientation>vertical</orientation>
                 <onleft>9000</onleft>
-                <onup condition="String.IsEqual(Window.Property(view),channel)">SetFocus(210)</onup>
+                <onup condition="String.IsEqual(Window.Property(view),channel) + !String.IsEmpty(Window.Property(channel.sorts))">SetFocus(211)</onup>
+                <onup condition="String.IsEqual(Window.Property(view),channel) + !!String.IsEmpty(Window.Property(channel.sorts))">SetFocus(210)</onup>
+                <onup condition="!String.IsEqual(Window.Property(view),channel)">noop</onup>
+                <ondown>noop</ondown>
+                <onright>noop</onright>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <itemlayout width="441" height="428">
                     <control type="image">
@@ -2873,6 +2981,8 @@
         <control type="list" id="9000">
             <left>0</left><top>191</top><width>420</width><height>860</height>
             <orientation>vertical</orientation>
+            <onup>noop</onup>
+            <ondown>noop</ondown>
             <onright condition="String.IsEqual(Window.Property(view),grid) | String.IsEqual(Window.Property(view),channel)">SetFocus(200)</onright>
             <onright condition="String.IsEqual(Window.Property(view),search)">SetFocus(400)</onright>
             <onright condition="!String.IsEqual(Window.Property(view),grid) + !String.IsEqual(Window.Property(view),channel) + !String.IsEqual(Window.Property(view),search)">SetFocus(100)</onright>

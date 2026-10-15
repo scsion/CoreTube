@@ -41,6 +41,9 @@ RESULTS = 403
 # Channel page tabs above its grid: the channel's own (YouTube names and
 # orders them), opening on the first, normally Home.
 TABS = 210
+# The open tab's sort chips (Latest / Popular / Oldest, or YouTube's
+# filters for that channel), under the tabs.
+SORTS = 211
 CONTENT_IDS = ROW_IDS + (GRID, RESULTS)
 
 FOCUS_WAIT_STEPS = 50
@@ -86,6 +89,7 @@ PATH_KEYLESS_RELATED = PLUGIN + '/leanback/related/?video_id={}'
 PATH_KEYLESS_CHANNEL = PLUGIN + '/leanback/channel/?channel_id={}&item_name={}'
 PATH_CHANNEL_TAB = (PLUGIN + '/leanback/channeltab/{tab}/'
                     '?channel_id={channel_id}&item_name={name}')
+PATH_CHANNEL_SORT = '&order={}'
 # The signed-in account's own lists, read with its sign-in instead of a key.
 PATH_KEYLESS_MINE = PLUGIN + '/leanback/mine/{}/'
 
@@ -349,9 +353,13 @@ class MainWindow(xbmcgui.WindowXML):
         if view['tab'] not in [tab['key'] for tab in tabs]:
             view['tab'] = tabs[0]['key']
         self._set_channel_header(view, header)
-        self._fill(GRID, PATH_CHANNEL_TAB.format(
+        path = PATH_CHANNEL_TAB.format(
             tab=view['tab'], channel_id=view['channel_id'],
-            name=quote_plus(view.get('title') or '')), 'grid.loading')
+            name=quote_plus(view.get('title') or ''))
+        if view.get('sort'):
+            path += PATH_CHANNEL_SORT.format(view['sort'])
+        self._fill(GRID, path, 'grid.loading')
+        self._show_sorts(view)
         if view.pop('focus_content', False):
             # The tabs show at once; the videos take focus on arrival.
             self.setFocusId(TABS)
@@ -388,12 +396,68 @@ class MainWindow(xbmcgui.WindowXML):
             tabs.getListItem(index).setProperty(
                 'selected', 'true' if key == view['tab'] else '')
 
+    def _show_sorts(self, view):
+        """The open tab's sort chips, fetched once per tab in the
+        background; the row stays hidden for tabs without any."""
+        key = (view['channel_id'], view['tab'])
+        sorts = view.setdefault('sorts', {})
+        if key[1] in sorts:
+            self._set_sorts(view, sorts[key[1]])
+            return
+        self.clearProperty('channel.sorts')
+
+        def fetch():
+            chips = self._loader.engine.channel_sorts(*key)
+            sorts[key[1]] = chips
+            if (self._views and self._views[-1] is view
+                    and view['tab'] == key[1]):
+                self._set_sorts(view, chips)
+        threading.Thread(target=fetch, daemon=True).start()
+
+    def _set_sorts(self, view, chips):
+        control = self.getControl(SORTS)
+        keys = tuple(chip['key'] for chip in chips)
+        if keys != getattr(self, '_sort_keys', ()):
+            self._sort_keys = keys
+            control.reset()
+            for chip in chips:
+                item = xbmcgui.ListItem(chip['title'])
+                item.setProperty('sort', chip['key'])
+                control.addItem(item)
+        current = view.get('sort') or next(
+            (chip['key'] for chip in chips if chip['selected']), None)
+        for index, key in enumerate(keys):
+            control.getListItem(index).setProperty(
+                'selected', 'true' if key == current else '')
+        if chips:
+            self.setProperty('channel.sorts', 'true')
+        else:
+            self.clearProperty('channel.sorts')
+
+    def _on_sort(self):
+        view = self._views[-1]
+        sort = self.getControl(SORTS).getSelectedItem().getProperty('sort')
+        if view.get('type') != 'channel' or not sort:
+            return
+        chips = view.get('sorts', {}).get(view['tab']) or ()
+        default = next((chip['key'] for chip in chips if chip['selected']),
+                       None)
+        current = view.get('sort') or default
+        if sort == current:
+            return
+        # The default chip is the tab's own listing, with no order.
+        view['sort'] = None if sort == default else sort
+        self._loader.cancel()
+        self._paging.clear()
+        self._show_channel_tab(view)
+
     def _on_tab(self):
         view = self._views[-1]
         tab = self.getControl(TABS).getSelectedItem().getProperty('tab')
         if view.get('type') != 'channel' or not tab or tab == view['tab']:
             return
         view['tab'] = tab
+        view['sort'] = None
         self._loader.cancel()
         self._paging.clear()
         self._show_channel_tab(view)
@@ -615,6 +679,13 @@ class MainWindow(xbmcgui.WindowXML):
             keys = getattr(self, '_tab_keys', ())
             if view.get('type') == 'channel' and view.get('tab') in keys:
                 self.getControl(TABS).selectItem(keys.index(view['tab']))
+        elif control_id == SORTS:
+            # Likewise onto the open sort chip.
+            control = self.getControl(SORTS)
+            for index in range(control.size()):
+                if control.getListItem(index).getProperty('selected'):
+                    control.selectItem(index)
+                    break
 
     def onClick(self, control_id):
         if control_id == SEARCH_BAR:
@@ -625,6 +696,8 @@ class MainWindow(xbmcgui.WindowXML):
             self._on_key_action()
         elif control_id == TABS:
             self._on_tab()
+        elif control_id == SORTS:
+            self._on_sort()
         elif control_id == SUGGESTIONS:
             self._on_suggestion()
         elif control_id == NAV_LIST:

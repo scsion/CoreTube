@@ -311,7 +311,9 @@ def on_channel(provider, context, re_match):
     page = _cached(context, PAGE_CACHE, innertube.channel_tab,
                    provider.get_client(context), channel_id,
                    re_match.groupdict().get('tab') or 'videos',
-                   context.get_param('page_token'))
+                   context.get_param('page_token'),
+                   # order: the tab's sort chip (Latest, Popular...).
+                   context.get_param('order'))
     if page:
         # Continuation pages don't repeat the channel name.
         name = (page.get('header_title') or page.get('title')
