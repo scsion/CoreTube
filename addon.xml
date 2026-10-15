@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.coretube" name="CoreTube" version="0.8.4" provider-name="scsion">
+<addon id="script.coretube" name="CoreTube" version="0.8.5" provider-name="scsion">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.27.1"/>
         <import addon="inputstream.adaptive" version="19.0.0"/>
         <import addon="script.module.inputstreamhelper" version="0.2.2" optional="true"/>
         <import addon="script.module.pysocks" optional="true"/>
+        <import addon="script.module.pyqrcode" version="1.2.1"/>
     </requires>
     <!-- TV interface; also handles the engine's RunScript actions from settings.
          Listed first: Kodi files an add-on and opens it by its first extension,

@@ -210,6 +210,25 @@ def main():
          '                if not use_remote_history:\n', 1),
     ])
 
+    # Sign-in codes go in CoreTube's own dialog (leanback/signin.py): a QR
+    # code that opens google.com/device with the code filled in, and
+    # "Step 1 of 2" so the second code (VR client) isn't taken for a repeat.
+    patch(lib / 'youtube' / 'helper' / 'yt_login.py', [
+        ('from ...kodion import logging\n',
+         'from ...kodion import logging\n'
+         'from leanback.signin import sign_in_dialog\n', 1),
+        ('            with ui.create_progress_dialog(\n'
+         "                    heading=localize('sign.in'),\n"
+         '                    message=message,\n'
+         '                    background=False\n'
+         '            ) as progress_dialog:\n',
+         '            with sign_in_dialog(\n'
+         "                    ui, localize('sign.in'), message,\n"
+         "                    json_data.get('verification_url'), user_code,\n"
+         '                    token_idx, client,\n'
+         '            ) as progress_dialog:\n', 1),
+    ])
+
     settings = ROOT / 'resources' / 'settings.xml'
     leanback_settings = LEANBACK_SETTINGS_FILE.read_text(encoding='utf-8')
     patch(settings, [

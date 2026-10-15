@@ -12,6 +12,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 from ..youtube_exceptions import LoginException
 from ...kodion import logging
+from leanback.signin import sign_in_dialog
 
 
 SIGN_IN = 'in'
@@ -118,10 +119,10 @@ def _do_login(provider, context, client=None, **kwargs):
                 ui.bold(user_code),
             ))
 
-            with ui.create_progress_dialog(
-                    heading=localize('sign.in'),
-                    message=message,
-                    background=False
+            with sign_in_dialog(
+                    ui, localize('sign.in'), message,
+                    json_data.get('verification_url'), user_code,
+                    token_idx, client,
             ) as progress_dialog:
                 steps = ((10 * 60) // interval)  # 10 Minutes
                 progress_dialog.set_total(steps)

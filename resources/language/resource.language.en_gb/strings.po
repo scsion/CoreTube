@@ -1818,3 +1818,23 @@ msgstr ""
 msgctxt "#39127"
 msgid "Loading…"
 msgstr ""
+
+msgctxt "#39130"
+msgid "Sign in to YouTube"
+msgstr ""
+
+msgctxt "#39131"
+msgid "Step {0} of {1}"
+msgstr ""
+
+msgctxt "#39132"
+msgid "Scan the QR code with your phone, or go to {0} and enter this code:"
+msgstr ""
+
+msgctxt "#39133"
+msgid "Waiting for you to approve. Press Back to cancel."
+msgstr ""
+
+msgctxt "#39134"
+msgid "The code expires in {0} min."
+msgstr ""
