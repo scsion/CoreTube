@@ -267,11 +267,19 @@ def row(index):
 
 
 def scroll_animations():
-    """Slide the page so the focused shelf sits near the top edge."""
-    return ''.join('''
-            <animation effect="slide" end="0,{dy}" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),{i})">Conditional</animation>'''
-                   .format(i=i, dy=FOCUS_TOP - row_top(i))
-                   for i in range(2, ROW_COUNT + 1))
+    """Slide the page so the focused shelf sits near the top edge.
+
+    One slide per shelf boundary, each active while the focus is on or below
+    that shelf, so moving one shelf starts or reverses exactly one slide of
+    one shelf's height. (One absolute slide per shelf made two slides run
+    against each other on every move, which lurched lower down the page.)"""
+    steps = []
+    for i in range(2, ROW_COUNT + 1):
+        start = FOCUS_TOP - row_top(i - 1) if i > 2 else 0
+        steps.append('''
+            <animation effect="slide" end="0,{dy}" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),{i})">Conditional</animation>'''
+                     .format(i=i, dy=(FOCUS_TOP - row_top(i)) - start))
+    return ''.join(steps)
 
 
 def header():
@@ -380,7 +388,8 @@ def build():
             <visible>{view_rows}</visible>{scroll}{header}{rows_xml}
         </control>
 
-        <!-- Grid view (search, channel, playlist, related) -->
+        <!-- Grid view (search, channel, playlist, related). Filled by the
+             window like the shelves, more pages appended as you scroll. -->
         <control type="group">
             <visible>{view_grid}</visible>
             <control type="label">
@@ -393,22 +402,21 @@ def build():
                 <left>{x}</left><top>400</top><width>1600</width><height>60</height>
                 <font>{font_nav}</font><align>center</align>
                 <textcolor>{dim}</textcolor>
-                <visible>Container({grid_id}).IsUpdating</visible>
+                <visible>String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container({grid_id}).NumItems,0)</visible>
                 <label>$LOCALIZE[31042]...</label>
             </control>
             <control type="label">
                 <left>{x}</left><top>400</top><width>1600</width><height>60</height>
                 <font>{font_nav}</font><align>center</align>
                 <textcolor>{dim}</textcolor>
-                <visible>!Container({grid_id}).IsUpdating + Integer.IsEqual(Container({grid_id}).NumItems,0)</visible>
+                <visible>!String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container({grid_id}).NumItems,0)</visible>
                 <label>$ADDON[{addon} 39118]</label>
             </control>
             <control type="panel" id="{grid_id}">
                 <left>{gx}</left><top>150</top><width>{gw}</width><height>930</height>
                 <orientation>vertical</orientation>
                 <onleft>{nav}</onleft>
-                <scrolltime tween="cubic" easing="out">250</scrolltime>
-                <content target="videos">$INFO[Window.Property(grid.path)]</content>{grid_tiles}
+                <scrolltime tween="cubic" easing="out">250</scrolltime>{grid_tiles}
             </control>
         </control>
 

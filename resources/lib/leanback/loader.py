@@ -63,6 +63,22 @@ class Engine(object):
             }
             self._ready = True
 
+    def resume_point(self, video_id, min_seconds, max_percent):
+        """Seconds to resume a video from, per the engine's watch history;
+        0 when it wasn't started, or was nearly finished."""
+        try:
+            self._init()
+            history = self.context.get_playback_history()
+            data = (history.get_items([video_id]) or {}).get(video_id) or {}
+            played = float(data.get('played_time') or 0)
+            percent = float(data.get('played_percent') or 0)
+        except Exception as exc:  # pylint: disable=broad-except
+            _log('resume point of {} failed: {!r}'.format(video_id, exc),
+                 xbmc.LOGWARNING)
+            return 0
+        return played if played >= min_seconds and percent < max_percent \
+            else 0
+
     def listing(self, uri):
         """Run the engine route for a plugin:// URI; returns ListItems."""
         self._init()

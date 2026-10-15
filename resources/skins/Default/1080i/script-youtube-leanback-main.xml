@@ -15,13 +15,13 @@
         <control type="group" id="100">
             <defaultcontrol>101</defaultcontrol>
             <visible>String.IsEqual(Window.Property(view),rows)</visible>
-            <animation effect="slide" end="0,-824" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),2)">Conditional</animation>
-            <animation effect="slide" end="0,-1496" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),3)">Conditional</animation>
-            <animation effect="slide" end="0,-2168" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),4)">Conditional</animation>
-            <animation effect="slide" end="0,-2840" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),5)">Conditional</animation>
-            <animation effect="slide" end="0,-3512" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),6)">Conditional</animation>
-            <animation effect="slide" end="0,-4184" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),7)">Conditional</animation>
-            <animation effect="slide" end="0,-4856" time="300" tween="cubic" easing="out" condition="String.IsEqual(Window.Property(focusrow),8)">Conditional</animation>
+            <animation effect="slide" end="0,-824" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),2)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),3)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),4)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),5)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),6)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),7)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),8)">Conditional</animation>
             <control type="image">
                 <left>156</left><top>67</top>
                 <width>70</width><height>70</height>
@@ -1980,7 +1980,8 @@
             </control>
         </control>
 
-        <!-- Grid view (search, channel, playlist, related) -->
+        <!-- Grid view (search, channel, playlist, related). Filled by the
+             window like the shelves, more pages appended as you scroll. -->
         <control type="group">
             <visible>String.IsEqual(Window.Property(view),grid)</visible>
             <control type="label">
@@ -1993,14 +1994,14 @@
                 <left>156</left><top>400</top><width>1600</width><height>60</height>
                 <font>font13</font><align>center</align>
                 <textcolor>FFAAAAAA</textcolor>
-                <visible>Container(200).IsUpdating</visible>
+                <visible>String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container(200).NumItems,0)</visible>
                 <label>$LOCALIZE[31042]...</label>
             </control>
             <control type="label">
                 <left>156</left><top>400</top><width>1600</width><height>60</height>
                 <font>font13</font><align>center</align>
                 <textcolor>FFAAAAAA</textcolor>
-                <visible>!Container(200).IsUpdating + Integer.IsEqual(Container(200).NumItems,0)</visible>
+                <visible>!String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container(200).NumItems,0)</visible>
                 <label>$ADDON[script.youtube.leanback 39118]</label>
             </control>
             <control type="panel" id="200">
@@ -2008,7 +2009,6 @@
                 <orientation>vertical</orientation>
                 <onleft>9000</onleft>
                 <scrolltime tween="cubic" easing="out">250</scrolltime>
-                <content target="videos">$INFO[Window.Property(grid.path)]</content>
                     <itemlayout width="441" height="428">
                     <control type="image">
                         <left>10</left><top>10</top>

@@ -2,11 +2,13 @@
 """
     Leanback TV interface.
 
-    Every row and grid shows a plugin:// listing of the forked engine. Grids
-    are skin containers whose <content> Kodi loads. Rows are filled by this
-    window itself (loader.py), which runs the same engine routes in worker
-    threads: much faster than one plugin run per row, and it lets the layout
-    react to loading. Playback always goes through the engine's /play/ path.
+    Every row and grid shows a plugin:// listing of the forked engine, filled
+    by this window itself (loader.py), which runs the engine routes in worker
+    threads: much faster than one plugin run per row, and selecting an item
+    reaches this window instead of Kodi's own handling (which would open its
+    Videos window or info dialog). Lists continue endlessly: a listing's
+    "next page" item is kept back and its page appended as the end nears.
+    Playback goes through the engine's /play/ path, resuming without asking.
 
     SPDX-License-Identifier: GPL-2.0-only
 """
@@ -30,7 +32,16 @@ SEARCH_BAR = 300
 CONTENT_IDS = ROW_IDS + (GRID,)
 
 FOCUS_WAIT_STEPS = 50
+# Load the next page once the selection is this close to the end of a list.
+LOAD_AHEAD = 12
+# Resume a video watched for longer than this, unless it was nearly done.
+RESUME_MIN_SECONDS = 10
+RESUME_MAX_PERCENT = 95
 
+ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT, ACTION_MOVE_UP, ACTION_MOVE_DOWN = (
+    1, 2, 3, 4)
+MOVES = (ACTION_MOVE_LEFT, ACTION_MOVE_RIGHT, ACTION_MOVE_UP,
+         ACTION_MOVE_DOWN)
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
@@ -117,8 +128,11 @@ class MainWindow(xbmcgui.WindowXML):
         self._has_key = False
         self._nav_ready = False
         self._loader = RowLoader()
-        # Path each row list currently holds (or is loading).
-        self._row_paths = {}
+        # Path each list currently holds (or is loading), the page that
+        # continues it, and the lists fetching that page right now.
+        self._paths = {}
+        self._next_pages = {}
+        self._paging = set()
 
     # -- lifecycle --------------------------------------------------------
 
@@ -245,6 +259,7 @@ class MainWindow(xbmcgui.WindowXML):
             # video without rebuilding the view.
             rows = without_empty_local_lists(view['rows'])
             self._loader.cancel()
+            self._paging.clear()
             self.setProperty('focusrow', '1')
             # The first home shelf gets YouTube TV's big tiles.
             self.setProperty('row1.large',
@@ -255,44 +270,81 @@ class MainWindow(xbmcgui.WindowXML):
                     label, path = rows[index]
                     self.setProperty(prefix + 'label', localize(label))
                     self.setProperty(prefix + 'path', path)
-                    self._fill_row(row_id, prefix, path)
+                    self._fill(row_id, path, prefix + 'loading',
+                               on_empty=lambda p=prefix: self.clearProperty(
+                                   p + 'path'))
                 else:
                     self.clearProperty(prefix + 'label')
                     self.clearProperty(prefix + 'path')
                     self.clearProperty(prefix + 'loading')
-                    self._row_paths.pop(row_id, None)
+                    self._paths.pop(row_id, None)
                     self.getControl(row_id).reset()
-            self.clearProperty('grid.path')
             focus = ROWS_GROUP
         else:
+            self._loader.cancel()
+            self._paging.clear()
             self.setProperty('grid.title', view['title'])
-            self.setProperty('grid.path', view['path'])
+            self._fill(GRID, view['path'], 'grid.loading')
             focus = GRID
         if self.getFocusId() != NAV_LIST or view.get('focus_content'):
             self._focus_when_filled(focus)
 
-    def _fill_row(self, row_id, prefix, path):
-        control = self.getControl(row_id)
-        # Coming back to a view keeps loaded rows (and their scroll
+    def _fill(self, control_id, path, loading_property, on_empty=None):
+        control = self.getControl(control_id)
+        # Coming back to a view keeps loaded lists (and their scroll
         # position), except local lists that playback just changed.
-        if (self._row_paths.get(row_id) == path and control.size()
+        if (self._paths.get(control_id) == path and control.size()
                 and '/kodion/' not in path):
+            self.clearProperty(loading_property)
             return
-        self._row_paths[row_id] = path
+        self._paths[control_id] = path
+        self._next_pages.pop(control_id, None)
         control.reset()
-        self.setProperty(prefix + 'loading', 'true')
+        self.setProperty(loading_property, 'true')
 
         def done(listitems):
-            if self._row_paths.get(row_id) != path:
+            if self._paths.get(control_id) != path:
                 return
+            listitems = self._keep_next_page(control_id, listitems)
             control.reset()
             control.addItems(listitems)
-            self.clearProperty(prefix + 'loading')
-            if not listitems:
-                # Nothing to show: hide the shelf.
-                self.clearProperty(prefix + 'path')
+            self.clearProperty(loading_property)
+            if not listitems and on_empty:
+                on_empty()
 
         self._loader.load(path, done)
+
+    def _keep_next_page(self, control_id, listitems):
+        """Hold back a listing's trailing "next page" item: its page is
+        appended when the selection gets close to the end instead."""
+        # Next-page items are folders marked specialSort=bottom, and all of
+        # them carry the continuation as page_token.
+        last = listitems[-1] if listitems else None
+        if last and not last.getProperty('video_id') and (
+                last.getProperty('specialSort') == 'bottom'
+                or 'page_token=' in last.getPath()):
+            self._next_pages[control_id] = listitems[-1].getPath()
+            return listitems[:-1]
+        self._next_pages.pop(control_id, None)
+        return listitems
+
+    def _load_more(self, control_id):
+        next_path = self._next_pages.get(control_id)
+        if not next_path or control_id in self._paging:
+            return
+        control = self.getControl(control_id)
+        if control.getSelectedPosition() < control.size() - LOAD_AHEAD:
+            return
+        self._paging.add(control_id)
+        path = self._paths.get(control_id)
+
+        def done(listitems):
+            self._paging.discard(control_id)
+            if self._paths.get(control_id) != path:
+                return
+            control.addItems(self._keep_next_page(control_id, listitems))
+
+        self._loader.load(next_path, done)
 
     def _first_filled_row(self, wait_for_loading=False):
         """The topmost shelf with items. With wait_for_loading, None while a
@@ -370,6 +422,9 @@ class MainWindow(xbmcgui.WindowXML):
                 self.setFocusId(NAV_LIST)
                 return
             self.close()
+        elif action_id in MOVES:
+            if self.getFocusId() in CONTENT_IDS:
+                self._load_more(self.getFocusId())
         elif action_id in (ACTION_CONTEXT_MENU, ACTION_MENU):
             if self.getFocusId() in CONTENT_IDS:
                 self._context_menu(self.getFocusId())
@@ -419,21 +474,20 @@ class MainWindow(xbmcgui.WindowXML):
             return
         if xbmc.getCondVisibility(
                 'Container({}).ListItem.IsFolder'.format(control_id)):
-            title = self._item_info(control_id, 'Label')
-            # "Next page" inside a grid replaces the grid instead of stacking.
-            if (control_id == GRID and self._item_info(
-                    control_id, 'Property(specialSort)') == 'bottom'):
-                view = self._views[-1]
-                view['path'] = path
-                self._show(view)
-                return
-            self._open_grid(title, path)
+            self._open_grid(self._item_info(control_id, 'Label'), path)
             return
         self._play(path, self._item_info(control_id, 'Property(video_id)'))
 
     def _play(self, path, video_id=''):
+        """Play straight away. A video watched part-way resumes from where
+        it stopped: the engine's seek parameter, so Kodi never asks."""
         if video_id:
             xbmcgui.Window(10000).setProperty(HINT_PROPERTY, video_id)
+            position = self._loader.engine.resume_point(
+                video_id, RESUME_MIN_SECONDS, RESUME_MAX_PERCENT)
+            if position and 'seek=' not in path:
+                path = '{}{}seek={}'.format(path, '&' if '?' in path else '?',
+                                            int(position))
         xbmc.executebuiltin('PlayMedia("{}")'.format(path))
 
     def _context_menu(self, control_id):
