@@ -311,9 +311,9 @@ def header():
                 <ondown>{first}</ondown>
             </control>
             <control type="image">
-                <left>1567</left><top>74</top>
-                <width>197</width><height>56</height>
-                <aspectratio>keep</aspectratio>
+                <left>1430</left><top>60</top>
+                <width>400</width><height>84</height>
+                <aspectratio align="right">keep</aspectratio>
                 <!-- Logo option a or b (leanback/brand.py), set by the window. -->
                 <texture>$INFO[Window.Property(logo),brand_lockup_,.png]</texture>
             </control>'''.format(x=CONTENT_X, mic_x=CONTENT_X + 19,

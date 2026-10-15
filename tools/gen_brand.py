@@ -27,6 +27,13 @@ RED = (227, 6, 19, 255)
 WHITE = (255, 255, 255, 255)
 BG = (15, 15, 15)
 
+# Sized for 55"+ TVs: the header logo's height in the 1080p window, how big
+# the backdrop's logo is against the screen height, and the wordmark's size
+# against the emblem (bigger than CoreELEC's 0.48, to read from the sofa).
+HEADER_HEIGHT = 84
+BACKDROP_LOGO = 0.22
+WORDMARK = 0.62
+
 # The two logo options users pick between in the add-on settings
 # (leanback.logo): YouTube's red play badge, or a white one with a red
 # triangle that stands out more against the red ring when small.
@@ -95,10 +102,11 @@ def wordmark(fonts, height, color=WHITE):
                       Image.LANCZOS)
 
 
-def lockup(fonts, height, gap=0.28, variant='a'):
-    """Emblem left of the wordmark, wordmark cap height ~ 0.42 emblem."""
+def lockup(fonts, height, gap=0.28, variant='a', text=0.48):
+    """Emblem left of the wordmark; text sets the wordmark's size against
+    the emblem (0.48: cap height ~ 0.42 emblem, like CoreELEC's)."""
     mark = emblem(height, **VARIANTS[variant])
-    words = wordmark(fonts, int(height * 0.48))
+    words = wordmark(fonts, int(height * text))
     w = mark.width + int(height * gap) + words.width
     img = Image.new('RGBA', (w, height), (0, 0, 0, 0))
     img.alpha_composite(mark, (0, 0))
@@ -124,7 +132,8 @@ def background(fonts, size=(1920, 1080), with_logo=True, variant='a'):
     img = img.convert('RGBA')
     img.alpha_composite(ring, (int(w * 0.52), int(-h * 0.15)))
     if with_logo:
-        logo = lockup(fonts, int(h * 0.16), variant=variant)
+        logo = lockup(fonts, int(h * BACKDROP_LOGO), variant=variant,
+                      text=WORDMARK)
         img.alpha_composite(logo, ((w - logo.width) // 2,
                                    (h - logo.height) // 2))
     return img.convert('RGB')
@@ -142,7 +151,7 @@ def main():
     outputs = {}
     for name in VARIANTS:
         outputs[SKIN_MEDIA / 'brand_lockup_{}.png'.format(name)] = lockup(
-            args.fonts, 64, variant=name)
+            args.fonts, HEADER_HEIGHT, variant=name, text=WORDMARK)
         outputs[BRAND / name / 'icon.png'] = _icon(name)
         outputs[BRAND / name / 'fanart.jpg'] = background(args.fonts,
                                                           variant=name)
