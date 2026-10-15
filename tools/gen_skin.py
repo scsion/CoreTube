@@ -875,7 +875,7 @@ def build():
                 <font>{font_nav}</font><align>center</align>
                 <textcolor>{dim}</textcolor>
                 <visible>String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container({grid_id}).NumItems,0)</visible>
-                <label>$LOCALIZE[31042]...</label>
+                <label>$ADDON[{addon} 39127]</label>
             </control>
             <control type="label">
                 <left>{x}</left><top>400</top><width>1600</width><height>60</height>

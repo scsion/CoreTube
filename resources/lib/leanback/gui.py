@@ -352,13 +352,23 @@ class MainWindow(xbmcgui.WindowXML):
         def fetch():
             view['header'] = (self._loader.engine.channel_header(
                 view['channel_id']) or {})
-            if self._views and self._views[-1] is view:
+            if not (self._views and self._views[-1] is view):
+                return
+            try:
                 self._show_channel_tab(view)
+            except Exception as exc:  # pylint: disable=broad-except
+                # Never leave the page loading: show it empty instead.
+                xbmc.log('[{}] channel page failed: {!r}'.format(
+                    ADDON_ID, exc), xbmc.LOGWARNING)
+                self.clearProperty('grid.loading')
         threading.Thread(target=fetch, daemon=True).start()
 
     def _show_channel_tab(self, view):
         header = view['header']
-        tabs = header.get('tabs') or [{'key': 'videos', 'title': 'Videos'}]
+        tabs = [tab for tab in header.get('tabs') or ()
+                if isinstance(tab, dict)] or [{'key': 'videos',
+                                               'title': 'Videos'}]
+        header['tabs'] = tabs
         if view['tab'] not in [tab['key'] for tab in tabs]:
             view['tab'] = tabs[0]['key']
         self._set_channel_header(view, header)

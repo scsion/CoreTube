@@ -86,9 +86,19 @@ class Engine(object):
             self._init()
             from . import innertube
             cache = self.context.get_function_cache()
-            return cache.run(innertube.channel_header, 6 * cache.ONE_HOUR,
-                             self.provider.get_client(self.context),
-                             channel_id, _scope=cache.SCOPE_BUILTINS)
+            client = self.provider.get_client(self.context)
+            header = cache.run(innertube.channel_header, 6 * cache.ONE_HOUR,
+                               client, channel_id,
+                               _scope=cache.SCOPE_BUILTINS)
+            # Headers cached by an older version listed tabs as plain
+            # names; fetch those again.
+            tabs = (header or {}).get('tabs') or ()
+            if not all(isinstance(tab, dict) for tab in tabs):
+                header = cache.run(innertube.channel_header,
+                                   6 * cache.ONE_HOUR, client, channel_id,
+                                   _scope=cache.SCOPE_BUILTINS,
+                                   _refresh=True)
+            return header
         except Exception as exc:  # pylint: disable=broad-except
             _log('channel header of {} failed: {!r}'.format(channel_id, exc),
                  xbmc.LOGWARNING)

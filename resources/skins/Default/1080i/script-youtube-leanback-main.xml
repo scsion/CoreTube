@@ -2862,7 +2862,7 @@
                 <font>font13</font><align>center</align>
                 <textcolor>FFAAAAAA</textcolor>
                 <visible>String.IsEqual(Window.Property(grid.loading),true) + Integer.IsEqual(Container(200).NumItems,0)</visible>
-                <label>$LOCALIZE[31042]...</label>
+                <label>$ADDON[script.youtube.leanback 39127]</label>
             </control>
             <control type="label">
                 <left>156</left><top>400</top><width>1600</width><height>60</height>
