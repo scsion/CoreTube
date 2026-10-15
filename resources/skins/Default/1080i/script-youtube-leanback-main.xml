@@ -2569,6 +2569,11 @@
                     <textcolor>FFAAAAAA</textcolor>
                     <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
                 </control>
+                <control type="image">
+                    <left>330</left><top>242</top>
+                    <width>1540</width><height>2</height>
+                    <texture colordiffuse="33FFFFFF">white.png</texture>
+                </control>
                 <control type="list" id="210">
                     <left>322</left><top>176</top>
                     <width>1560</width><height>68</height>
@@ -2582,37 +2587,88 @@
                     <control type="image">
                         <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
-                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>false</visible>
                         <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>8</left><top>8</top>
-                        <width>184</width><height>52</height>
-                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
-                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                        <left>80</left><top>58</top>
+                        <width>40</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),40)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
                     </control>
                     <control type="image">
-                        <left>2</left><top>2</top>
-                        <width>196</width><height>64</height>
-                        <visible>false</visible>
-                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
+                        <left>70</left><top>58</top>
+                        <width>60</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),60)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>60</left><top>58</top>
+                        <width>80</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),80)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>50</left><top>58</top>
+                        <width>100</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),100)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>40</left><top>58</top>
+                        <width>120</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),120)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>30</left><top>58</top>
+                        <width>140</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),140)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>20</left><top>58</top>
+                        <width>160</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),160)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>58</top>
+                        <width>180</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),180)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>58</top>
+                        <width>200</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !false + String.IsEqual(ListItem.Property(ulw),200)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
                     </control>
                     <control type="label">
                         <left>8</left><top>8</top>
-                        <width>184</width><height>52</height>
+                        <width>184</width><height>46</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FF0F0F0F</textcolor>
-                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>false</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
                         <left>8</left><top>8</top>
-                        <width>184</width><height>52</height>
+                        <width>184</width><height>46</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FFF1F1F1</textcolor>
-                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>!false + String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>46</height>
+                        <font>Bald_InfoTagline</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>!false + !String.IsEqual(ListItem.Property(selected),true)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     </itemlayout>
@@ -2620,43 +2676,94 @@
                     <control type="image">
                         <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
-                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>Control.HasFocus(210)</visible>
                         <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>8</left><top>8</top>
-                        <width>184</width><height>52</height>
-                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
-                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                        <left>80</left><top>58</top>
+                        <width>40</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),40)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
                     </control>
                     <control type="image">
-                        <left>2</left><top>2</top>
-                        <width>196</width><height>64</height>
-                        <visible>Control.HasFocus(210)</visible>
-                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
+                        <left>70</left><top>58</top>
+                        <width>60</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),60)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>60</left><top>58</top>
+                        <width>80</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),80)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>50</left><top>58</top>
+                        <width>100</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),100)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>40</left><top>58</top>
+                        <width>120</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),120)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>30</left><top>58</top>
+                        <width>140</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),140)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>20</left><top>58</top>
+                        <width>160</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),160)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>58</top>
+                        <width>180</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),180)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>0</left><top>58</top>
+                        <width>200</width><height>4</height>
+                        <visible>String.IsEqual(ListItem.Property(selected),true) + !Control.HasFocus(210) + String.IsEqual(ListItem.Property(ulw),200)</visible>
+                        <texture border="2" colordiffuse="FFF1F1F1">round8.png</texture>
                     </control>
                     <control type="label">
                         <left>8</left><top>8</top>
-                        <width>184</width><height>52</height>
+                        <width>184</width><height>46</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FF0F0F0F</textcolor>
-                        <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>Control.HasFocus(210)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
                         <left>8</left><top>8</top>
-                        <width>184</width><height>52</height>
+                        <width>184</width><height>46</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FFF1F1F1</textcolor>
-                        <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <visible>!Control.HasFocus(210) + String.IsEqual(ListItem.Property(selected),true)</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>8</left><top>8</top>
+                        <width>184</width><height>46</height>
+                        <font>Bald_InfoTagline</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>!Control.HasFocus(210) + !String.IsEqual(ListItem.Property(selected),true)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     </focusedlayout>
                 </control>
                 <control type="list" id="211">
-                    <left>322</left><top>244</top>
+                    <left>322</left><top>248</top>
                     <width>1560</width><height>68</height>
                     <visible>!String.IsEmpty(Window.Property(channel.sorts))</visible>
                     <orientation>horizontal</orientation>
@@ -2768,7 +2875,7 @@
                 <left>146</left><top>150</top><width>1774</width><height>930</height>
                 <!-- Under a channel header the grid starts lower. -->
                 <animation effect="slide" end="0,160" time="0" condition="String.IsEqual(Window.Property(view),channel)">Conditional</animation>
-                <animation effect="slide" end="0,72" time="0" condition="String.IsEqual(Window.Property(view),channel) + !String.IsEmpty(Window.Property(channel.sorts))">Conditional</animation>
+                <animation effect="slide" end="0,76" time="0" condition="String.IsEqual(Window.Property(view),channel) + !String.IsEmpty(Window.Property(channel.sorts))">Conditional</animation>
                 <orientation>vertical</orientation>
                 <onleft>9000</onleft>
                 <onup condition="String.IsEqual(Window.Property(view),channel) + !String.IsEmpty(Window.Property(channel.sorts))">SetFocus(211)</onup>

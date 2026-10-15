@@ -117,6 +117,15 @@ def is_signed_in():
         return False
 
 
+def underline_width(title):
+    """Width of the open tab's underline: the title's width in the tab font
+    (Bald's DM Sans Medium 30), estimated per character and snapped to the
+    widths the skin provides (40-200 in steps of 20)."""
+    width = sum(22 if char.isupper() else 9 if char in 'ijlt ' else 17
+                for char in title)
+    return max(40, min(200, int(round(width / 20.0)) * 20))
+
+
 def without_empty_local_lists(rows):
     """Drop the history / watch later rows while those lists are empty.
 
@@ -391,6 +400,7 @@ class MainWindow(xbmcgui.WindowXML):
             for tab in entries:
                 item = xbmcgui.ListItem(tab['title'])
                 item.setProperty('tab', tab['key'])
+                item.setProperty('ulw', str(underline_width(tab['title'])))
                 tabs.addItem(item)
         for index, key in enumerate(keys):
             tabs.getListItem(index).setProperty(

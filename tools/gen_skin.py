@@ -33,7 +33,7 @@ RESULTS_ID = 403
 # Channel page: tabs (Videos, Live, Playlists) above the grid.
 TABS_ID = 210
 SORTS_ID = 211          # the tab's sort chips (Latest / Popular / Oldest)
-SORTS_SHIFT = 72        # extra grid offset while a tab has sort chips
+SORTS_SHIFT = 76        # extra grid offset while a tab has sort chips
 HAS_SORTS = '!String.IsEmpty(Window.Property(channel.sorts))'
 CHANNEL_SHIFT = 160     # the grid sits this much lower under a channel header
 TAB_W = 200             # tab chip slot (chip plus gap)
@@ -499,6 +499,11 @@ def channel_header():
                     <textcolor>{dim}</textcolor>
                     <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
                 </control>
+                <control type="image">
+                    <left>{divider_x}</left><top>{divider_y}</top>
+                    <width>1540</width><height>2</height>
+                    <texture colordiffuse="33FFFFFF">white.png</texture>
+                </control>
                 <control type="list" id="{tabs}">
                     <left>{tabs_x}</left><top>{tabs_y}</top>
                     <width>1560</width><height>{tabs_h}</height>
@@ -532,11 +537,73 @@ def channel_header():
         view=VIEW_CHANNEL, x=CONTENT_X, tx=CONTENT_X + 174, bg=BG,
         surface=SURFACE, text=TEXT, dim=TEXT_DIM, font_page=FONT_PAGE,
         font_meta=FONT_META, tabs=TABS_ID, nav=NAV_ID, grid=GRID_ID,
-        tab=_tab(False), tab_focused=_tab(True), tab_w=TAB_W,
+        tab=_text_tab(False), tab_focused=_text_tab(True), tab_w=TAB_W,
         sort=_tab(False, SORTS_ID), sort_focused=_tab(True, SORTS_ID),
-        sorts=SORTS_ID, has_sorts=HAS_SORTS, sorts_y=184 - TAB_PAD + 68,
+        sorts=SORTS_ID, has_sorts=HAS_SORTS, sorts_y=184 - TAB_PAD + 72,
+        divider_x=CONTENT_X + 174, divider_y=184 + 52 + 6,
         tabs_x=CONTENT_X + 174 - TAB_PAD, tabs_y=184 - TAB_PAD,
         tabs_h=52 + 2 * TAB_PAD)
+
+
+# Underline widths the window picks from per tab title (leanback/gui.py
+# estimates the text width; Kodi can't size an image to a label).
+UNDERLINES = tuple(range(40, 201, 20))
+
+
+def _text_tab(focused):
+    """Channel tab as YouTube draws them, to tell them from the sort chips
+    below: plain text, grey, the open tab white with a white underline.
+    The tab under the remote's focus gets a white highlight, as on
+    YouTube TV."""
+    on = 'Control.HasFocus({})'.format(TABS_ID) if focused else 'false'
+    selected = 'String.IsEqual(ListItem.Property(selected),true)'
+    w, h, pad = TAB_W - 16, 52, TAB_PAD
+    underlines = ''.join('''
+                    <control type="image">
+                        <left>{x}</left><top>{y}</top>
+                        <width>{uw}</width><height>4</height>
+                        <visible>{selected} + !{on} + String.IsEqual(ListItem.Property(ulw),{uw})</visible>
+                        <texture border="2" colordiffuse="{text}">round8.png</texture>
+                    </control>'''.format(x=pad + (w - uw) // 2, y=pad + h - 2, uw=uw,
+                                     selected=selected, on=on, text=TEXT)
+                         for uw in UNDERLINES)
+    return '''
+                    <control type="image">
+                        <left>{pad}</left><top>{pad}</top>
+                        <width>{w}</width><height>{h}</height>
+                        <visible>{on}</visible>
+                        <texture border="12" colordiffuse="{text}">round12.png</texture>
+                    </control>{underlines}
+                    <control type="label">
+                        <left>{pad}</left><top>{pad}</top>
+                        <width>{w}</width><height>{lh}</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dark}</textcolor>
+                        <visible>{on}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>{pad}</left><top>{pad}</top>
+                        <width>{w}</width><height>{lh}</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{text}</textcolor>
+                        <visible>!{on} + {selected}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>{pad}</left><top>{pad}</top>
+                        <width>{w}</width><height>{lh}</height>
+                        <font>{font}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dim}</textcolor>
+                        <visible>!{on} + !{selected}</visible>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>'''.format(on=on, selected=selected, w=w, h=h, lh=h - 6,
+                                     pad=pad, text=TEXT, dim=TEXT_DIM,
+                                     dark=DARK_TEXT, font=FONT_TITLE,
+                                     underlines=underlines)
 
 
 def _tab(focused, list_id=TABS_ID):
