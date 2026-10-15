@@ -154,6 +154,8 @@ class MainWindow(xbmcgui.WindowXML):
         self._signed_in = False
         self._has_key = False
         self._nav_ready = False
+        # (control id, list position) to go back to after a video.
+        self._return_focus = None
         self._loader = RowLoader()
         # Path each list currently holds (or is loading), the page that
         # continues it, and the lists fetching that page right now.
@@ -180,8 +182,23 @@ class MainWindow(xbmcgui.WindowXML):
             self._nav_ready = True
             self._push({'type': 'rows', 'nav': NAV_HOME,
                         'rows': self._home_rows()})
-        else:
+        elif not self._restore_focus():
             self._show(self._views[-1])
+
+    def _restore_focus(self):
+        """Back from a video: return to the tile that was played, without
+        redrawing the view. False when there is nothing to return to."""
+        if not self._return_focus:
+            return False
+        focus_id, position = self._return_focus
+        self._return_focus = None
+        if not xbmc.getCondVisibility(
+                'Integer.IsGreater(Container({}).NumItems,0)'.format(focus_id)):
+            return False
+        self.setFocusId(focus_id)
+        if position >= 0:
+            self.getControl(focus_id).selectItem(position)
+        return True
 
     def _build_nav(self):
         nav = self.getControl(NAV_LIST)
@@ -815,6 +832,12 @@ class MainWindow(xbmcgui.WindowXML):
             if position and 'seek=' not in path:
                 path = '{}{}seek={}'.format(path, '&' if '?' in path else '?',
                                             int(position))
+        focus_id = self.getFocusId()
+        try:
+            selected = self.getControl(focus_id).getSelectedPosition()
+        except (RuntimeError, TypeError, AttributeError):
+            selected = -1
+        self._return_focus = (focus_id, selected)
         xbmc.executebuiltin('PlayMedia("{}")'.format(path))
 
     def _context_menu(self, control_id):

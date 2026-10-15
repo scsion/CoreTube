@@ -198,6 +198,18 @@ def main():
          '        if self.httpd:\n', 1),
     ])
 
+    # The initial-request clients (tv_unplugged, tv) are only needed for
+    # remote watch history. YouTube now refuses both ("Please sign in" /
+    # "The page needs to be reloaded"), and the upstream skip never fires
+    # (video_details always starts empty, and the visitor id is learned from
+    # this very request), so every play paid two failed requests first. The
+    # working clients' replies carry the visitor id just the same.
+    patch(lib / 'youtube' / 'client' / 'player_client.py', [
+        ('                if not use_remote_history and video_details'
+         ' and visitor_data:\n',
+         '                if not use_remote_history:\n', 1),
+    ])
+
     settings = ROOT / 'resources' / 'settings.xml'
     leanback_settings = LEANBACK_SETTINGS_FILE.read_text(encoding='utf-8')
     patch(settings, [
