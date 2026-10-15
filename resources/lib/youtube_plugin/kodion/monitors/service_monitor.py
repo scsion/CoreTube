@@ -408,6 +408,9 @@ class ServiceMonitor(xbmc.Monitor):
         self._old_httpd_port = self._httpd_port
 
     def start_httpd(self):
+        if self.httpd and not (self.httpd_thread
+                               and self.httpd_thread.is_alive()):
+            self.shutdown_httpd(terminate=True)
         if self.httpd:
             self._httpd_error = False
             return True
@@ -457,7 +460,10 @@ class ServiceMonitor(xbmc.Monitor):
             except RuntimeError:
                 pass
 
-        self.httpd.server_close()
+        close_thread = Thread(target=self.httpd.server_close)
+        close_thread.daemon = True
+        close_thread.start()
+        close_thread.join(5)
 
         self.httpd_thread = None
         self.httpd = None

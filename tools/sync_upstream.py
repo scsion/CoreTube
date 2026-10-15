@@ -160,6 +160,44 @@ def main():
          1),
     ])
 
+    # The stream proxy's server_close() never closes the listening socket,
+    # and the server binds with allow_reuse_port. Every idle sleep or ping
+    # restart therefore leaves a dead listener on the port, and the kernel
+    # hands it a share of new connections that nobody accepts: segment
+    # requests hang until Kodi times out (60 s each), and playback can take
+    # minutes to start or fail outright. Close the socket first, give
+    # connections a timeout, and never let a stuck close keep a dead server
+    # registered as running.
+    patch(lib / 'kodion' / 'network' / 'http_server.py', [
+        ('    def server_close(self):\n'
+         '        request_handler = self.RequestHandlerClass\n',
+         '    def server_close(self):\n'
+         '        TCPServer.server_close(self)\n'
+         '        request_handler = self.RequestHandlerClass\n', 1),
+        ('    RequestHandler.timeout = None\n',
+         '    RequestHandler.timeout = 60\n', 1),
+    ])
+    patch(lib / 'kodion' / 'monitors' / 'service_monitor.py', [
+        ('        self.httpd.server_close()\n'
+         '\n'
+         '        self.httpd_thread = None\n'
+         '        self.httpd = None\n',
+         '        close_thread = Thread(target=self.httpd.server_close)\n'
+         '        close_thread.daemon = True\n'
+         '        close_thread.start()\n'
+         '        close_thread.join(5)\n'
+         '\n'
+         '        self.httpd_thread = None\n'
+         '        self.httpd = None\n', 1),
+        ('    def start_httpd(self):\n'
+         '        if self.httpd:\n',
+         '    def start_httpd(self):\n'
+         '        if self.httpd and not (self.httpd_thread\n'
+         '                               and self.httpd_thread.is_alive()):\n'
+         '            self.shutdown_httpd(terminate=True)\n'
+         '        if self.httpd:\n', 1),
+    ])
+
     settings = ROOT / 'resources' / 'settings.xml'
     leanback_settings = LEANBACK_SETTINGS_FILE.read_text(encoding='utf-8')
     patch(settings, [

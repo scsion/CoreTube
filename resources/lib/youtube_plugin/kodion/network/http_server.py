@@ -75,6 +75,7 @@ class HTTPServer(ThreadingMixIn, TCPServer):
                 handler.finish()
 
     def server_close(self):
+        TCPServer.server_close(self)
         request_handler = self.RequestHandlerClass
         request_handler._close_all = True
         request_handler.timeout = 0
@@ -1034,7 +1035,7 @@ class Pages(object):
 def get_http_server(address, port, context):
     RequestHandler._context = context
     RequestHandler._close_all = False
-    RequestHandler.timeout = None
+    RequestHandler.timeout = 60
     if is_ipv6(address):
         HTTPServer.address_family = socket.AF_INET6
     else:
