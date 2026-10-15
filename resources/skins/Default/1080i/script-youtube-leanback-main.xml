@@ -87,6 +87,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>101</onup>
+                    <ondown>102</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -223,6 +225,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>101</onup>
+                    <ondown>103</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -359,6 +363,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>102</onup>
+                    <ondown>104</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -495,6 +501,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>103</onup>
+                    <ondown>105</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -631,6 +639,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>104</onup>
+                    <ondown>106</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -767,6 +777,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>105</onup>
+                    <ondown>107</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -903,6 +915,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>106</onup>
+                    <ondown>108</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -1039,6 +1053,8 @@
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
+                    <onup>107</onup>
+                    <ondown>108</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>

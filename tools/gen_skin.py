@@ -101,6 +101,11 @@ def row(index):
     # list from ever loading. The controller leaves out rows it knows are empty.
     list_id = ROWS_GROUP_ID + index
     prop = 'row{}'.format(index)
+    # The grouplist doesn't move focus into lists nested in groups, so rows
+    # link to their neighbours. Rows are filled from the top, and Kodi ignores
+    # a move onto a hidden row.
+    up = max(list_id - 1, ROWS_GROUP_ID + 1)
+    down = min(list_id + 1, ROWS_GROUP_ID + ROW_COUNT)
     return '''
             <control type="group">
                 <height>380</height>
@@ -125,6 +130,8 @@ def row(index):
                     <width>1770</width><height>324</height>
                     <orientation>horizontal</orientation>
                     <onleft>{nav}</onleft>
+                    <onup>{up}</onup>
+                    <ondown>{down}</ondown>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
                     <movement>1</movement>
@@ -135,7 +142,8 @@ def row(index):
                     </focusedlayout>
                 </control>
             </control>'''.format(prop=prop, lid=list_id, text=TEXT, dim=TEXT_DIM,
-                                 nav=NAV_ID, item=tile(430, False),
+                                 nav=NAV_ID, up=up, down=down,
+                                 item=tile(430, False),
                                  focused=tile(430, True))
 
 
