@@ -2556,33 +2556,33 @@
                     <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
                 </control>
                 <control type="list" id="210">
-                    <left>330</left><top>184</top>
-                    <width>1560</width><height>64</height>
+                    <left>322</left><top>176</top>
+                    <width>1560</width><height>68</height>
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
                     <ondown>200</ondown>
                     <scrolltime tween="cubic" easing="out">200</scrolltime>
-                    <itemlayout width="200" height="64">
+                    <itemlayout width="200" height="68">
                     <control type="image">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
                         <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
                         <texture border="12" colordiffuse="FF272727">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>-6</left><top>-6</top>
+                        <left>2</left><top>2</top>
                         <width>196</width><height>64</height>
                         <visible>false</visible>
                         <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>
                     <control type="label">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
@@ -2591,7 +2591,7 @@
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
@@ -2600,27 +2600,27 @@
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     </itemlayout>
-                    <focusedlayout width="200" height="64">
+                    <focusedlayout width="200" height="68">
                     <control type="image">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <visible>String.IsEqual(ListItem.Property(selected),true)</visible>
                         <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <visible>!String.IsEqual(ListItem.Property(selected),true)</visible>
                         <texture border="12" colordiffuse="FF272727">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>-6</left><top>-6</top>
+                        <left>2</left><top>2</top>
                         <width>196</width><height>64</height>
                         <visible>Control.HasFocus(210)</visible>
                         <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>
                     <control type="label">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>
@@ -2629,7 +2629,7 @@
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
-                        <left>0</left><top>0</top>
+                        <left>8</left><top>8</top>
                         <width>184</width><height>52</height>
                         <font>Bald_InfoTagline</font>
                         <align>center</align><aligny>center</aligny>

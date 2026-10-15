@@ -34,6 +34,7 @@ RESULTS_ID = 403
 TABS_ID = 210
 CHANNEL_SHIFT = 160     # the grid sits this much lower under a channel header
 TAB_W = 200             # tab chip slot (chip plus gap)
+TAB_PAD = 8             # room around a chip for its focus ring
 KEY = 67            # keyboard cell, as on YouTube TV at 1080p
 
 BG = 'FF0F0F0F'
@@ -495,22 +496,24 @@ def channel_header():
                     <label>$INFO[Window.Property(channel.handle)]$INFO[Window.Property(channel.stats), • ]</label>
                 </control>
                 <control type="list" id="{tabs}">
-                    <left>{tx}</left><top>184</top>
-                    <width>1560</width><height>64</height>
+                    <left>{tabs_x}</left><top>{tabs_y}</top>
+                    <width>1560</width><height>{tabs_h}</height>
                     <orientation>horizontal</orientation>
                     <onleft>{nav}</onleft>
                     <ondown>{grid}</ondown>
                     <scrolltime tween="cubic" easing="out">200</scrolltime>
-                    <itemlayout width="{tab_w}" height="64">{tab}
+                    <itemlayout width="{tab_w}" height="{tabs_h}">{tab}
                     </itemlayout>
-                    <focusedlayout width="{tab_w}" height="64">{tab_focused}
+                    <focusedlayout width="{tab_w}" height="{tabs_h}">{tab_focused}
                     </focusedlayout>
                 </control>
             </control>'''.format(
         view=VIEW_CHANNEL, x=CONTENT_X, tx=CONTENT_X + 174, bg=BG,
         surface=SURFACE, text=TEXT, dim=TEXT_DIM, font_page=FONT_PAGE,
         font_meta=FONT_META, tabs=TABS_ID, nav=NAV_ID, grid=GRID_ID,
-        tab=_tab(False), tab_focused=_tab(True), tab_w=TAB_W)
+        tab=_tab(False), tab_focused=_tab(True), tab_w=TAB_W,
+        tabs_x=CONTENT_X + 174 - TAB_PAD, tabs_y=184 - TAB_PAD,
+        tabs_h=52 + 2 * TAB_PAD)
 
 
 def _tab(focused):
@@ -520,27 +523,28 @@ def _tab(focused):
     on = 'Control.HasFocus({})'.format(TABS_ID) if focused else 'false'
     selected = 'String.IsEqual(ListItem.Property(selected),true)'
     w, h = TAB_W - 16, 52
+    pad = TAB_PAD
     return '''
                     <control type="image">
-                        <left>0</left><top>0</top>
+                        <left>{pad}</left><top>{pad}</top>
                         <width>{w}</width><height>{h}</height>
                         <visible>{selected}</visible>
                         <texture border="12" colordiffuse="{light}">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>0</left><top>0</top>
+                        <left>{pad}</left><top>{pad}</top>
                         <width>{w}</width><height>{h}</height>
                         <visible>!{selected}</visible>
                         <texture border="12" colordiffuse="{surface}">round12.png</texture>
                     </control>
                     <control type="image">
-                        <left>-6</left><top>-6</top>
+                        <left>{ring}</left><top>{ring}</top>
                         <width>{rw}</width><height>{rh}</height>
                         <visible>{on}</visible>
                         <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>
                     <control type="label">
-                        <left>0</left><top>0</top>
+                        <left>{pad}</left><top>{pad}</top>
                         <width>{w}</width><height>{h}</height>
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
@@ -549,7 +553,7 @@ def _tab(focused):
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
-                        <left>0</left><top>0</top>
+                        <left>{pad}</left><top>{pad}</top>
                         <width>{w}</width><height>{h}</height>
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
@@ -557,7 +561,7 @@ def _tab(focused):
                         <visible>!{selected}</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>'''.format(on=on, selected=selected, w=w, h=h,
-                                     rw=w + 12, rh=h + 12, light=TEXT,
+                                     rw=w + 12, rh=h + 12, pad=pad, ring=pad - 6, light=TEXT,
                                      text=TEXT, surface=SURFACE,
                                      dark=DARK_TEXT, font=FONT_TITLE)
 
