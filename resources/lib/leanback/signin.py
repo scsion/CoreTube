@@ -22,7 +22,9 @@ import xbmcvfs
 from . import ADDON_ID, addon, localize
 
 XML_FILE = 'script-coretube-signin.xml'
-QR_PATH = 'special://temp/{}-signin-{}.png'
+# Not special://temp: Kodi's texture loader on CoreELEC fails on images
+# there ("Direct texture file loading failed"), so the QR stayed blank.
+QR_PATH = 'special://profile/addon_data/{}/signin-{}.png'
 QR_SCALE = 9          # pixels per QR module; the dialog shows it 1:1
 QR_BORDER = 4         # quiet zone, in modules
 DEFAULT_URL = 'https://www.google.com/device'
@@ -37,14 +39,14 @@ def log(msg, level=xbmc.LOGINFO):
 
 
 def _png(rows, size):
-    """Greyscale 8-bit PNG from rows of bytes."""
+    """8-bit RGB PNG from rows of bytes."""
     def chunk(kind, data):
         return (struct.pack('>I', len(data)) + kind + data
                 + struct.pack('>I', zlib.crc32(kind + data) & 0xffffffff))
     raw = b''.join(b'\x00' + row for row in rows)
     return b''.join((
         b'\x89PNG\r\n\x1a\n',
-        chunk(b'IHDR', struct.pack('>IIBBBBB', size, size, 8, 0, 0, 0, 0)),
+        chunk(b'IHDR', struct.pack('>IIBBBBB', size, size, 8, 2, 0, 0, 0)),
         chunk(b'IDAT', zlib.compress(raw, 9)),
         chunk(b'IEND', b''),
     ))
@@ -67,7 +69,7 @@ def write_qr(text, path):
             cx = x - QR_BORDER
             dark = (0 <= cy < len(code) and 0 <= cx < len(code)
                     and code[cy][cx])
-            row += (b'\x00' if dark else b'\xff') * QR_SCALE
+            row += (b'\x00\x00\x00' if dark else b'\xff\xff\xff') * QR_SCALE
         rows.extend([bytes(row)] * QR_SCALE)
     with open(xbmcvfs.translatePath(path), 'wb') as out:
         out.write(_png(rows, modules * QR_SCALE))
@@ -95,8 +97,7 @@ class SignInDialog(object):
         shown_url = url.split('://', 1)[-1]
         if shown_url.startswith('www.'):
             shown_url = shown_url[4:]
-        # One file per code: Kodi caches textures by path. A real path, not
-        # special://, for Kodi's texture loader.
+        # One file per code: Kodi caches textures by path.
         self._qr = xbmcvfs.translatePath(QR_PATH.format(ADDON_ID, code))
         self._qr_retry = self._qr[:-4] + '-2.png'
         self._has_qr = write_qr('{}?user_code={}'.format(url, code), self._qr)
