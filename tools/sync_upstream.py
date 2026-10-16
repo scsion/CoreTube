@@ -198,16 +198,17 @@ def main():
          '        if self.httpd:\n', 1),
     ])
 
-    # The initial-request clients (tv_unplugged, tv) are only needed for
-    # remote watch history. YouTube now refuses both ("Please sign in" /
-    # "The page needs to be reloaded"), and the upstream skip never fires
-    # (video_details always starts empty, and the visitor id is learned from
-    # this very request), so every play paid two failed requests first. The
-    # working clients' replies carry the visitor id just the same.
-    patch(lib / 'youtube' / 'client' / 'player_client.py', [
-        ('                if not use_remote_history and video_details'
-         ' and visitor_data:\n',
-         '                if not use_remote_history:\n', 1),
+    # Pick the quality once and keep it. With 'adaptive' InputStream
+    # Adaptive switches resolution mid-video when its bandwidth estimate
+    # dips (4K -> 1440p); on Amlogic boxes each switch restarts the hardware
+    # decoder, which can leave a black picture with sound, a stall or a stop.
+    # 'fixed-res' chooses the best stream for the screen and connection at
+    # the start, the way a Blu-ray or remux plays.
+    patch(lib / 'kodion' / 'items' / 'xbmc' / 'xbmc_items.py', [
+        ("            props['inputstream.adaptive.stream_selection_type']"
+         " = 'adaptive'\n",
+         "            props['inputstream.adaptive.stream_selection_type']"
+         " = 'fixed-res'\n", 1),
     ])
 
     # Sign-in codes go in CoreTube's own dialog (leanback/signin.py): a QR

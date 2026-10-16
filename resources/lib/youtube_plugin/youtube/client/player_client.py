@@ -1703,7 +1703,7 @@ class YouTubePlayerClient(YouTubeDataClient):
             if name == 'ask' and use_mpd and not ask_for_quality:
                 continue
             if name.startswith('auth_enabled|initial_request'):
-                if not use_remote_history:
+                if not use_remote_history and video_details and visitor_data:
                     continue
                 allow_skip = False
                 client_data['_auth_requested'] = True

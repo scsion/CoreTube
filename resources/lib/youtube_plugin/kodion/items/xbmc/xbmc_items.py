@@ -483,7 +483,7 @@ def playback_item(context, media_item, show_fanart=None, **_kwargs):
         if not use_mpd and 'list' in stream_select:
             props['inputstream.adaptive.stream_selection_type'] = 'manual-osd'
         elif 'auto' in stream_select:
-            props['inputstream.adaptive.stream_selection_type'] = 'adaptive'
+            props['inputstream.adaptive.stream_selection_type'] = 'fixed-res'
             if current_system_version.compatible(21):
                 props['inputstream.adaptive.chooser_resolution_max'] = 'auto'
 
