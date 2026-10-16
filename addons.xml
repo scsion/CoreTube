@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="script.coretube" name="CoreTube" version="0.8.8" provider-name="scsion">
+<addon id="script.coretube" name="CoreTube" version="0.8.9" provider-name="scsion">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.27.1"/>
@@ -24,8 +24,8 @@
     <extension point="xbmc.service" library="resources/lib/service_main.py"/>
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">CoreTube: YouTube with a TV-style interface for CoreELEC</summary>
-        <description lang="en_GB">CoreTube is a full-screen, remote-friendly YouTube interface for Kodi, laid out like YouTube's TV app: home rows, search with suggestions, channel pages, subscriptions and SponsorBlock skipping. Works without an API key. Built on a fork of the plugin.video.youtube engine. Tested on a Ugoos AM9 Pro with CoreELEC 22 and the Bald skin.</description>
-        <disclaimer lang="en_GB">Not affiliated with or endorsed by Google, YouTube or the CoreELEC team.</disclaimer>
+        <description lang="en_GB">CoreTube is a full-screen, remote-friendly YouTube interface for Kodi, laid out like YouTube's TV app: home rows, search with suggestions, channel pages, subscriptions and SponsorBlock skipping. Works without an API key. Built on a fork of the plugin.video.youtube engine. Experimental: tested only on a Ugoos AM9 Pro with CoreELEC 22 (SamuriHL build) and the Bald skin.</description>
+        <disclaimer lang="en_GB">Experimental, use at your own risk. Tested only on a Ugoos AM9 Pro with CoreELEC 22 (SamuriHL build) and the Bald skin; other devices, builds, skins and forks are unsupported. YouTube can break playback at any time. Not affiliated with or endorsed by Google, YouTube or the CoreELEC team.</disclaimer>
         <platform>all</platform>
         <license>GPL-2.0-only</license>
         <website>https://github.com/scsion/CoreTube</website>
