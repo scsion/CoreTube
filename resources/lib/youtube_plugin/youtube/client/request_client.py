@@ -82,7 +82,7 @@ class YouTubeRequestClient(BaseRequestsClass):
             '_id': {
                 'client_id': 28,
                 'client_name': 'ANDROID_VR',
-                'client_version': '1.65.10',
+                'client_version': '1.73.21',
                 'android_sdk_version': '34',
                 'device_codename': 'eureka',
                 'device_make': 'Oculus',

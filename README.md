@@ -3,9 +3,28 @@
 A full-screen, remote-first YouTube interface for Kodi, laid out like
 YouTube's own TV app. Built for CoreELEC.
 
-> **Tested on:** Ugoos AM9 Pro · CoreELEC 22 (Kodi 22 "Piers") · Bald skin.
-> It should work on any Kodi 21/22 box and skin, but that's the only setup
-> it has been tested on so far.
+> [!WARNING]
+> **CoreTube is experimental. Use it at your own risk.**
+>
+> It is developed and tested on **one setup only**:
+>
+> - **Device:** Ugoos AM9 Pro
+> - **System:** CoreELEC 22 "Piers", SamuriHL build
+>   `22.0-Piers-samurihl_20260928164552` (Kodi 22.0 Beta 2)
+> - **Skin:** Bald
+>
+> Other devices, other CoreELEC/LibreELEC builds (including newer SamuriHL
+> dev builds), other skins and forks of this add-on are **untested and
+> unsupported**. They may work, partly work or not work at all.
+>
+> CoreTube plays YouTube the way unofficial apps do, by acting as YouTube's
+> own mobile, TV and VR apps. YouTube changes these rules often and without
+> notice, so playback can break at any time, and a fix may take a while.
+> There is no warranty and no guaranteed support. See the licence.
+>
+> Bug reports are welcome as [issues](https://github.com/scsion/CoreTube/issues).
+> Please include your device, your CoreELEC build, your skin, your CoreTube
+> version and a [debug log](https://kodi.wiki/view/Log_file).
 
 ## Features
 

@@ -24,6 +24,8 @@ ADDON_ID = 'script.coretube'
 WINDOW_XML = 'script-coretube-main.xml'
 UPSTREAM_PORT = '50152'
 ADDON_PORT = '50162'
+# YouTube VR app version the engine's android_vr client reports (see main()).
+VR_CLIENT_VERSION = '1.73.21'
 
 # (relative path inside upstream checkout, relative path inside our tree)
 COPIES = [
@@ -196,6 +198,17 @@ def main():
          '                               and self.httpd_thread.is_alive()):\n'
          '            self.shutdown_httpd(terminate=True)\n'
          '        if self.httpd:\n', 1),
+    ])
+
+    # Signed out, every client's video URLs were cut off with 403 Forbidden
+    # about a minute into playback: YouTube now treats the android_vr
+    # client's outdated app version (1.65.10) like a client that needs a
+    # PO token. Reporting a current VR app build fixes signed-out playback;
+    # bump VR_CLIENT_VERSION when YouTube moves on again.
+    patch(lib / 'youtube' / 'client' / 'request_client.py', [
+        ("                'client_version': '1.65.10',\n",
+         "                'client_version': '{}',\n".format(VR_CLIENT_VERSION),
+         1),
     ])
 
     # Pick the quality once and keep it. With 'adaptive' InputStream
