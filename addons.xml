@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+<addon id="script.coretube" name="CoreTube" version="0.8.8" provider-name="scsion">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.27.1"/>
+        <import addon="inputstream.adaptive" version="19.0.0"/>
+        <import addon="script.module.inputstreamhelper" version="0.2.2" optional="true"/>
+        <import addon="script.module.pysocks" optional="true"/>
+        <import addon="script.module.pyqrcode" version="1.2.1"/>
+    </requires>
+    <!-- TV interface; also handles the engine's RunScript actions from settings.
+         Listed first: Kodi files an add-on and opens it by its first extension,
+         so this puts the TV interface under Video and Program add-ons. -->
+    <extension point="xbmc.python.script" library="resources/lib/default.py">
+        <provides>executable video</provides>
+    </extension>
+    <!-- Forked plugin.video.youtube engine (listings, sign-in, playback) plus
+         the keyless /leanback/ routes. -->
+    <extension point="xbmc.python.pluginsource" library="resources/lib/leanback_plugin.py">
+        <provides>video</provides>
+    </extension>
+    <!-- Engine service (local MPD server, playback tracking) plus SponsorBlock. -->
+    <extension point="xbmc.service" library="resources/lib/service_main.py"/>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">CoreTube: YouTube with a TV-style interface for CoreELEC</summary>
+        <description lang="en_GB">CoreTube is a full-screen, remote-friendly YouTube interface for Kodi, laid out like YouTube's TV app: home rows, search with suggestions, channel pages, subscriptions and SponsorBlock skipping. Works without an API key. Built on a fork of the plugin.video.youtube engine. Tested on a Ugoos AM9 Pro with CoreELEC 22 and the Bald skin.</description>
+        <disclaimer lang="en_GB">Not affiliated with or endorsed by Google, YouTube or the CoreELEC team.</disclaimer>
+        <platform>all</platform>
+        <license>GPL-2.0-only</license>
+        <website>https://github.com/scsion/CoreTube</website>
+        <source>https://github.com/scsion/CoreTube</source>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <assets>
+            <icon>resources/brand/icon.png</icon>
+            <fanart>resources/brand/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
+<addon id="repository.coretube" name="CoreTube Repository" version="1.0.0" provider-name="scsion">
+    <!-- Served from the "repo" branch of github.com/scsion/CoreTube, which
+         tools/build_repo.py writes. -->
+    <extension point="xbmc.addon.repository" name="CoreTube Repository">
+        <dir>
+            <info compressed="false">https://raw.githubusercontent.com/scsion/CoreTube/repo/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/scsion/CoreTube/repo/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/scsion/CoreTube/repo/</datadir>
+        </dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Updates for CoreTube</summary>
+        <description lang="en_GB">Install CoreTube from this repository and Kodi keeps it up to date automatically.</description>
+        <disclaimer lang="en_GB">Not affiliated with or endorsed by Google, YouTube or the CoreELEC team.</disclaimer>
+        <platform>all</platform>
+        <license>GPL-2.0-only</license>
+        <website>https://github.com/scsion/CoreTube</website>
+        <source>https://github.com/scsion/CoreTube</source>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
+</addons>
