@@ -33,18 +33,29 @@ YouTube's own TV app. Built for CoreELEC.
 
 ## Install
 
-1. Download `CoreTube-<version>.zip` from the
-   [Releases](https://github.com/scsion/CoreTube/releases) page and copy it
-   to the box (for example over SMB to `\\coreelec\Downloads`).
+Install the **CoreTube Repository** once; Kodi then keeps CoreTube up to
+date automatically.
+
+1. Download
+   [repository.coretube.zip](https://github.com/scsion/CoreTube/raw/repo/repository.coretube.zip)
+   and copy it to the box (for example over SMB to `\\coreelec\Downloads`).
 2. In Kodi, go to **Settings → System → Add-ons** and turn on
    **Unknown sources**.
-3. Go to **Settings → Add-ons → Install from zip file** and pick the zip.
-   Kodi pulls in `inputstream.adaptive` and `script.module.requests` from the
-   official repository.
-4. Open **Add-ons → Program add-ons → CoreTube**.
+3. Go to **Settings → Add-ons → Install from zip file** and pick
+   `repository.coretube.zip`.
+4. Go to **Settings → Add-ons → Install from repository → CoreTube
+   Repository → Program add-ons → CoreTube → Install**. Kodi pulls in the
+   add-ons CoreTube needs from the official repository.
+5. Open **Add-ons → Program add-ons → CoreTube**.
 
-Updates are installed the same way, from the newer zip. Your settings and
-sign-in are kept.
+**Already installed CoreTube from a zip?** Install the repository (steps 1–3),
+then open CoreTube in **Install from repository** and choose **Update**,
+picking the version from CoreTube Repository. Kodi only auto-updates add-ons
+that were installed from a repository. Your settings and sign-in are kept.
+
+Each version is also on the
+[Releases](https://github.com/scsion/CoreTube/releases) page as a zip, for
+installing by hand.
 
 ### Signing in (optional)
 
@@ -130,12 +141,24 @@ tools/gen_skin.py                generates the window XML
 tools/gen_textures.py            draws the rounded shapes and rail icons (needs Pillow)
 tools/gen_brand.py               draws the logo and background (needs Pillow + Gotham)
 tools/build_zip.py               builds dist/CoreTube-<version>.zip
+tools/build_repo.py              publishes a version to the Kodi repository (repo branch)
+repository/repository.coretube/  the repository add-on users install once
 ```
 
 ## Building from source
 
 ```
 python tools/build_zip.py
+```
+
+### Publishing a release
+
+Bump the version in `addon.xml`, then write it into a checkout of the `repo`
+branch and push that branch. Kodi installs it on its next update check:
+
+```
+git worktree add ../CoreTube-repo repo
+python tools/build_repo.py ../CoreTube-repo
 ```
 
 ### Updating the engine when YouTube breaks something
