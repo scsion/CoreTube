@@ -560,7 +560,9 @@ class MainWindow(xbmcgui.WindowXML):
             actions = self.getControl(KEY_ACTIONS)
             for label, action in ((39120, 'space'), (39121, 'clear'),
                                   (39100, 'search')):
-                item = xbmcgui.ListItem(localize(label))
+                # Capitals in bold, as YouTube TV labels these buttons.
+                item = xbmcgui.ListItem('[B]{}[/B]'.format(
+                    localize(label).upper()))
                 item.setProperty('action', action)
                 actions.addItem(item)
         self._set_query(self._query, refresh_now=True)
@@ -612,11 +614,14 @@ class MainWindow(xbmcgui.WindowXML):
         elif key == search.MODE:
             self._key_mode = ('symbols' if self._key_mode == 'letters'
                               else 'letters')
+            # Relabel the keys in place: emptying the focused panel with
+            # reset() made Kodi move focus away, onto the rail.
             keys = self.getControl(KEYS)
-            position = keys.getSelectedPosition()
-            keys.reset()
-            keys.addItems(search.key_items(self._key_mode))
-            keys.selectItem(position)
+            for index, item in enumerate(search.key_items(self._key_mode)):
+                key = keys.getListItem(index)
+                key.setLabel(item.getLabel())
+                key.setProperty('key', item.getProperty('key'))
+                key.setArt({'icon': item.getArt('icon')})
         else:
             # Typed in lower case, like YouTube TV, whatever the key shows.
             self._set_query(self._query + key.lower())

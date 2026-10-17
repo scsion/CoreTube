@@ -41,6 +41,7 @@ CHANNEL_SHIFT = 160     # the grid sits this much lower under a channel header
 TAB_W = 200             # tab chip slot (chip plus gap)
 TAB_PAD = 8             # room around a chip for its focus ring
 KEY = 67            # keyboard cell, as on YouTube TV at 1080p
+MODE_KEY_W = 100    # the &123 / ABC key, wider than a letter cell
 
 BG = 'FF0F0F0F'
 SURFACE = 'FF272727'       # search bar, placeholders
@@ -368,14 +369,23 @@ def header():
 
 def _key(focused):
     """Keyboard cell: a letter, or an icon for backspace; white rounded
-    square with dark text while focused."""
+    square with dark text while focused. The &123 / ABC key in the function
+    column is wider and in a smaller font, as on YouTube TV, so its label
+    fits; it spills into room the panel keeps to the right of the grid."""
     has_focus = 'Control.HasFocus({})'.format(KEYS_ID)
     on = has_focus if focused else 'false'
+    mode = 'String.IsEqual(ListItem.Property(key),mode)'
     return '''
                     <control type="image">
                         <left>4</left><top>4</top>
                         <width>{c}</width><height>{c}</height>
-                        <visible>{on}</visible>
+                        <visible>{on} + !{mode}</visible>
+                        <texture border="12" colordiffuse="{text}">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>{mw}</width><height>{c}</height>
+                        <visible>{on} + {mode}</visible>
                         <texture border="12" colordiffuse="{text}">round12.png</texture>
                     </control>
                     <control type="label">
@@ -384,7 +394,7 @@ def _key(focused):
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>{dim}</textcolor>
-                        <visible>String.IsEmpty(ListItem.Icon) + !{on}</visible>
+                        <visible>String.IsEmpty(ListItem.Icon) + !{on} + !{mode}</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
@@ -393,8 +403,26 @@ def _key(focused):
                         <font>{font}</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>{dark}</textcolor>
-                        <visible>String.IsEmpty(ListItem.Icon) + {on}</visible>
+                        <visible>String.IsEmpty(ListItem.Icon) + {on} + !{mode}</visible>
                         <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>4</left><top>0</top>
+                        <width>{mw}</width><height>{k}</height>
+                        <font>{font_small}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dim}</textcolor>
+                        <visible>!{on} + {mode}</visible>
+                        <label>[B]$INFO[ListItem.Label][/B]</label>
+                    </control>
+                    <control type="label">
+                        <left>4</left><top>0</top>
+                        <width>{mw}</width><height>{k}</height>
+                        <font>{font_small}</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>{dark}</textcolor>
+                        <visible>{on} + {mode}</visible>
+                        <label>[B]$INFO[ListItem.Label][/B]</label>
                     </control>
                     <control type="image">
                         <left>{i}</left><top>{i}</top>
@@ -410,8 +438,10 @@ def _key(focused):
                         <visible>!String.IsEmpty(ListItem.Icon) + {on}</visible>
                         <texture colordiffuse="{dark}">$INFO[ListItem.Icon]</texture>
                     </control>'''.format(c=KEY - 8, k=KEY, i=(KEY - 30) // 2,
+                                     mw=MODE_KEY_W - 8, mode=mode,
                                      on=on, text=TEXT, dim=TEXT_DIM,
-                                     dark=DARK_TEXT, font=FONT_NAV)
+                                     dark=DARK_TEXT, font=FONT_NAV,
+                                     font_small=FONT_META)
 
 
 def _pill_item(width, height, list_id, focused, icon=False):
@@ -792,7 +822,10 @@ def search_view():
         surface=SURFACE, text=TEXT, dim=TEXT_DIM, accent=ACCENT, addon=ADDON,
         font_nav=FONT_NAV, font_shelf=FONT_SHELF, nav=NAV_ID,
         suggest=SUGGEST_ID, keys=KEYS_ID, actions=KEY_ACTIONS_ID,
-        results=RESULTS_ID, keys_x=keys_x, keys_y=keys_y, keys_w=8 * KEY,
+        results=RESULTS_ID, keys_x=keys_x, keys_y=keys_y,
+        # 8 columns still (Kodi fits width // item width); the extra room
+        # is where the wider &123 key draws.
+        keys_w=7 * KEY + MODE_KEY_W,
         keys_h=4 * KEY, actions_y=actions_y, k=KEY,
         key=_key(False), key_focused=_key(True),
         chip=_pill_item(480, 68, SUGGEST_ID, False, icon=True),

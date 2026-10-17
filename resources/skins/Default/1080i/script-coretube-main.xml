@@ -3456,7 +3456,7 @@
 
             <control type="panel" id="400">
                 <left>704</left><top>164</top>
-                <width>536</width><height>268</height>
+                <width>569</width><height>268</height>
                 <orientation>vertical</orientation>
                 <onleft>402</onleft>
                 <ondown>401</ondown>
@@ -3467,7 +3467,13 @@
                     <control type="image">
                         <left>4</left><top>4</top>
                         <width>59</width><height>59</height>
-                        <visible>false</visible>
+                        <visible>false + !String.IsEqual(ListItem.Property(key),mode)</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>92</width><height>59</height>
+                        <visible>false + String.IsEqual(ListItem.Property(key),mode)</visible>
                         <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="label">
@@ -3476,7 +3482,7 @@
                         <font>font13</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FFAAAAAA</textcolor>
-                        <visible>String.IsEmpty(ListItem.Icon) + !false</visible>
+                        <visible>String.IsEmpty(ListItem.Icon) + !false + !String.IsEqual(ListItem.Property(key),mode)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
@@ -3485,8 +3491,26 @@
                         <font>font13</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FF0F0F0F</textcolor>
-                        <visible>String.IsEmpty(ListItem.Icon) + false</visible>
+                        <visible>String.IsEmpty(ListItem.Icon) + false + !String.IsEqual(ListItem.Property(key),mode)</visible>
                         <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>4</left><top>0</top>
+                        <width>92</width><height>67</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>!false + String.IsEqual(ListItem.Property(key),mode)</visible>
+                        <label>[B]$INFO[ListItem.Label][/B]</label>
+                    </control>
+                    <control type="label">
+                        <left>4</left><top>0</top>
+                        <width>92</width><height>67</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>false + String.IsEqual(ListItem.Property(key),mode)</visible>
+                        <label>[B]$INFO[ListItem.Label][/B]</label>
                     </control>
                     <control type="image">
                         <left>18</left><top>18</top>
@@ -3507,7 +3531,13 @@
                     <control type="image">
                         <left>4</left><top>4</top>
                         <width>59</width><height>59</height>
-                        <visible>Control.HasFocus(400)</visible>
+                        <visible>Control.HasFocus(400) + !String.IsEqual(ListItem.Property(key),mode)</visible>
+                        <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>92</width><height>59</height>
+                        <visible>Control.HasFocus(400) + String.IsEqual(ListItem.Property(key),mode)</visible>
                         <texture border="12" colordiffuse="FFF1F1F1">round12.png</texture>
                     </control>
                     <control type="label">
@@ -3516,7 +3546,7 @@
                         <font>font13</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FFAAAAAA</textcolor>
-                        <visible>String.IsEmpty(ListItem.Icon) + !Control.HasFocus(400)</visible>
+                        <visible>String.IsEmpty(ListItem.Icon) + !Control.HasFocus(400) + !String.IsEqual(ListItem.Property(key),mode)</visible>
                         <label>$INFO[ListItem.Label]</label>
                     </control>
                     <control type="label">
@@ -3525,8 +3555,26 @@
                         <font>font13</font>
                         <align>center</align><aligny>center</aligny>
                         <textcolor>FF0F0F0F</textcolor>
-                        <visible>String.IsEmpty(ListItem.Icon) + Control.HasFocus(400)</visible>
+                        <visible>String.IsEmpty(ListItem.Icon) + Control.HasFocus(400) + !String.IsEqual(ListItem.Property(key),mode)</visible>
                         <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>4</left><top>0</top>
+                        <width>92</width><height>67</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <visible>!Control.HasFocus(400) + String.IsEqual(ListItem.Property(key),mode)</visible>
+                        <label>[B]$INFO[ListItem.Label][/B]</label>
+                    </control>
+                    <control type="label">
+                        <left>4</left><top>0</top>
+                        <width>92</width><height>67</height>
+                        <font>font12</font>
+                        <align>center</align><aligny>center</aligny>
+                        <textcolor>FF0F0F0F</textcolor>
+                        <visible>Control.HasFocus(400) + String.IsEqual(ListItem.Property(key),mode)</visible>
+                        <label>[B]$INFO[ListItem.Label][/B]</label>
                     </control>
                     <control type="image">
                         <left>18</left><top>18</top>
@@ -3546,7 +3594,7 @@
             </control>
             <control type="list" id="401">
                 <left>704</left><top>446</top>
-                <width>536</width><height>60</height>
+                <width>569</width><height>60</height>
                 <orientation>horizontal</orientation>
                 <onup>400</onup>
                 <ondown>403</ondown>

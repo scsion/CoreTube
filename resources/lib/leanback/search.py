@@ -30,11 +30,12 @@ BACKSPACE = 'backspace'
 MODE = 'mode'
 
 # Rows of seven characters plus one function key; '' leaves a cell empty.
+# Lower case, as typed (YouTube TV shows capitals but types lower case).
 LETTERS = (
-    'ABCDEFG', BACKSPACE,
-    'HIJKLMN', MODE,
-    'OPQRSTU', '',
-    "VWXYZ-'", '',
+    'abcdefg', BACKSPACE,
+    'hijklmn', MODE,
+    'opqrstu', '',
+    "vwxyz-'", '',
 )
 SYMBOLS = (
     '1234567', BACKSPACE,
