@@ -671,7 +671,7 @@ class YouTubeRequestClient(BaseRequestsClass):
         },
         'watch_history': {
             '_auth_required': True,
-            '_auth_type': 'user',
+            '_auth_type': 'vr',
             '_video_id': None,
             'headers': {
                 'Host': 's.youtube.com',

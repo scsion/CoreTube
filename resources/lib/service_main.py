@@ -6,9 +6,13 @@
     SPDX-License-Identifier: GPL-2.0-only
 """
 
+from leanback import migrate
 from leanback.brand import BrandMonitor
 from leanback.sponsorblock import SponsorBlockPlayer
 from youtube_plugin.kodion import service_runner
+
+# Before the engine reads its settings.
+migrate.run()
 
 # Kept referenced for the lifetime of the service so Kodi keeps delivering
 # player callbacks to it; it runs its own polling thread while playing.

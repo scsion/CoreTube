@@ -211,6 +211,31 @@ def main():
          1),
     ])
 
+    # Two-way watch history: report CoreTube playback to the account so it
+    # shows on the phone/browser too. Upstream reports only with the 'user'
+    # sign-in, which needs the user's own API keys, so every report was
+    # skipped ("Invalid or disabled client"). The VR sign-in (the second
+    # code) is accepted by s.youtube.com, and remote history is on by
+    # default (leanback/migrate.py switches it on once for existing installs).
+    patch(lib / 'youtube' / 'client' / 'request_client.py', [
+        ("        'watch_history': {\n"
+         "            '_auth_required': True,\n"
+         "            '_auth_type': 'user',\n",
+         "        'watch_history': {\n"
+         "            '_auth_required': True,\n"
+         "            '_auth_type': 'vr',\n", 1),
+    ])
+    patch(ROOT / 'resources' / 'settings.xml', [
+        ('                <setting id="kodion.history.remote" type="boolean"'
+         ' label="30761" help="">\n'
+         '                    <level>0</level>\n'
+         '                    <default>false</default>\n',
+         '                <setting id="kodion.history.remote" type="boolean"'
+         ' label="30761" help="">\n'
+         '                    <level>0</level>\n'
+         '                    <default>true</default>\n', 1),
+    ])
+
     # Pick the quality once and keep it. With 'adaptive' InputStream
     # Adaptive switches resolution mid-video when its bandwidth estimate
     # dips (4K -> 1440p); on Amlogic boxes each switch restarts the hardware

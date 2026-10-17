@@ -44,10 +44,13 @@ YouTube's own TV app. Built for CoreELEC.
   keyless InnerTube API
 - **Signed-in feeds**: subscriptions, liked videos, your playlists, saved
   playlists and Watch later
-- **YouTube history, across devices**: when signed in, a "YouTube history"
-  row (Home and Library) shows what your account watched anywhere: phone,
-  browser, TV. Each video has its red progress bar, and playing one resumes
-  where you left off on the other device.
+- **YouTube history, across devices, both ways**: when signed in, a
+  "YouTube history" row (Home and Library) shows what your account watched
+  anywhere: phone, browser, TV. Each video has its red progress bar, and
+  playing one resumes where you left off on the other device. What you watch
+  in CoreTube is saved to your YouTube history too, so your phone can pick up
+  where the TV stopped. To keep CoreTube out of your YouTube history, turn
+  off **Update playback history on YouTube** (CoreTube settings → Advanced).
 - **SponsorBlock**: skips sponsor and other segments automatically, with a
   choice of categories
 - **YouTube TV look**: an icon rail that expands on focus, a search bar, a
