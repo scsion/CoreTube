@@ -29,7 +29,7 @@ XML_FILE = 'script-coretube-main.xml'
 
 NAV_LIST = 9000
 ROWS_GROUP = 100
-ROW_IDS = tuple(range(101, 109))
+ROW_IDS = tuple(range(101, 111))
 GRID = 200
 SEARCH_BAR = 300
 # Search view (see search.py): keyboard, Space/Clear/Search, suggestions,
@@ -92,6 +92,8 @@ PATH_CHANNEL_TAB = (PLUGIN + '/leanback/channeltab/{tab}/'
 PATH_CHANNEL_SORT = '&order={}'
 # The signed-in account's own lists, read with its sign-in instead of a key.
 PATH_KEYLESS_MINE = PLUGIN + '/leanback/mine/{}/'
+# The account's YouTube watch history, from every device it's signed in on.
+PATH_ACCOUNT_HISTORY = PATH_KEYLESS_MINE.format('history')
 
 
 def has_api_key():
@@ -242,6 +244,8 @@ class MainWindow(xbmcgui.WindowXML):
             rows.append((39012, PATH_RECOMMENDED))
         if setting_bool('leanback.home.history'):
             rows.append((39016, PATH_HISTORY))
+            if self._signed_in:
+                rows.append((39135, PATH_ACCOUNT_HISTORY))
         if setting_bool('leanback.home.trending'):
             rows.append((39011, PATH_TRENDING))
         if setting_bool('leanback.home.live'):
@@ -261,6 +265,8 @@ class MainWindow(xbmcgui.WindowXML):
             rows.append((39011, feed('trending')))
         if setting_bool('leanback.home.history'):
             rows.append((39016, PATH_HISTORY))
+            if self._signed_in:
+                rows.append((39135, PATH_ACCOUNT_HISTORY))
         if setting_bool('leanback.home.live'):
             rows.append((39014, feed('live')))
         if setting_bool('leanback.home.trending'):
@@ -274,7 +280,10 @@ class MainWindow(xbmcgui.WindowXML):
         return rows
 
     def _library_rows(self):
-        rows = [(39114, PATH_HISTORY), (39015, PATH_WATCH_LATER)]
+        rows = [(39114, PATH_HISTORY)]
+        if self._signed_in:
+            rows.append((39135, PATH_ACCOUNT_HISTORY))
+        rows.append((39015, PATH_WATCH_LATER))
         if self._signed_in and self._has_key:
             rows += [(39115, PATH_LIKED),
                      (39116, PATH_MY_PLAYLISTS),
@@ -837,7 +846,10 @@ class MainWindow(xbmcgui.WindowXML):
             xbmcgui.Window(10000).setProperty(HINT_PROPERTY, video_id)
             position = self._loader.engine.resume_point(
                 video_id, RESUME_MIN_SECONDS, RESUME_MAX_PERCENT)
-            if position and 'seek=' not in path:
+            # This box's own position beats the account's (YouTube history
+            # tiles carry the account's in their path).
+            if position:
+                path = re.sub(r'[?&]seek=[^&]*', '', path)
                 path = '{}{}seek={}'.format(path, '&' if '?' in path else '?',
                                             int(position))
         focus_id = self.getFocusId()

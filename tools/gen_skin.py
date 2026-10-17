@@ -20,7 +20,7 @@ OUT = (ROOT / 'resources' / 'skins' / 'Default' / '1080i'
        / 'script-coretube-main.xml')
 SIGNIN_OUT = OUT.with_name('script-coretube-signin.xml')
 
-ROW_COUNT = 8
+ROW_COUNT = 10
 NAV_ID = 9000
 ROWS_GROUP_ID = 100
 GRID_ID = 200

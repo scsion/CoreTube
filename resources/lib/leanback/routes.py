@@ -51,6 +51,7 @@ FEEDS = frozenset(innertube.DESTINATIONS) | {'trending', 'recommended'}
 # The signed-in account's own lists, read with its TV sign-in.
 MINE = {
     'subscriptions': innertube.subscriptions,
+    'history': innertube.history,
     'liked': innertube.liked,
     'playlists': innertube.my_playlists,
     'saved_playlists': innertube.saved_playlists,
@@ -62,6 +63,10 @@ MINE = {
 FEED_CACHE = 30 * 60
 PAGE_CACHE = 60 * 60
 MINE_CACHE = 5 * 60
+
+# Resume a video watched on another device only between these.
+ACCOUNT_RESUME_MIN = 10
+ACCOUNT_RESUME_MAX_PERCENT = 95
 
 SEPARATOR = ' • '
 
@@ -83,11 +88,30 @@ def _plot(data):
     return '\n'.join(filter(None, (stats, data.get('description'))))
 
 
+def _account_resume(data):
+    """(seconds watched, seconds to resume from) for a video the account
+    watched part-way on any device (YouTube's red bar). A nearly finished
+    video shows a full bar but starts from the beginning, as on YouTube."""
+    duration, watched = data.get('duration'), data.get('watched')
+    if not duration or not watched or data.get('live'):
+        return 0, 0
+    seconds = duration * watched // 100
+    if watched >= ACCOUNT_RESUME_MAX_PERCENT or seconds < ACCOUNT_RESUME_MIN:
+        return seconds, 0
+    return seconds, seconds
+
+
 def _video_item(context, data, play_data):
     video_id = data['id']
+    watched, resume = (0, 0) if play_data else _account_resume(data)
+    params = {VIDEO_ID: video_id}
+    if resume:
+        # The leanback window replaces this with the box's own position
+        # when there is one (leanback/gui.py).
+        params['seek'] = resume
     item = VideoItem(
         _clean(data.get('title')) or video_id,
-        context.create_uri((PATHS.PLAY,), {VIDEO_ID: video_id}),
+        context.create_uri((PATHS.PLAY,), params),
         image=data.get('thumb'),
         plot=_plot(data),
         video_id=video_id,
@@ -109,6 +133,11 @@ def _video_item(context, data, play_data):
         item.live = True
     if data.get('upcoming'):
         item.upcoming = True
+    if watched:
+        # Progress bar from the account; Kodi's own history wins when the
+        # video was played on this box.
+        item.set_start_percent(data['watched'])
+        item.set_start_time(watched)
     if play_data:
         if 'play_count' in play_data:
             item.set_play_count(play_data['play_count'])

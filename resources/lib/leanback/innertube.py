@@ -60,6 +60,8 @@ RECOMMEND_SEEDS = 6
 # listing page joins a few; the library playlist grid is read whole.
 HOME_PAGES = 3
 SUBSCRIPTION_PAGES = 3
+# History pages hold 15 videos each.
+HISTORY_PAGES = 2
 LIBRARY_PAGES = 10
 # Every account has these two, owned by the account's own channel.
 ACCOUNT_LISTS = frozenset(('LL', 'WL'))
@@ -201,6 +203,17 @@ def _classify(parts, item):
             item.setdefault('published', part)
 
 
+def watched_percent(node):
+    """How much of a video the signed-in account has watched, from the
+    red bar YouTube draws on its thumbnail (any device). 0 if none."""
+    value = (find_first(node, 'percentDurationWatched')
+             or find_first(node, 'startPercent'))
+    try:
+        return max(0, min(100, int(value or 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
 def _finish_video(item, overlay_text='', overlay_style=''):
     style = (overlay_style or '').upper()
     if 'LIVE' in style or overlay_text.upper() == 'LIVE':
@@ -253,6 +266,7 @@ def _parse_video_renderer(renderer):
         item['duration'] = int(renderer['lengthSeconds'])
     _classify([text(run) for run in
                dig(renderer, 'videoInfo', 'runs') or ()], item)
+    item['watched'] = watched_percent(renderer.get('thumbnailOverlays'))
     return _finish_video(item, length, style)
 
 
@@ -291,9 +305,11 @@ def _parse_tile(tile):
         }
         for line in lines[1:]:
             _classify(line, item)
-        overlay = find_first(
-            dig(tile, 'header', 'tileHeaderRenderer', 'thumbnailOverlays'),
-            'thumbnailOverlayTimeStatusRenderer') or {}
+        overlays = dig(tile, 'header', 'tileHeaderRenderer',
+                       'thumbnailOverlays')
+        overlay = find_first(overlays,
+                             'thumbnailOverlayTimeStatusRenderer') or {}
+        item['watched'] = watched_percent(overlays)
         return _finish_video(item, text(overlay.get('text')),
                              overlay.get('style', ''))
     if content_type == 'TILE_CONTENT_TYPE_CHANNEL':
@@ -361,6 +377,7 @@ def _parse_lockup(lockup):
             if index == 0 and not ('views' in item or 'published' in item):
                 item['channel'] = ' '.join(row)
         badge = find_first(image, 'thumbnailBadgeViewModel') or {}
+        item['watched'] = watched_percent(image)
         return _finish_video(item, badge.get('text', ''),
                              badge.get('badgeStyle', ''))
     if content_type in ('LOCKUP_CONTENT_TYPE_PLAYLIST',
@@ -831,6 +848,28 @@ def subscriptions(client, _account, page_token=None):
     feed = [shelf for shelf in found
             if not text(find_first(shelf.get('headerRenderer'), 'title'))]
     return {'items': _shelf_videos(feed or found), 'next': page_token}
+
+
+def history(client, _account, page_token=None):
+    """The account's YouTube watch history, newest first: what was watched
+    on any device (phone, browser, TV), with how far each video got."""
+    # A grid of tiles (15 a page) rather than shelves; each tile carries
+    # the watched percentage.
+    items = []
+    for _ in range(HISTORY_PAGES):
+        if page_token:
+            result = _tv_browse(client, continuation=page_token)
+            grid = dig(result, 'continuationContents', 'gridContinuation')
+        else:
+            result = _tv_browse(client, browseId='FEhistory')
+            grid = find_first(result.get('contents'), 'gridRenderer')
+        if not grid:
+            break
+        items.extend(collect(grid)['items'])
+        page_token = _next_token(grid)
+        if not page_token:
+            break
+    return {'items': _unique(videos_only(items)), 'next': page_token}
 
 
 def account_playlist(client, _account, playlist_id, page_token=None):

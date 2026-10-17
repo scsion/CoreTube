@@ -22,6 +22,8 @@
             <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),6)">Conditional</animation>
             <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),7)">Conditional</animation>
             <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),8)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),9)">Conditional</animation>
+            <animation effect="slide" end="0,-672" time="300" tween="cubic" easing="out" condition="Integer.IsGreaterOrEqual(Window.Property(focusrow),10)">Conditional</animation>
             <control type="image">
                 <left>156</left><top>67</top>
                 <width>70</width><height>70</height>
@@ -2449,7 +2451,7 @@
                     <orientation>horizontal</orientation>
                     <onleft>9000</onleft>
                     <onup>107</onup>
-                    <ondown>108</ondown>
+                    <ondown>109</ondown>
                     <onright>noop</onright>
                     <scrolltime tween="cubic" easing="out">250</scrolltime>
                     <focusposition>0</focusposition>
@@ -2680,6 +2682,600 @@
                         <left>4</left><top>4</top>
                         <width>540</width><height>309</height>
                         <visible>Control.HasFocus(108)</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
+                    </control>
+                    <control type="textbox">
+                        <left>10</left><top>329</top>
+                        <width>528</width><height>78</height>
+                        <font>Bald_InfoTagline</font>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>419</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Artist]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>453</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                    </control>
+                    </focusedlayout>
+                </control>
+            </control>
+            <control type="group">
+                <left>0</left><top>5624</top>
+                <visible>!String.IsEmpty(Window.Property(row9.path))</visible>
+                <control type="label">
+                    <left>156</left><top>0</top>
+                    <width>1600</width><height>40</height>
+                    <font>font25_title</font>
+                    <textcolor>FFF1F1F1</textcolor>
+                    <label>$INFO[Window.Property(row9.label)]</label>
+                </control>
+                <control type="group">
+                    <left>0</left><top>0</top>
+                    <visible>String.IsEqual(Window.Property(row9.loading),true)</visible>
+                <control type="image">
+                    <left>156</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>720</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>1284</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>1848</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                </control>
+                <control type="list" id="109">
+                    <left>146</left><top>48</top>
+                    <width>1774</width><height>497</height>
+                    <orientation>horizontal</orientation>
+                    <onleft>9000</onleft>
+                    <onup>108</onup>
+                    <ondown>110</ondown>
+                    <onright>noop</onright>
+                    <scrolltime tween="cubic" easing="out">250</scrolltime>
+                    <focusposition>0</focusposition>
+                    <movement>1</movement>
+                    <itemlayout width="564" height="497">
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <aspectratio>scale</aspectratio>
+                        <fadetime>120</fadetime>
+                        <texture background="true" diffuse="mask_tile.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="progress">
+                        <left>10</left><top>301</top>
+                        <width>528</width><height>6</height>
+                        <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                        <texturebg colordiffuse="80FFFFFF">white.png</texturebg>
+                        <midtexture colordiffuse="FFFF0033">white.png</midtexture>
+                        <info>ListItem.PercentPlayed</info>
+                    </control>
+
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>450</left><top>263</top>
+                            <width>78</width><height>34</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>424</left><top>263</top>
+                            <width>104</width><height>34</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>263</top>
+                            <width>94</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="textbox">
+                        <left>10</left><top>329</top>
+                        <width>528</width><height>78</height>
+                        <font>Bald_InfoTagline</font>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>419</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Artist]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>453</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                    </control>
+                    </itemlayout>
+                    <focusedlayout width="564" height="497">
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <aspectratio>scale</aspectratio>
+                        <fadetime>120</fadetime>
+                        <texture background="true" diffuse="mask_tile.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="progress">
+                        <left>10</left><top>301</top>
+                        <width>528</width><height>6</height>
+                        <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                        <texturebg colordiffuse="80FFFFFF">white.png</texturebg>
+                        <midtexture colordiffuse="FFFF0033">white.png</midtexture>
+                        <info>ListItem.PercentPlayed</info>
+                    </control>
+
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>450</left><top>263</top>
+                            <width>78</width><height>34</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>424</left><top>263</top>
+                            <width>104</width><height>34</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>263</top>
+                            <width>94</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>540</width><height>309</height>
+                        <visible>Control.HasFocus(109)</visible>
+                        <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
+                    </control>
+                    <control type="textbox">
+                        <left>10</left><top>329</top>
+                        <width>528</width><height>78</height>
+                        <font>Bald_InfoTagline</font>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>419</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Artist]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>453</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                    </control>
+                    </focusedlayout>
+                </control>
+            </control>
+            <control type="group">
+                <left>0</left><top>6296</top>
+                <visible>!String.IsEmpty(Window.Property(row10.path))</visible>
+                <control type="label">
+                    <left>156</left><top>0</top>
+                    <width>1600</width><height>40</height>
+                    <font>font25_title</font>
+                    <textcolor>FFF1F1F1</textcolor>
+                    <label>$INFO[Window.Property(row10.label)]</label>
+                </control>
+                <control type="group">
+                    <left>0</left><top>0</top>
+                    <visible>String.IsEqual(Window.Property(row10.loading),true)</visible>
+                <control type="image">
+                    <left>156</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>720</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>1284</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                <control type="image">
+                    <left>1848</left><top>58</top>
+                    <width>528</width><height>297</height>
+                    <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                </control>
+                </control>
+                <control type="list" id="110">
+                    <left>146</left><top>48</top>
+                    <width>1774</width><height>497</height>
+                    <orientation>horizontal</orientation>
+                    <onleft>9000</onleft>
+                    <onup>109</onup>
+                    <ondown>110</ondown>
+                    <onright>noop</onright>
+                    <scrolltime tween="cubic" easing="out">250</scrolltime>
+                    <focusposition>0</focusposition>
+                    <movement>1</movement>
+                    <itemlayout width="564" height="497">
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <aspectratio>scale</aspectratio>
+                        <fadetime>120</fadetime>
+                        <texture background="true" diffuse="mask_tile.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="progress">
+                        <left>10</left><top>301</top>
+                        <width>528</width><height>6</height>
+                        <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                        <texturebg colordiffuse="80FFFFFF">white.png</texturebg>
+                        <midtexture colordiffuse="FFFF0033">white.png</midtexture>
+                        <info>ListItem.PercentPlayed</info>
+                    </control>
+
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>450</left><top>263</top>
+                            <width>78</width><height>34</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>424</left><top>263</top>
+                            <width>104</width><height>34</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>263</top>
+                            <width>94</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="textbox">
+                        <left>10</left><top>329</top>
+                        <width>528</width><height>78</height>
+                        <font>Bald_InfoTagline</font>
+                        <textcolor>FFF1F1F1</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>419</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Artist]</label>
+                    </control>
+                    <control type="label">
+                        <left>10</left><top>453</top>
+                        <width>528</width><height>34</height>
+                        <font>font12</font>
+                        <textcolor>FFAAAAAA</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                    </control>
+                    </itemlayout>
+                    <focusedlayout width="564" height="497">
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <texture border="12" colordiffuse="FF272727">round12.png</texture>
+                    </control>
+                    <control type="image">
+                        <left>10</left><top>10</top>
+                        <width>528</width><height>297</height>
+                        <aspectratio>scale</aspectratio>
+                        <fadetime>120</fadetime>
+                        <texture background="true" diffuse="mask_tile.png">$INFO[ListItem.Art(thumb)]</texture>
+                    </control>
+                    <control type="progress">
+                        <left>10</left><top>301</top>
+                        <width>528</width><height>6</height>
+                        <visible>Integer.IsGreater(ListItem.PercentPlayed,0)</visible>
+                        <texturebg colordiffuse="80FFFFFF">white.png</texturebg>
+                        <midtexture colordiffuse="FFFF0033">white.png</midtexture>
+                        <info>ListItem.PercentPlayed</info>
+                    </control>
+
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>450</left><top>263</top>
+                            <width>78</width><height>34</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>424</left><top>263</top>
+                            <width>104</width><height>34</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>263</top>
+                            <width>94</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>!String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>456</left><top>263</top>
+                            <width>72</width><height>34</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + !String.IsEmpty(ListItem.Duration)</visible>
+                        <control type="image">
+                            <left>412</left><top>253</top>
+                            <width>116</width><height>44</height>
+                            <visible>!Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="image">
+                            <left>372</left><top>253</top>
+                            <width>156</width><height>44</height>
+                            <visible>Integer.IsGreaterOrEqual(ListItem.Duration(secs),3600)</visible>
+                            <texture border="8" colordiffuse="CC000000">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>372</left><top>253</top>
+                            <width>146</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>right</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>$INFO[ListItem.Duration]</label>
+                        </control>
+                    </control>
+                    <control type="group">
+                        <visible>String.IsEqual(Window.Property(fonts),fallback) + String.IsEqual(ListItem.Property(live),true)</visible>
+                        <control type="image">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <texture border="8" colordiffuse="FFFF0033">round8.png</texture>
+                        </control>
+                        <control type="label">
+                            <left>424</left><top>253</top>
+                            <width>104</width><height>44</height>
+                            <font>Bald_DetailValue</font>
+                            <align>center</align><aligny>center</aligny>
+                            <textcolor>FFF1F1F1</textcolor>
+                            <label>LIVE</label>
+                        </control>
+                    </control>
+                    <control type="image">
+                        <left>4</left><top>4</top>
+                        <width>540</width><height>309</height>
+                        <visible>Control.HasFocus(110)</visible>
                         <texture border="20" colordiffuse="FFFFFFFF">focus_ring.png</texture>
                     </control>
                     <control type="textbox">

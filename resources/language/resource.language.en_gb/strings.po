@@ -1838,3 +1838,7 @@ msgstr ""
 msgctxt "#39134"
 msgid "The code expires in {0} min."
 msgstr ""
+
+msgctxt "#39135"
+msgid "YouTube history"
+msgstr ""
