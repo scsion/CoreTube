@@ -94,6 +94,22 @@ PATH_CHANNEL_SORT = '&order={}'
 PATH_KEYLESS_MINE = PLUGIN + '/leanback/mine/{}/'
 # The account's YouTube watch history, from every device it's signed in on.
 PATH_ACCOUNT_HISTORY = PATH_KEYLESS_MINE.format('history')
+# Its unfinished videos: "Continue watching" across devices.
+PATH_ACCOUNT_CONTINUE = PATH_KEYLESS_MINE.format('continue')
+
+
+def continue_path(signed_in):
+    """The "Continue watching" row. Signed in, with playback reported to
+    the account (so this box's videos are in its history too), it's the
+    account's unfinished videos from every device; otherwise this box's own
+    playback history."""
+    if signed_in:
+        try:
+            if addon().getSetting('kodion.history.remote') == 'true':
+                return PATH_ACCOUNT_CONTINUE
+        except RuntimeError:
+            pass
+    return PATH_HISTORY
 
 
 def has_api_key():
@@ -117,6 +133,24 @@ def is_signed_in():
         xbmc.log('[{}] sign-in check failed: {}'.format(ADDON_ID, exc),
                  xbmc.LOGWARNING)
         return False
+
+
+def reload_service_sign_in():
+    """Have the engine's service pick up a new sign-in (or sign-out).
+
+    The service reads the account's tokens once, when Kodi starts, and
+    reports playback to YouTube's watch history with them. Without this,
+    after a first sign-in every report was skipped ("Invalid or disabled
+    client") until Kodi was restarted. The engine's own user-switching
+    actions send the same notification."""
+    try:
+        from youtube_plugin.kodion.constants import RELOAD_ACCESS_MANAGER
+        from youtube_plugin.kodion.context import XbmcContext
+
+        XbmcContext.send_notification(RELOAD_ACCESS_MANAGER)
+    except Exception as exc:  # pylint: disable=broad-except
+        xbmc.log('[{}] sign-in reload for the service failed: {}'.format(
+            ADDON_ID, exc), xbmc.LOGWARNING)
 
 
 def underline_width(title):
@@ -167,6 +201,8 @@ class MainWindow(xbmcgui.WindowXML):
         self._query = ''
         self._key_mode = 'letters'
         self._typing = search.Debouncer(self._refresh_search)
+        # leanback/launch.py: the start-up splash, and where we came from.
+        self.launch = None
 
     # -- lifecycle --------------------------------------------------------
 
@@ -184,6 +220,9 @@ class MainWindow(xbmcgui.WindowXML):
             self._nav_ready = True
             self._push({'type': 'rows', 'nav': NAV_HOME,
                         'rows': self._home_rows()})
+            if self.launch:
+                self.launch.offer_favourite(lambda: xbmc.getCondVisibility(
+                    'Window.IsActive({})'.format(XML_FILE)))
         elif not self._restore_focus():
             self._show(self._views[-1])
 
@@ -243,7 +282,7 @@ class MainWindow(xbmcgui.WindowXML):
         if setting_bool('leanback.home.recommendations'):
             rows.append((39012, PATH_RECOMMENDED))
         if setting_bool('leanback.home.history'):
-            rows.append((39016, PATH_HISTORY))
+            rows.append((39016, continue_path(self._signed_in)))
             if self._signed_in:
                 rows.append((39135, PATH_ACCOUNT_HISTORY))
         if setting_bool('leanback.home.trending'):
@@ -264,7 +303,7 @@ class MainWindow(xbmcgui.WindowXML):
         if setting_bool('leanback.home.trending'):
             rows.append((39011, feed('trending')))
         if setting_bool('leanback.home.history'):
-            rows.append((39016, PATH_HISTORY))
+            rows.append((39016, continue_path(self._signed_in)))
             if self._signed_in:
                 rows.append((39135, PATH_ACCOUNT_HISTORY))
         if setting_bool('leanback.home.live'):
@@ -626,7 +665,7 @@ class MainWindow(xbmcgui.WindowXML):
             if not listitems and on_empty:
                 on_empty()
 
-        self._loader.load(path, done)
+        self._loader.load(path, done, owner=control_id)
 
     def _keep_next_page(self, control_id, listitems):
         """Hold back a listing's trailing "next page" item: its page is
@@ -662,7 +701,7 @@ class MainWindow(xbmcgui.WindowXML):
             control.addItems(self._keep_next_page(control_id, listitems))
             control.selectItem(position)
 
-        self._loader.load(next_path, done)
+        self._loader.load(next_path, done, owner=control_id)
 
     def _first_filled_row(self, wait_for_loading=False):
         """The topmost shelf with items. With wait_for_loading, None while a
@@ -810,7 +849,10 @@ class MainWindow(xbmcgui.WindowXML):
             else:
                 path = '{}/sign/in/'.format(PLUGIN)
             xbmc.executebuiltin('RunPlugin({})'.format(path), True)
-            self._signed_in = is_signed_in()
+            signed_in = is_signed_in()
+            if signed_in != self._signed_in:
+                reload_service_sign_in()
+            self._signed_in = signed_in
             self._build_nav()
             self._reset_to({'type': 'rows', 'nav': NAV_HOME,
                             'rows': self._home_rows()})
@@ -891,10 +933,15 @@ class MainWindow(xbmcgui.WindowXML):
             options[choice][1]()
 
 
-def run():
+def run(launch=None):
     window = MainWindow(XML_FILE, addon().getAddonInfo('path'),
                         'Default', '1080i')
-    window.doModal()
+    window.launch = launch
+    try:
+        window.doModal()
+    finally:
+        if launch:
+            launch.finish()
     window._typing.cancel()  # pylint: disable=protected-access
     window._loader.shutdown()  # pylint: disable=protected-access
     del window

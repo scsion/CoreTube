@@ -50,6 +50,18 @@
                     </control>
                 </setting>
             </group>
+            <group id="leanback_launch" label="39060">
+                <setting id="leanback.launch.splash" type="boolean" label="39061" help="39062">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="leanback.launch.exit_home" type="boolean" label="39063" help="39064">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
             <group id="leanback_sponsorblock" label="39030">
                 <setting id="leanback.sb.enabled" type="boolean" label="39020" help="">
                     <level>0</level>

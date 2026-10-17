@@ -62,6 +62,9 @@ HOME_PAGES = 3
 SUBSCRIPTION_PAGES = 3
 # History pages hold 15 videos each.
 HISTORY_PAGES = 2
+# A video this far through counts as finished (YouTube TV's own cut-off for
+# starting over rather than resuming).
+UNFINISHED_MAX_PERCENT = 95
 LIBRARY_PAGES = 10
 # Every account has these two, owned by the account's own channel.
 ACCOUNT_LISTS = frozenset(('LL', 'WL'))
@@ -870,6 +873,15 @@ def history(client, _account, page_token=None):
         if not page_token:
             break
     return {'items': _unique(videos_only(items)), 'next': page_token}
+
+
+def unfinished(page):
+    """The videos of a history page that were started but not finished:
+    under UNFINISHED_MAX_PERCENT watched, as YouTube's red bar shows it."""
+    return {'items': [item for item in page.get('items') or ()
+                      if 0 < (item.get('watched') or 0) < UNFINISHED_MAX_PERCENT
+                      and not item.get('live')],
+            'next': page.get('next')}
 
 
 def account_playlist(client, _account, playlist_id, page_token=None):

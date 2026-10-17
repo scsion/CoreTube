@@ -20,8 +20,10 @@ import xbmc
 
 from . import ADDON_ID
 
-# Rows of local lists (history, watch later) change with every video played.
-_UNCACHED = ('/kodion/',)
+# Rows of local lists (history, watch later) change with every video played,
+# and the account's YouTube history with every video watched anywhere.
+_UNCACHED = ('/kodion/', '/leanback/mine/history/',
+             '/leanback/mine/continue/')
 CACHE_SECONDS = 10 * 60
 WORKERS = 6
 
@@ -176,8 +178,8 @@ class RowLoader(object):
         self._generation = 0
         self._lock = threading.Lock()
 
-    def cached(self, uri):
-        entry = self._cache.get(uri)
+    def cached(self, uri, owner=None):
+        entry = self._cache.get((owner, uri))
         if entry and time.time() - entry[0] < CACHE_SECONDS:
             return entry[1]
         return None
@@ -187,19 +189,24 @@ class RowLoader(object):
         with self._lock:
             self._generation += 1
 
-    def load(self, uri, done):
-        """Calls done(listitems) from a worker thread, unless cancelled."""
+    def load(self, uri, done, owner=None):
+        """Calls done(listitems) from a worker thread, unless cancelled.
+
+        owner is the list the items go into. Cached ListItems only go back
+        to that same list: Kodi keeps the layout an item was last drawn
+        with, so items shown in Home's Subscriptions shelf and then on the
+        Subscriptions page came back to the shelf drawn at grid size."""
         with self._lock:
             generation = self._generation
         hit = None if uri.startswith(tuple(
             'plugin://{}{}'.format(ADDON_ID, p) for p in _UNCACHED)) else \
-            self.cached(uri)
+            self.cached(uri, owner)
         if hit is not None:
             done(hit)
             return
-        self._pool.submit(self._run, uri, done, generation)
+        self._pool.submit(self._run, uri, done, generation, owner)
 
-    def _run(self, uri, done, generation):
+    def _run(self, uri, done, generation, owner=None):
         started = time.time()
         try:
             listitems = self.engine.listing(uri)
@@ -209,7 +216,7 @@ class RowLoader(object):
         _log('{} -> {} items in {:.2f}s'.format(
             uri, len(listitems), time.time() - started), xbmc.LOGINFO)
         if listitems:
-            self._cache[uri] = (time.time(), listitems)
+            self._cache[(owner, uri)] = (time.time(), listitems)
         with self._lock:
             if generation != self._generation:
                 return

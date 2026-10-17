@@ -1715,6 +1715,26 @@ msgctxt "#39054"
 msgid "B - White badge, red play triangle (high contrast)"
 msgstr ""
 
+msgctxt "#39060"
+msgid "Opening and closing"
+msgstr ""
+
+msgctxt "#39061"
+msgid "Show the CoreTube start screen"
+msgstr ""
+
+msgctxt "#39062"
+msgid "[COLOR white]Covers the screen with the CoreTube backdrop the moment CoreTube starts, so Kodi's Videos or Programs screen doesn't flash up while the TV interface loads.[/COLOR]"
+msgstr ""
+
+msgctxt "#39063"
+msgid "Leave to the Home screen"
+msgstr ""
+
+msgctxt "#39064"
+msgid "[COLOR white]When CoreTube was opened from a list such as Video add-ons or Program add-ons, leaving it goes to Kodi's Home screen instead of back to that list. Opening it from the Home screen (a menu entry or Favourites) is not affected.[/COLOR]"
+msgstr ""
+
 msgctxt "#39100"
 msgid "Search"
 msgstr ""
@@ -1841,4 +1861,12 @@ msgstr ""
 
 msgctxt "#39135"
 msgid "YouTube history"
+msgstr ""
+
+msgctxt "#39140"
+msgid "Add CoreTube to Favourites?"
+msgstr ""
+
+msgctxt "#39141"
+msgid "Then you can open CoreTube straight from Favourites on your Home screen, without going through Video add-ons. This question is only asked once."
 msgstr ""

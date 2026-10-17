@@ -1,5 +1,7 @@
 # CoreTube
 
+![CoreTube](resources/brand/b/fanart.jpg)
+
 A full-screen, remote-first YouTube interface for Kodi, laid out like
 YouTube's own TV app. Built for CoreELEC.
 

@@ -63,6 +63,10 @@ MINE = {
 FEED_CACHE = 30 * 60
 PAGE_CACHE = 60 * 60
 MINE_CACHE = 5 * 60
+# Except the account's watch history: a video just watched on the phone
+# should be there when CoreTube is opened. Short enough for that, long
+# enough that rows loading together share one request.
+HISTORY_CACHE = 30
 
 # Resume a video watched on another device only between these.
 ACCOUNT_RESUME_MIN = 10
@@ -294,15 +298,24 @@ def _recommended(context, client):
 
 @AbstractProvider.register_path('^' + PATH_MINE + '/(?P<name>[a-z_]+)/?$')
 def on_mine(provider, context, re_match):
-    func = MINE.get(re_match.group('name'))
+    name = re_match.group('name')
+    # Continue watching: the unfinished videos of the account's history,
+    # from any device, read from the same (shared, cached) history page.
+    unfinished = name == 'continue'
+    if unfinished:
+        name = 'history'
+    func = MINE.get(name)
     if not func:
         return False, None
     client = provider.get_client(context)
     account = _account(context, client)
     if not account:
         return False, None
-    page = _cached(context, MINE_CACHE, func, client, account,
-                   context.get_param('page_token'))
+    page = _cached(context,
+                   HISTORY_CACHE if name == 'history' else MINE_CACHE,
+                   func, client, account, context.get_param('page_token'))
+    if unfinished and page:
+        page = innertube.unfinished(page)
     return _listing(provider, context, page)
 
 

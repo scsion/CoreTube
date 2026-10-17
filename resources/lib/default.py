@@ -16,6 +16,13 @@ if len(sys.argv) > 1 and sys.argv[1]:
 
     script_actions.run(sys.argv)
 else:
+    # Before the window's imports: the splash should be up as early as
+    # possible (leanback/launch.py).
+    from leanback.launch import Launch
+
+    launch = Launch()
+    launch.start()
+
     from leanback import gui
 
-    gui.run()
+    gui.run(launch)
