@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="script.coretube" name="CoreTube" version="0.9.1" provider-name="scsion">
+<addon id="script.coretube" name="CoreTube" version="0.9.2" provider-name="scsion">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.27.1"/>
@@ -16,9 +16,12 @@
         <provides>executable video</provides>
     </extension>
     <!-- Forked plugin.video.youtube engine (listings, sign-in, playback) plus
-         the keyless /leanback/ routes. -->
+         the keyless /leanback/ routes. Empty <provides>: Video add-ons then
+         lists CoreTube once, as the script above, instead of a second entry
+         that opened a Kodi folder first. plugin:// paths (playback, widgets,
+         the window's own rows) don't depend on it. -->
     <extension point="xbmc.python.pluginsource" library="resources/lib/leanback_plugin.py">
-        <provides>video</provides>
+        <provides></provides>
     </extension>
     <!-- Engine service (local MPD server, playback tracking) plus SponsorBlock. -->
     <extension point="xbmc.service" library="resources/lib/service_main.py"/>
