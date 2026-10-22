@@ -106,8 +106,17 @@ Instead of widgets, CoreTube works well as its own entry in Bald's home menu:
 3. Optionally, set its background to
    `special://home/addons/script.coretube/resources/brand/fanart.jpg`.
 
-Selecting the entry opens the TV interface straight away. Opening CoreTube
-from **Videos → Video add-ons** does the same.
+Selecting the entry opens the TV interface straight away.
+
+### Opening CoreTube from other skins
+
+CoreTube is listed once under both **Videos → Video add-ons** and
+**Add-ons → Program add-ons**. Opened from one of those lists, it covers the
+screen with its start-up backdrop while it loads, and leaving it goes to the
+Home screen rather than back to the list. The first time you open it that
+way, CoreTube offers to add itself to **Favourites**, which most skins show on
+their home screen. That gives you a one-press entry, like Bald's menu item.
+Both behaviours can be switched off in the settings (Opening and closing).
 
 ## Remote controls
 
