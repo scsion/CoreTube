@@ -895,8 +895,10 @@ class MainWindow(xbmcgui.WindowXML):
                 self._loader.engine.reset()
             self._signed_in = signed_in
             self._build_nav()
+            # Into the rebuilt Home rows, not left on the rail.
             self._reset_to({'type': 'rows', 'nav': NAV_HOME,
-                            'rows': self._home_rows()})
+                            'rows': self._home_rows(),
+                            'focus_content': True})
         elif key == NAV_SETTINGS:
             self._open_settings()
 
