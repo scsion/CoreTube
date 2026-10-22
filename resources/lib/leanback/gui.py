@@ -153,6 +153,39 @@ def reload_service_sign_in():
             ADDON_ID, exc), xbmc.LOGWARNING)
 
 
+# The engine's sign-in can take a while: the first-run setup wizard, then up
+# to 10 minutes per code.
+SIGN_IN_WAIT = 30 * 60
+# Dialogs a sign-in or sign-out shows; CoreTube's own sign-in dialog is
+# modeless, so it is named.
+PLUGIN_DIALOGS = ('System.HasActiveModalDialog'
+                  ' | Window.IsVisible(script-coretube-signin.xml)'
+                  ' | Window.IsVisible(busydialog)'
+                  ' | Window.IsVisible(busydialognocancel)')
+
+
+def wait_for_plugin(finished, limit=SIGN_IN_WAIT):
+    """Wait for a plugin call started with RunPlugin to finish.
+
+    executebuiltin('RunPlugin(...)', True) returns at once, while the
+    plugin's dialogs are still up, so a sign-in looked unchanged until the
+    window was reopened. This follows the dialogs instead: done once none
+    has been up for a few seconds (the plugin needs a moment to show its
+    first one), or sooner once ``finished()`` is true and they're gone."""
+    monitor = xbmc.Monitor()
+    quiet = waited = 0.0
+    while waited < limit:
+        if xbmc.getCondVisibility(PLUGIN_DIALOGS):
+            quiet = 0.0
+        else:
+            quiet += 0.5
+            if quiet >= (1.0 if finished() else 4.0):
+                return
+        if monitor.waitForAbort(0.5):
+            return
+        waited += 0.5
+
+
 def underline_width(title):
     """Width of the open tab's underline: the title's width in the tab font
     (Bald's DM Sans Medium 30), estimated per character and snapped to the
@@ -853,7 +886,9 @@ class MainWindow(xbmcgui.WindowXML):
                 path = '{}/sign/out/?confirmed=true'.format(PLUGIN)
             else:
                 path = '{}/sign/in/'.format(PLUGIN)
+            before = self._signed_in
             xbmc.executebuiltin('RunPlugin({})'.format(path), True)
+            wait_for_plugin(lambda: is_signed_in() != before)
             signed_in = is_signed_in()
             if signed_in != self._signed_in:
                 reload_service_sign_in()

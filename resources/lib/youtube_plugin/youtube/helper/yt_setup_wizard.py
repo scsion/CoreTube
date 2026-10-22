@@ -450,5 +450,4 @@ STEPS = [
     process_migrate_watch_later,
     process_geo_location,
     process_list_detail_settings,
-    process_refresh_settings,
 ]

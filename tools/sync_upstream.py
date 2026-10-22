@@ -249,6 +249,18 @@ def main():
          " = 'fixed-res'\n", 1),
     ])
 
+    # The setup wizard's last step, "Refresh settings.xml", prunes settings
+    # left over from older plugin.video.youtube versions. CoreTube has its
+    # own settings without that history, so the step only confused users
+    # (it asks "Are you sure?" without saying why).
+    patch(lib / 'youtube' / 'helper' / 'yt_setup_wizard.py', [
+        ('    process_list_detail_settings,\n'
+         '    process_refresh_settings,\n'
+         ']\n',
+         '    process_list_detail_settings,\n'
+         ']\n', 1),
+    ])
+
     # Sign-in codes go in CoreTube's own dialog (leanback/signin.py): a QR
     # code that opens google.com/device with the code filled in, and
     # "Step 1 of 2" so the second code (VR client) isn't taken for a repeat.
