@@ -892,6 +892,7 @@ class MainWindow(xbmcgui.WindowXML):
             signed_in = is_signed_in()
             if signed_in != self._signed_in:
                 reload_service_sign_in()
+                self._loader.engine.reset()
             self._signed_in = signed_in
             self._build_nav()
             self._reset_to({'type': 'rows', 'nav': NAV_HOME,

@@ -40,6 +40,13 @@ class Engine(object):
         self._lock = threading.Lock()
         self._ready = False
 
+    def reset(self):
+        """Start over with a fresh engine on the next request: after a
+        sign-in or sign-out the old client still had the old tokens, so the
+        account's rows came back empty until the window was reopened."""
+        with self._lock:
+            self._ready = False
+
     def _init(self):
         with self._lock:
             if self._ready:
