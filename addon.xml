@@ -9,18 +9,22 @@
         <import addon="script.module.pyqrcode" version="1.2.1"/>
     </requires>
     <!-- TV interface; also handles the engine's RunScript actions from settings.
-         Listed first: Kodi files an add-on and opens it by its first extension,
-         so this puts the TV interface under Video and Program add-ons. -->
+         Listed first: Kodi files an add-on and opens it by its first extension
+         (the add-on database keeps only this one), so this extension must
+         advertise both video and executable to be listed under Video and
+         Program add-ons on every skin. It is a script, so Kodi runs it
+         directly without activating the Videos window first. -->
     <extension point="xbmc.python.script" library="resources/lib/default.py">
         <provides>executable video</provides>
     </extension>
     <!-- Forked plugin.video.youtube engine (listings, sign-in, playback) plus
-         the keyless /leanback/ routes. Empty <provides>: Video add-ons then
-         lists CoreTube once, as the script above, instead of a second entry
-         that opened a Kodi folder first. plugin:// paths (playback, widgets,
-         the window's own rows) don't depend on it. -->
+         the keyless /leanback/ routes. This is what RunAddon() (skin Home-menu
+         add-on shortcuts) launches: a plugin needs a content type or Kodi
+         falls through to RunPlugin(id), which cannot run a bare id and fails
+         without logging. leanback_plugin.py backs out to Home before starting
+         the script, so the Programs window never shows. -->
     <extension point="xbmc.python.pluginsource" library="resources/lib/leanback_plugin.py">
-        <provides></provides>
+        <provides>executable</provides>
     </extension>
     <!-- Engine service (local MPD server, playback tracking) plus SponsorBlock. -->
     <extension point="xbmc.service" library="resources/lib/service_main.py"/>
